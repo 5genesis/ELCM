@@ -69,39 +69,27 @@ class Log:
         cls.initialized = True
 
     @classmethod
-    def D(cls, msg):
+    def _dump(cls, level: str, msg: str):
         if cls.initialized:
-            cls.app.logger.debug(msg)
+            method = getattr(cls.app.logger, level.lower())
+            method(msg)
         else:
-            print(f"[Log not initialized][DEBUG   ] {msg}")
+            print(f"[Log not initialized][{level}] {msg}")
 
     @classmethod
-    def I(cls, msg):
-        if cls.initialized:
-            cls.app.logger.info(msg)
-        else:
-            print(f"[Log not initialized][INFO    ] {msg}")
+    def D(cls, msg): cls._dump('DEBUG', msg)
 
     @classmethod
-    def W(cls, msg):
-        if cls.initialized:
-            cls.app.logger.warning(msg)
-        else:
-            print(f"[Log not initialized][WARNING ] {msg}")
+    def I(cls, msg): cls._dump('INFO', msg)
 
     @classmethod
-    def E(cls, msg):
-        if cls.initialized:
-            cls.app.logger.error(msg)
-        else:
-            print(f"[Log not initialized][ERROR   ] {msg}")
+    def W(cls, msg): cls._dump('WARNING', msg)
 
     @classmethod
-    def C(cls, msg):
-        if cls.initialized:
-            cls.app.logger.critical(msg)
-        else:
-            print(f"[Log not initialized][CRITICAL] {msg}")
+    def E(cls, msg): cls._dump('ERROR', msg)
+
+    @classmethod
+    def C(cls, msg): cls._dump('CRITICAL', msg)
 
     @staticmethod
     def State(condition: bool) -> str:
