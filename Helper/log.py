@@ -6,6 +6,7 @@ from os.path import exists, join
 from os import makedirs
 from .config import Config
 import traceback
+from typing import Union
 
 
 class ColoredFormatter(logging.Formatter):
@@ -96,7 +97,10 @@ class Log:
         return f'{"En" if condition else "Dis"}abled'
 
     @classmethod
-    def Log(cls, level: Level, msg: str):
+    def Log(cls, level: Union[Level, str], msg: str):
+        if isinstance(level, str):
+            level = Level[level]
+
         if level == Level.DEBUG: cls.D(msg)
         if level == Level.INFO: cls.I(msg)
         if level == Level.WARNING: cls.W(msg)
