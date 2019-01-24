@@ -1,12 +1,6 @@
-from flask import Flask
-
-app = Flask(__name__)
+from Scheduler import app
 
 
-@app.route('/')
-def hello_world():
-    return 'Hello World!'
-
-
-if __name__ == '__main__':
-    app.run()
+@app.shell_context_processor
+def make_shell_context():
+    return {}

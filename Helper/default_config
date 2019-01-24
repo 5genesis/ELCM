@@ -1,0 +1,4 @@
+Logging:
+  Folder: 'Logs'
+  AppLevel: INFO
+  LogLevel: DEBUG
