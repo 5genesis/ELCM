@@ -3,6 +3,7 @@ from Status import Status
 from flask import render_template, flash, redirect, url_for, make_response
 from functools import wraps, update_wrapper
 from datetime import datetime
+from Executor import ExecutorStatus
 
 
 # https://arusahni.net/blog/2014/03/flask-nocache.html
@@ -28,12 +29,27 @@ def index():
 def start():
     executorId, executor = Status.CreateExecutor()
     executor.Start()
-    flash(f'Created executor {executorId}')
+    flash(f'Created executor {executorId}', 'info')
     return redirect(url_for('index'))
 
 
 @app.route('/cancel/<int:executorId>')
 def cancel(executorId: int):
     Status.CancelExecutor(executorId)
-    flash(f'Cancelled executor {executorId}')
+    flash(f'Cancelled executor {executorId}', 'info')
+    return redirect(url_for('index'))
+
+
+@app.route('/delete/<int:executorId>')
+def delete(executorId: int):
+    try:
+        executor = Status.activeExecutors[executorId]
+        if executor.Status != ExecutorStatus.Running:
+            Status.DeleteExecutor(executorId)
+            flash(f'Deleted executor {executorId}', 'info')
+        else:
+            flash(f'Cannot remove {executorId}', 'danger')
+    except Exception as e:
+        flash(f'Exception while deleting executor {executorId}', 'danger')
+
     return redirect(url_for('index'))

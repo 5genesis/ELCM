@@ -4,8 +4,12 @@
     <span class="bg-primary badge">
         {{ moment(value.Started).format('LLL') }} ({{ moment(value.Started).fromNow() }})
     </span>
-    <span class="{{ value.Status.label() }}"> {{ value.Status }} </span>
-    <a href={{ url_for('cancel', executorId=value.Id) }}>Cancel</a>
+    <span class="{{ value.Status.label() }}"> {{ value.Status.name }} </span>
+    {% if value.Status.name == 'Running' %}
+        <a href={{ url_for('cancel', executorId=value.Id) }}> Cancel</a>
+    {% else %}
+        <a href={{ url_for('delete', executorId=value.Id) }}> Delete</a>
+    {% endif %}
 </h3>
 
 </div>

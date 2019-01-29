@@ -11,5 +11,4 @@ def executorStart(executor_id: int):
 @app.route('/api/executor/<int:executor_id>/stop', methods=['POST'])
 def executorStop(executor_id: int):
     print(f'{executor_id} stop')
-    #Status.DeleteExecutor(executor_id)
     return ''
