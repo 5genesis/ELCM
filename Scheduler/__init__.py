@@ -1,14 +1,10 @@
 from flask import Flask
 from Helper import Log
-from Executor import Executor
+from Status import Status
+
 
 app = Flask(__name__)
 Log.Initialize(app)
+Status.Initialize()
 
-
-@app.route('/')
-def hello_world():
-    e = Executor({'id': 'hfhfhf'})
-    e.Start()
-
-    return 'Hello World!'
+from Scheduler import routes

@@ -9,9 +9,6 @@ class Executor(Child):
         super().__init__(f"Executor{datetime.now().strftime('%y%m%d%H%M%S%f')}")
         self.params = params
 
-
     def Run(self):
-
-
             sleep(10)
 
