@@ -9,6 +9,12 @@ from enum import Enum, unique
 class Status(Enum):
     Init, Running, Cancelled, Errored, Finished = range(5)
 
+    def label(self):
+        if self.name == 'Cancelled': return 'label-warning'
+        if self.name == 'Errored': return 'label-danger'
+        if self.name == 'Finished': return 'label-success'
+        return 'label-info'
+
 
 class Executor(Child):
     api = None
@@ -34,8 +40,10 @@ class Executor(Child):
                 break
             self.Log(Level.DEBUG, 'Ping')
             sleep(1)
+        else:
+            self.Status = Status.Finished
+
         self.api.NotifyStop(self.Id)
-        self.Status = Status.Finished
         self.Log(Level.INFO, "Exited")
 
 

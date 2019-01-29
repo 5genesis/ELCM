@@ -1,0 +1,13 @@
+<div class="container">
+<h3>
+    <span class='badge-pill bg-secondary'>{{ key }}</span>
+    <span class="bg-primary badge">
+        {{ moment(value.Started).format('LLL') }} ({{ moment(value.Started).fromNow() }})
+    </span>
+    <span class="{{ value.Status.label() }}"> {{ value.Status }} </span>
+    <a href={{ url_for('cancel', executorId=value.Id) }}>Cancel</a>
+</h3>
+
+</div>
+
+
