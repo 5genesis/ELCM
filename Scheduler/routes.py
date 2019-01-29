@@ -16,3 +16,8 @@ def start():
     return redirect(url_for('hello'))
 
 
+@app.route('/cancel/<int:executorId>')
+def cancel(executorId: int):
+    Status.CancelExecutor(executorId)
+    flash(f'Cancelled executor {executorId}')
+    return redirect(url_for('hello'))

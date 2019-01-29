@@ -56,3 +56,8 @@ class Status:
     @classmethod
     def DeleteExecutor(cls, executorId: int):
         cls.activeExecutors.pop(executorId)
+
+    @classmethod
+    def CancelExecutor(cls, executorId: int):
+        executor = cls.activeExecutors[executorId]
+        executor.RequestStop()

@@ -3,6 +3,9 @@
 {% block app_content %}
     <p>Next execution id: {{ executionId }}</p>
     {% for key, value in activeExecutors.items() %}
-        <p>{{ key }} - {{ value }}</p>
+        <p>
+            {{ key }} {{ value.Started }} {{ value.Status }}
+            <a href={{ url_for('cancel', executorId=value.Id) }}>Cancel</a>
+        </p>
     {% endfor %}
 {% endblock %}
