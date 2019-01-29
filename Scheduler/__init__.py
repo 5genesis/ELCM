@@ -7,4 +7,4 @@ app = Flask(__name__)
 Log.Initialize(app)
 Status.Initialize()
 
-from Scheduler import routes
+from Scheduler import routes, rest_server
