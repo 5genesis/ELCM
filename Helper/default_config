@@ -2,3 +2,5 @@ Logging:
   Folder: 'Logs'
   AppLevel: INFO
   LogLevel: DEBUG
+Flask:
+  SECRET_KEY:

@@ -50,3 +50,6 @@ class Config:
     def Logging(self):
         return Logging(self.data)
 
+    @property
+    def Flask(self):
+        return self.data['Flask']

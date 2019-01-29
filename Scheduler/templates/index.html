@@ -1,4 +1,8 @@
-<p>Next execution id: {{ executionId }}</p>
-{% for key, value in activeExecutors.items() %}
-    <p>{{ key }} - {{ value }}</p>
-{% endfor %}
+{% extends 'base.html' %}
+
+{% block app_content %}
+    <p>Next execution id: {{ executionId }}</p>
+    {% for key, value in activeExecutors.items() %}
+        <p>{{ key }} - {{ value }}</p>
+    {% endfor %}
+{% endblock %}

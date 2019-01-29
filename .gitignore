@@ -99,3 +99,4 @@ ENV/
 .idea/
 
 persistence.yml
+config.yml
