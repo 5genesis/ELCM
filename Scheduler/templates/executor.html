@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% set LogLevels = ['Debug', 'Info', 'Warning', 'Error', 'Critical'] %}
+
+{% block scripts %}
+    {{ super() }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            {% for level in LogLevels %}
+                $(document).on('click', "#button{{ level }}", function(){
+                    $(".log{{ level }}").toggleClass('hidden')
+                });
+            {% endfor %}
+        });
+    </script>
+{% endblock %}
+
+{% block app_content %}
+    <div class="container">
+        <p>Created: {{ moment(executor.Created).format('LLL') }} ({{ moment(executor.Created).fromNow() }})</p>
+        {% if executor.Started is not none %}
+            <p>
+                Started: {{ moment(executor.Started).format('LLL') }} ({{ moment(executor.Started).fromNow() }}, waited
+                {{ moment(executor.Started).fromTime(executor.Created, no_suffix = True) }})
+            </p>
+        {% endif %}
+        {% if executor.Finished is not none %}
+            <p>
+                Finished: {{ moment(executor.Finished).format('LLL') }} ({{ moment(executor.Finished).fromNow() }}, ran for
+                {{ moment(executor.Started).fromTime(executor.Created, no_suffix = True) }})
+            </p>
+        {% endif %}
+    </div>
+    <hr/>
+    <div class="container">
+        {% for level in LogLevels %}
+            <button id="button{{ level }}" class="btn btn-primary" >{{ level }}</button>
+        {% endfor %}
+    </div>
+    <hr/>
+    {% for level, line in executor.RetrieveLevelLog() %}
+        <p class="logLine log{{ level }}">{{ line }}</p>
+    {% endfor %}
+
+{% endblock %}
+

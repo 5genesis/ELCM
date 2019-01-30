@@ -10,6 +10,9 @@
     {% else %}
         <a href={{ url_for('executor.delete', executorId=executor.Id) }}> Delete</a>
     {% endif %}
+    <span class="bg-primary badge">
+        <a href={{ url_for('executor.view', executorId=executor.Id) }}>View</a>
+    </span>
 </h3>
 
 </div>

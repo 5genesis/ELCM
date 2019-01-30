@@ -1,4 +1,4 @@
-from flask import redirect, url_for, flash
+from flask import redirect, url_for, flash, render_template
 from Status import Status, ExperimentQueue
 from Executor import ExecutorStatus
 from Scheduler.executor import bp
@@ -32,3 +32,12 @@ def delete(executorId: int):
         flash(f'Exception while deleting executor {executorId}', 'danger')
 
     return redirect(url_for('index'))
+
+
+@bp.route('<int:executorId>')
+def view(executorId:int):
+    executor = ExperimentQueue.Find(executorId)
+    if executor is None:
+        flash(f'Executor {executorId} does not exist or is not within Scheduler context', 'danger')
+        return redirect(url_for('index'))
+    return render_template('executor.html', executor=executor)

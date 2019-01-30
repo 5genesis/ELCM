@@ -3,7 +3,7 @@ from os.path import realpath, exists
 from os import makedirs
 import threading
 from tempfile import TemporaryDirectory
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 
 class Child:
@@ -48,6 +48,20 @@ class Child:
         if tail is not None and tail < len(res):
             start = len(res) - tail
             return res[start:len(res)]
+        return res
+
+    def RetrieveLevelLog(self, tail: Optional[int] = None) -> List[Tuple[str, str]]:
+        def _inferLevel(line:str) -> str:
+            if ' - CRITICAL - ' in line: return 'Critical'
+            if ' - ERROR - ' in line: return 'Error'
+            if ' - WARNING - ' in line: return 'Warning'
+            if ' - INFO - ' in line: return 'Info'
+            return 'Debug'
+
+        lines = self.RetrieveLog(tail)
+        res = []
+        for line in lines:
+            res.append((_inferLevel(line), line))
         return res
 
     def Run(self):
