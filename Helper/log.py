@@ -64,7 +64,7 @@ class Log:
 
         # Attach new file handler
         file_handler = RotatingFileHandler(
-            join(folder, 'scheduler.log'), maxBytes=cls.LOG_SIZE, backupCount=cls.LOG_COUNT)
+            join(folder, 'Scheduler.log'), maxBytes=cls.LOG_SIZE, backupCount=cls.LOG_COUNT)
         file_handler.setFormatter(logging.Formatter(cls.FILE_FORMAT))
         file_handler.setLevel(config.Logging.LogLevel)
         app.logger.addHandler(file_handler)
@@ -122,7 +122,7 @@ class Log:
             cls.D(line.strip())
 
     @classmethod
-    def OpenLogFile(cls, identifier: str, filePath: Optional[str] = None):
+    def OpenLogFile(cls, identifier: str, filePath: Optional[str] = None) -> str:
         filePath = join(Config().Logging.Folder, f'{identifier}.log') if filePath is None else filePath
 
         logger = logging.getLogger(identifier)
@@ -134,6 +134,7 @@ class Log:
 
         logger.addHandler(fileHandler)
         Log.D('[File Opened]', identifier)
+        return filePath
 
     @classmethod
     def CloseLogFile(cls, identifier):
