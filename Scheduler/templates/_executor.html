@@ -6,9 +6,9 @@
     </span>
     <span class="{{ executor.Status.label() }}"> {{ executor.Status.name }} </span>
     {% if executor.Status.name == 'Running' %}
-        <a href={{ url_for('cancel', executorId=executor.Id) }}> Cancel</a>
+        <a href={{ url_for('executor.cancel', executorId=executor.Id) }}> Cancel</a>
     {% else %}
-        <a href={{ url_for('delete', executorId=executor.Id) }}> Delete</a>
+        <a href={{ url_for('executor.delete', executorId=executor.Id) }}> Delete</a>
     {% endif %}
 </h3>
 

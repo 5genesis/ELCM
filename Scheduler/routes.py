@@ -25,31 +25,3 @@ def index():
     return render_template('index.html', executionId=Status.nextId, activeExecutors=ExperimentQueue.Retrieve())
 
 
-@app.route('/start')
-def start():
-    executorId, executor = Status.CreateExecutor()
-    executor.Start()
-    flash(f'Created executor {executorId}', 'info')
-    return redirect(url_for('index'))
-
-
-@app.route('/cancel/<int:executorId>')
-def cancel(executorId: int):
-    Status.CancelExecutor(executorId)
-    flash(f'Cancelled executor {executorId}', 'info')
-    return redirect(url_for('index'))
-
-
-@app.route('/delete/<int:executorId>')
-def delete(executorId: int):
-    try:
-        executor = ExperimentQueue.Find(executorId)
-        if executor.Status != ExecutorStatus.Running:
-            Status.DeleteExecutor(executorId)
-            flash(f'Deleted executor {executorId}', 'info')
-        else:
-            flash(f'Cannot remove {executorId}', 'danger')
-    except Exception as e:
-        flash(f'Exception while deleting executor {executorId}', 'danger')
-
-    return redirect(url_for('index'))
