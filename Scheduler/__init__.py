@@ -4,7 +4,7 @@ from Status import Status
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from Helper import Config
-
+from .heartbeat import HeartBeat
 
 app = Flask(__name__)
 config = Config()
@@ -13,5 +13,6 @@ bootstrap = Bootstrap(app)
 moment = Moment(app)
 Log.Initialize(app)
 Status.Initialize()
+HeartBeat.Initialize()
 
 from Scheduler import routes, rest_server
