@@ -5,9 +5,10 @@ from datetime import datetime
 from .api import Api
 from enum import Enum, unique
 
+
 @unique
 class Status(Enum):
-    Init, Running, Cancelled, Errored, Finished = range(5)
+    Init, Waiting, Running, Cancelled, Errored, Finished = range(6)
 
     def label(self):
         if self.name == 'Cancelled': return 'label-warning'
@@ -20,10 +21,13 @@ class Executor(Child):
     api = None
 
     def __init__(self, params: Dict):
-        super().__init__(f"Executor{datetime.now().strftime('%y%m%d%H%M%S%f')}")
+        now = datetime.utcnow()
+        super().__init__(f"Executor{now.strftime('%y%m%d%H%M%S%f')}")
         self.params = params
         self.Id = params['Id']
+        self.Created = now
         self.Started = None
+        self.Finished = None
         self.Status = Status.Init
 
         if self.api is None: self.api=Api('127.0.0.1', '5000')
@@ -33,6 +37,7 @@ class Executor(Child):
         self.Started = datetime.utcnow()
         self.api.NotifyStart(self.Id)
         self.Status = Status.Running
+        
         for _ in range(1, 30):
             if self.stopRequested:
                 self.Log(Level.INFO, "Received stop request, exiting")
@@ -43,6 +48,7 @@ class Executor(Child):
         else:
             self.Status = Status.Finished
 
+        self.Finished = datetime.utcnow()
         self.api.NotifyStop(self.Id)
         self.Log(Level.INFO, "Exited")
 

@@ -1,5 +1,5 @@
 from Scheduler import app
-from Status import Status
+from Status import Status, ExperimentQueue
 from flask import render_template, flash, redirect, url_for, make_response
 from functools import wraps, update_wrapper
 from datetime import datetime
@@ -22,7 +22,7 @@ def nocache(view):
 @app.route("/")
 @nocache
 def index():
-    return render_template('index.html', executionId=Status.nextId, activeExecutors=Status.activeExecutors)
+    return render_template('index.html', executionId=Status.nextId, activeExecutors=ExperimentQueue.Retrieve())
 
 
 @app.route('/start')
@@ -43,7 +43,7 @@ def cancel(executorId: int):
 @app.route('/delete/<int:executorId>')
 def delete(executorId: int):
     try:
-        executor = Status.activeExecutors[executorId]
+        executor = ExperimentQueue.Find(executorId)
         if executor.Status != ExecutorStatus.Running:
             Status.DeleteExecutor(executorId)
             flash(f'Deleted executor {executorId}', 'info')

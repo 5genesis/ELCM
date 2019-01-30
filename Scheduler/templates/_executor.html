@@ -1,14 +1,14 @@
 <div class="container">
 <h3>
-    <span class='badge-pill bg-secondary'>{{ key }}</span>
+    <span class='badge-pill bg-secondary'>{{ executor.Id }}</span>
     <span class="bg-primary badge">
-        {{ moment(value.Started).format('LLL') }} ({{ moment(value.Started).fromNow() }})
+        {{ moment(executor.Started).format('LLL') }} ({{ moment(executor.Started).fromNow() }})
     </span>
-    <span class="{{ value.Status.label() }}"> {{ value.Status.name }} </span>
-    {% if value.Status.name == 'Running' %}
-        <a href={{ url_for('cancel', executorId=value.Id) }}> Cancel</a>
+    <span class="{{ executor.Status.label() }}"> {{ executor.Status.name }} </span>
+    {% if executor.Status.name == 'Running' %}
+        <a href={{ url_for('cancel', executorId=executor.Id) }}> Cancel</a>
     {% else %}
-        <a href={{ url_for('delete', executorId=value.Id) }}> Delete</a>
+        <a href={{ url_for('delete', executorId=executor.Id) }}> Delete</a>
     {% endif %}
 </h3>
 

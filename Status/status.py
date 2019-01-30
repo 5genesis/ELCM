@@ -1,4 +1,5 @@
 from Executor import Executor
+from .experiment_queue import ExperimentQueue
 from threading import Lock
 import yaml
 from typing import Dict
@@ -21,7 +22,6 @@ class Status:
 
     lock = Lock()
     nextId = 0
-    activeExecutors: Dict[int, Executor] = {}
 
     @classmethod
     @synchronized(lock)
@@ -40,7 +40,7 @@ class Status:
             yaml.dump(data, file, default_flow_style=False)
 
     @classmethod
-    def GetNextId(cls):
+    def NextId(cls):
         res = cls.nextId
         cls.nextId += 1
         cls.Save()
@@ -48,16 +48,14 @@ class Status:
 
     @classmethod
     def CreateExecutor(cls) -> (int, Executor):
-        executorId = cls.GetNextId()
-        executor = Executor(params={'Id': executorId})
-        cls.activeExecutors[executorId] = executor
+        executorId = cls.NextId()
+        executor = ExperimentQueue.CreateExecutor(executorId)
         return executorId, executor
 
     @classmethod
     def DeleteExecutor(cls, executorId: int):
-        cls.activeExecutors.pop(executorId)
+        ExperimentQueue.DeleteExecutor(executorId)
 
     @classmethod
     def CancelExecutor(cls, executorId: int):
-        executor = cls.activeExecutors[executorId]
-        executor.RequestStop()
+        ExperimentQueue.CancelExecutor(executorId)
