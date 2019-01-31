@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% import '_logView.html' as logView %}
+
+{% block scripts %}
+    {{ super() }}
+    {{ logView.logScripts() }}
+{% endblock %}
+
+{% block app_content %}
+    <div class="container">
+        <p>Main Scheduler log (last 100 lines)</p>
+        {{ logView.logView(logInfo) }}
+    </div>
+{% endblock %}
+

@@ -3,7 +3,7 @@ from Status import Status, ExperimentQueue
 from flask import render_template, flash, redirect, url_for, make_response
 from functools import wraps, update_wrapper
 from datetime import datetime
-from Executor import ExecutorStatus
+from Helper import Log
 
 
 # https://arusahni.net/blog/2014/03/flask-nocache.html
@@ -25,3 +25,6 @@ def index():
     return render_template('index.html', executionId=Status.nextId, activeExecutors=ExperimentQueue.Retrieve())
 
 
+@app.route("/log")
+def log():
+    return render_template('mainLog.html', logInfo=Log.RetrieveLogInfo(tail=100))

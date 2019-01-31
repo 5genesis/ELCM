@@ -173,8 +173,9 @@ class Log:
             handler.close()
 
     @classmethod
-    def RetrieveLog(cls, file: str, tail: Optional[int] = None) -> List[str]:
+    def RetrieveLog(cls, file: str = None, tail: Optional[int] = None) -> List[str]:
         res = []
+        file = join(Config().Logging.Folder, 'Scheduler.log') if file is None else file
         with open(file, 'r', encoding='utf-8') as log:
             for l in log: res.append(l)
         if tail is not None and tail < len(res):
@@ -183,6 +184,6 @@ class Log:
         return res
 
     @classmethod
-    def RetrieveLogInfo(cls, file, tail: Optional[int] = None) -> LogInfo:
+    def RetrieveLogInfo(cls, file:str = None, tail: Optional[int] = None) -> LogInfo:
         log = cls.RetrieveLog(file, tail)
         return LogInfo.FromLog(log)
