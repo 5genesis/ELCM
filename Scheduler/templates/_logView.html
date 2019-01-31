@@ -16,11 +16,14 @@
     <hr/>
     <div class="container">
         {% for level in LogLevels %}
+            {% set count = logInfo.Count[level] %}
             <button id="button{{ level }}" data-toggle="button"
-                    class="btn color{{ level }} btn-primary {% if level!='Debug' %}active{% endif %}"
-                    aria-pressed={{ "true" if level!='Debug' else "false"}}>
-                {{ level }} <span class="label color{{ level }}" style="background: navy">
-                {{ logInfo.Count[level] }}</span>
+                    class="btn btn-primary {% if level != 'Debug' %}active{% endif %}"
+                    aria-pressed={{ "true" if level != 'Debug' else "false"}}>
+                {{ level }}
+                {% if count != 0 %}
+                    <span class="label color{{ level }}" style="background: navy">{{ count }}</span>
+                {% endif %}
             </button>
         {% endfor %}
     </div>
