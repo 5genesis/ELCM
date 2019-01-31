@@ -16,7 +16,9 @@
     <hr/>
     <div class="container">
         {% for level in LogLevels %}
-            <button id="button{{ level }}" class="btn btn-primary color{{ level }}" >
+            <button id="button{{ level }}" data-toggle="button"
+                    class="btn color{{ level }} btn-primary {% if level!='Debug' %}active{% endif %}"
+                    aria-pressed={{ "true" if level!='Debug' else "false"}}>
                 {{ level }} <span class="label color{{ level }}" style="background: navy">
                 {{ logInfo.Count[level] }}</span>
             </button>
@@ -24,7 +26,7 @@
     </div>
     <hr/>
     {% for level, line in logInfo.Log %}
-        <p class="logLine log{{ level }} color{{ level }}">{{ line }}</p>
+        <p class="logLine log{{ level }} color{{ level }} {% if level=='Debug' %}hidden{% endif %}">{{ line }}</p>
     {% endfor %}
     <hr/>
 {% endmacro %}
