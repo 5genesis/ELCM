@@ -1,17 +1,9 @@
 {% extends 'base.html' %}
-{% set LogLevels = ['Debug', 'Info', 'Warning', 'Error', 'Critical'] %}
+{% import '_logView.html' as logView %}
 
 {% block scripts %}
     {{ super() }}
-    <script type="text/javascript">
-        $(document).ready(function() {
-            {% for level in LogLevels %}
-                $(document).on('click', "#button{{ level }}", function(){
-                    $(".log{{ level }}").toggleClass('hidden')
-                });
-            {% endfor %}
-        });
-    </script>
+    {{ logView.logScripts() }}
 {% endblock %}
 
 {% block app_content %}
@@ -30,16 +22,9 @@
             </p>
         {% endif %}
     </div>
-    <hr/>
-    <div class="container">
-        {% for level in LogLevels %}
-            <button id="button{{ level }}" class="btn btn-primary" >{{ level }}</button>
-        {% endfor %}
-    </div>
-    <hr/>
-    {% for level, line in executor.RetrieveLevelLog() %}
-        <p class="logLine log{{ level }}">{{ line }}</p>
-    {% endfor %}
+
+    {{ logView.logView(executor.RetrieveLogInfo()) }}
+
 
 {% endblock %}
 

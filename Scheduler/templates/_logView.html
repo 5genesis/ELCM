@@ -1,0 +1,30 @@
+{% set LogLevels = ['Debug', 'Info', 'Warning', 'Error', 'Critical'] %}
+
+{% macro logScripts() %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            {% for level in LogLevels %}
+                $(document).on('click', "#button{{ level }}", function(){
+                    $(".log{{ level }}").toggleClass('hidden')
+                });
+            {% endfor %}
+        });
+    </script>
+{% endmacro %}
+
+{% macro logView(logInfo) %}
+    <hr/>
+    <div class="container">
+        {% for level in LogLevels %}
+            <button id="button{{ level }}" class="btn btn-primary color{{ level }}" >
+                {{ level }} <span class="label color{{ level }}" style="background: navy">
+                {{ logInfo.Count[level] }}</span>
+            </button>
+        {% endfor %}
+    </div>
+    <hr/>
+    {% for level, line in logInfo.Log %}
+        <p class="logLine log{{ level }} color{{ level }}">{{ line }}</p>
+    {% endfor %}
+    <hr/>
+{% endmacro %}

@@ -3,7 +3,34 @@ from os.path import realpath, exists
 from os import makedirs
 import threading
 from tempfile import TemporaryDirectory
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict
+from dataclasses import dataclass
+
+
+@dataclass
+class LogInfo:
+    Log: List[Tuple[str, str]] = None
+    Count: Dict[str, int] = None
+
+    def __init__(self):
+        self.Log = []
+        self.Count = {"Debug": 0, "Info": 0, "Warning": 0, "Error": 0, "Critical": 0}
+
+    @staticmethod
+    def FromLog(log: List[str]):
+        def _inferLevel(line:str) -> str:
+            if ' - CRITICAL - ' in line: return 'Critical'
+            if ' - ERROR - ' in line: return 'Error'
+            if ' - WARNING - ' in line: return 'Warning'
+            if ' - INFO - ' in line: return 'Info'
+            return 'Debug'
+
+        res = LogInfo()
+        for line in log:
+            level = _inferLevel(line)
+            res.Count[level] += 1
+            res.Log.append((level, line))
+        return res
 
 
 class Child:
@@ -50,19 +77,9 @@ class Child:
             return res[start:len(res)]
         return res
 
-    def RetrieveLevelLog(self, tail: Optional[int] = None) -> List[Tuple[str, str]]:
-        def _inferLevel(line:str) -> str:
-            if ' - CRITICAL - ' in line: return 'Critical'
-            if ' - ERROR - ' in line: return 'Error'
-            if ' - WARNING - ' in line: return 'Warning'
-            if ' - INFO - ' in line: return 'Info'
-            return 'Debug'
-
-        lines = self.RetrieveLog(tail)
-        res = []
-        for line in lines:
-            res.append((_inferLevel(line), line))
-        return res
+    def RetrieveLogInfo(self, tail: Optional[int] = None) -> LogInfo:
+        log = self.RetrieveLog(tail)
+        return LogInfo.FromLog(log)
 
     def Run(self):
         raise NotImplementedError()
