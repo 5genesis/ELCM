@@ -6,7 +6,8 @@ from os.path import exists, join
 from os import makedirs
 from .config import Config
 import traceback
-from typing import Union, Optional
+from typing import Union, Optional, List, Dict, Tuple
+from dataclasses import dataclass
 
 
 class ColoredFormatter(logging.Formatter):
@@ -36,6 +37,32 @@ class ColoredFormatter(logging.Formatter):
 @unique
 class Level(Enum):
     DEBUG, INFO, WARNING, ERROR, CRITICAL = range(5)
+
+
+@dataclass
+class LogInfo:
+    Log: List[Tuple[str, str]] = None
+    Count: Dict[str, int] = None
+
+    def __init__(self):
+        self.Log = []
+        self.Count = {"Debug": 0, "Info": 0, "Warning": 0, "Error": 0, "Critical": 0}
+
+    @staticmethod
+    def FromLog(log: List[str]):
+        def _inferLevel(line:str) -> str:
+            if ' - CRITICAL - ' in line: return 'Critical'
+            if ' - ERROR - ' in line: return 'Error'
+            if ' - WARNING - ' in line: return 'Warning'
+            if ' - INFO - ' in line: return 'Info'
+            return 'Debug'
+
+        res = LogInfo()
+        for line in log:
+            level = _inferLevel(line)
+            res.Count[level] += 1
+            res.Log.append((level, line))
+        return res
 
 
 class Log:
@@ -144,3 +171,18 @@ class Log:
             logger.removeHandler(handler)
             handler.flush()
             handler.close()
+
+    @classmethod
+    def RetrieveLog(cls, file: str, tail: Optional[int] = None) -> List[str]:
+        res = []
+        with open(file, 'r', encoding='utf-8') as log:
+            for l in log: res.append(l)
+        if tail is not None and tail < len(res):
+            start = len(res) - tail
+            return res[start:len(res)]
+        return res
+
+    @classmethod
+    def RetrieveLogInfo(cls, file, tail: Optional[int] = None) -> LogInfo:
+        log = cls.RetrieveLog(file, tail)
+        return LogInfo.FromLog(log)
