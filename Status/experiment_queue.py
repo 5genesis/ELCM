@@ -1,6 +1,8 @@
 from collections import deque
 from Executor import Executor, ExecutorStatus
 from typing import Deque, Optional, List
+from Interfaces import Management
+from Helper import Log
 
 
 class ExperimentQueue:
@@ -33,3 +35,12 @@ class ExperimentQueue:
             return list(cls.queue)
         else:
             return [e for e in list(cls.queue) if e.Status == status]
+
+    @classmethod
+    def CheckForResources(cls):
+        waiting = cls.Retrieve(ExecutorStatus.Waiting)
+        Log.D(f'CheckForResources (waiting {waiting})')
+        for executor in waiting:
+            if Management.HasResources(executor):
+                Log.D(f'CheckForResources starting {executor.Id}')
+                executor.Start()

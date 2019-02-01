@@ -15,6 +15,8 @@ class Child:
             target=self._runWrapper,
             daemon=True
         )
+        self.hasStarted = False
+        self.hasFinished = False
         self.stopRequested = False
         self.TempFolder = None
         self.LogFile = None
@@ -38,14 +40,18 @@ class Child:
             self.TempFolder = tempFolder
             self.LogFile = Log.OpenLogFile(self.name)
             self.Log(Level.DEBUG, f'[Using temporal folder: {tempFolder}]')
+            self.hasStarted = True
             self.Run()
+            self.hasFinished = True
             Log.CloseLogFile(self.name)
 
     def Run(self):
         raise NotImplementedError()
 
     def RetrieveLog(self, tail: int = None) -> List[str]:
+        if not self.hasStarted: return []
         return Log.RetrieveLog(self.LogFile, tail)
 
     def RetrieveLogInfo(self, tail: int = None) -> LogInfo:
+        if not self.hasStarted: return LogInfo()
         return Log.RetrieveLogInfo(self.LogFile, tail)

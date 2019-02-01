@@ -2,13 +2,19 @@ from flask import redirect, url_for, flash, render_template
 from Status import Status, ExperimentQueue
 from Executor import ExecutorStatus
 from Scheduler.executor import bp
+from Interfaces import Management
 
 
 @bp.route('/start')
 def start():
     executorId, executor = Status.CreateExecutor()
-    executor.Start()
-    flash(f'Created executor {executorId}', 'info')
+    hasResources = Management.HasResources(executor)
+    if hasResources:
+        executor.Start()
+        flash(f'Started executor {executorId}', 'info')
+    else:
+        executor.Status = ExecutorStatus.Waiting
+        flash(f'Executor {executorId} waiting', 'warning')
     return redirect(url_for('index'))
 
 
