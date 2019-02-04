@@ -1,8 +1,7 @@
 from Executor import Executor
 from .experiment_queue import ExperimentQueue
 from threading import Lock
-import yaml
-from typing import Dict
+from Helper import Serialize
 
 
 def synchronized(lock):
@@ -26,18 +25,14 @@ class Status:
     @classmethod
     @synchronized(lock)
     def Initialize(cls):
-        with open(cls.FILENAME, 'r', encoding='utf-8') as file:
-            data = yaml.safe_load(file)
-            cls.nextId = data['NextId']
+        data = Serialize.Load(Serialize.Path('persistence.yml'))
+        cls.nextId = data['NextId']
 
     @classmethod
     @synchronized(lock)
     def Save(cls):
-        data = {
-            'NextId': cls.nextId
-        }
-        with open(cls.FILENAME, 'w', encoding='utf-8') as file:
-            yaml.dump(data, file, default_flow_style=False)
+        data = {'NextId': cls.nextId}
+        Serialize.Save(data, Serialize.Path('persistence.yml'))
 
     @classmethod
     def NextId(cls):

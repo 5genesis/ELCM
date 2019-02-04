@@ -1,10 +1,10 @@
 from Helper import Child, Level
 from typing import Dict
-from time import sleep
 from datetime import datetime
 from .api import Api
 from enum import Enum, unique
 from .Tasks import Instantiate, Report, Decommission
+from Helper import Serialize
 
 
 @unique
@@ -56,4 +56,27 @@ class Executor(Child):
         self.api.NotifyStop(self.Id)
         self.Log(Level.INFO, "Exited")
 
+    def Save(self):
+        data = {
+            'Id': self.Id,
+            'Name': self.name,
+            'Created': Serialize.DateToString(self.Created),
+            'Started': Serialize.DateToString(self.Started),
+            'Finished': Serialize.DateToString(self.Finished),
+            'Status': self.Status.name,
+            'Log': self.LogFile,
+        }
+        path = Serialize.Path('Executor', str(self.Id))
+        Serialize.Save(data, path)
 
+    @classmethod
+    def Load(cls, id: str):
+        path = Serialize.Path('Executor', id)
+        data = Serialize.Load(path)
+        res = Executor(params={'Id': 'Temporal', 'Deserialized': True})
+        res.Id, res.Name, res.Log = Serialize.Unroll(data, 'Id', 'Name', 'Log')
+        res.Created = Serialize.StringToDate(data['Created'])
+        res.Started = Serialize.StringToDate(data['Started'])
+        res.Finished = Serialize.StringToDate(data['Finished'])
+        res.Status = Status[data['Status']]
+        return res

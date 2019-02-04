@@ -30,6 +30,7 @@ def delete(executorId: int):
     try:
         executor = ExperimentQueue.Find(executorId)
         if executor.Status != ExecutorStatus.Running:
+            executor.Save()
             Status.DeleteExecutor(executorId)
             flash(f'Deleted executor {executorId}', 'info')
         else:
