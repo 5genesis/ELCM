@@ -98,5 +98,5 @@ ENV/
 .ropeproject
 .idea/
 
-persistence.yml
+Persistence/
 config.yml
