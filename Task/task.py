@@ -12,7 +12,7 @@ class Task:
         self.condition = conditionMethod
 
     def Start(self) -> Dict:
-        if self.condition is not None and self.condition():
+        if self.condition is None or self.condition():
             self.Log(Level.INFO, f'[Starting Task {self.name}]')
             self.Log(Level.DEBUG, f'Params: {self.params}')
             self.Run()

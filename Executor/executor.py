@@ -4,6 +4,7 @@ from time import sleep
 from datetime import datetime
 from .api import Api
 from enum import Enum, unique
+from .Tasks import Instantiate, Report, Decommission
 
 
 @unique
@@ -37,16 +38,19 @@ class Executor(Child):
         self.Started = datetime.utcnow()
         self.api.NotifyStart(self.Id)
         self.Status = Status.Running
-        
-        for _ in range(1, 30):
+
+        Instantiate(self.Log).Start()
+
+        for _ in range(1, 3):
             if self.stopRequested:
                 self.Log(Level.INFO, "Received stop request, exiting")
                 self.Status = Status.Cancelled
                 break
-            self.Log(Level.DEBUG, 'Ping')
-            sleep(1)
+            Report(self.Log).Start()
         else:
             self.Status = Status.Finished
+
+        Decommission(self.Log).Start()
 
         self.Finished = datetime.utcnow()
         self.api.NotifyStop(self.Id)
