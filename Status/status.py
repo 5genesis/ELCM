@@ -2,6 +2,8 @@ from Executor import Executor
 from .experiment_queue import ExperimentQueue
 from threading import Lock
 from Helper import Serialize
+from os.path import exists, dirname
+from os import makedirs
 
 
 def synchronized(lock):
@@ -22,10 +24,18 @@ class Status:
     lock = Lock()
     nextId = 0
 
+    _persistence_yml = {'NextId': 0}
+
     @classmethod
     @synchronized(lock)
     def Initialize(cls):
-        data = Serialize.Load(Serialize.Path('persistence.yml'))
+        path = Serialize.Path('persistence.yml')
+
+        if not exists(path):
+            makedirs(dirname(path), exist_ok=True)
+            Serialize.Save(cls._persistence_yml, path)
+
+        data = Serialize.Load(path)
         cls.nextId = data['NextId']
 
     @classmethod
