@@ -1,46 +1,44 @@
 from collections import deque
-from Executor import Executor, ExecutorStatus
+from Experiment import Experiment, ExperimentStatus
 from typing import Deque, Optional, List
-from Interfaces import Management
 from Helper import Log
 
 
 class ExperimentQueue:
-    queue: Deque[Executor] = deque()
+    queue: Deque[Experiment] = deque()
 
     @classmethod
-    def Find(cls, executorId) -> Optional[Executor]:
-        needles = [e for e in cls.queue if e.Id == executorId]
+    def Find(cls, experimentId) -> Optional[Experiment]:
+        needles = [e for e in cls.queue if e.Id == experimentId]
         return needles[0] if needles else None
 
     @classmethod
-    def CreateExecutor(cls, executorId) -> Executor:
-        executor = Executor(params={'Id': executorId})
-        cls.queue.appendleft(executor)
-        return executor
+    def Create(cls, experimentId) -> Experiment:
+        experiment = Experiment(experimentId)
+        cls.queue.appendleft(experiment)
+        return experiment
 
     @classmethod
-    def DeleteExecutor(cls, executorId: int):
-        executor = cls.Find(executorId)
-        if executor is not None: cls.queue.remove(executor)
+    def Delete(cls, experimentId):
+        experiment = cls.Find(experimentId)
+        if experiment is not None: cls.queue.remove(experiment)
 
     @classmethod
-    def CancelExecutor(cls, executorId: int):
-        executor = cls.Find(executorId)
-        if executor is not None: executor.RequestStop()
+    def Cancel(cls, experimentId: int):
+        experiment = cls.Find(experimentId)
+        experiment.Cancel()
 
     @classmethod
-    def Retrieve(cls, status: Optional[ExecutorStatus] = None) -> List[Executor]:
+    def Retrieve(cls, status: Optional[ExperimentStatus] = None) -> List[Experiment]:
         if status is None:
             return list(cls.queue)
         else:
-            return [e for e in list(cls.queue) if e.Status == status]
+            return [e for e in cls.queue if e.CoarseStatus == status]
 
     @classmethod
-    def CheckForResources(cls):
-        waiting = cls.Retrieve(ExecutorStatus.Waiting)
-        Log.D(f'CheckForResources (waiting {waiting})')
-        for executor in waiting:
-            if Management.HasResources(executor):
-                Log.D(f'CheckForResources starting {executor.Id}')
-                executor.Start()
+    def UpdateAll(cls):
+        experiments = cls.Retrieve()
+        Log.D(f'UpdateAll: {experiments}')
+        for experiment in experiments:
+            Log.D(f'Advancing Experiment {experiment.Id}')
+            experiment.Advance()

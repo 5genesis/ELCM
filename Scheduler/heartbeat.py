@@ -14,14 +14,12 @@ class Beat(Child):
     def Run(self):
         while not self.stopRequested:
             self.Broadcast(Level.DEBUG, 'Alive')
-            ExperimentQueue.CheckForResources()
+            ExperimentQueue.UpdateAll()
             Beat.wait()
 
     @staticmethod
     def wait():
-        second = datetime.now().second
-        remaining = max(1, 60-second)
-        sleep(remaining)
+        sleep(10)
 
 
 class HeartBeat:

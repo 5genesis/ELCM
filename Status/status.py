@@ -1,4 +1,4 @@
-from Executor import Executor
+from Experiment import Experiment
 from .experiment_queue import ExperimentQueue
 from threading import Lock
 from Helper import Serialize
@@ -52,15 +52,15 @@ class Status:
         return res
 
     @classmethod
-    def CreateExecutor(cls) -> (int, Executor):
-        executorId = cls.NextId()
-        executor = ExperimentQueue.CreateExecutor(executorId)
-        return executorId, executor
+    def CreateExperiment(cls) -> (int, Experiment):
+        experimentId = cls.NextId()
+        experiment = ExperimentQueue.Create(experimentId)
+        return experimentId, experiment
 
     @classmethod
-    def DeleteExecutor(cls, executorId: int):
-        ExperimentQueue.DeleteExecutor(executorId)
+    def DeleteExperiment(cls, experimentId: int):
+        ExperimentQueue.Delete(experimentId)
 
     @classmethod
-    def CancelExecutor(cls, executorId: int):
-        ExperimentQueue.CancelExecutor(executorId)
+    def CancelExperiment(cls, experimentId: int):
+        ExperimentQueue.Cancel(experimentId)

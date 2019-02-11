@@ -2,7 +2,7 @@
 
 {% block app_content %}
     <p>Next execution id: {{ executionId }}</p>
-    {% for executor in activeExecutors %}
-        {% include '_executor.html' %}
+    {% for experiment in experiments%}
+        {% include '_experiment.html' %}
     {% endfor %}
 {% endblock %}
