@@ -30,13 +30,38 @@
 
 {% endmacro %}
 
+{% macro executorTimes(name, executor) %}
+    <div class="container">
+        <h3>{{ name }}</h3>
+        {% if executor.Started is not none %}
+            <p>
+                Started: {{ moment(executor.Started).format('LLL') }} ({{ moment(executor.Started).fromNow() }}, waited
+                {{ moment(executor.Started).fromTime(executor.Created, no_suffix = True) }})
+            </p>
+        {% else %}
+            <p> Not started</p>
+        {% endif %}
+        {% if executor.Finished is not none %}
+            <p>
+                Finished: {{ moment(executor.Finished).format('LLL') }} ({{ moment(executor.Finished).fromNow() }}, ran for
+                {{ moment(executor.Started).fromTime(executor.Created, no_suffix = True) }})
+            </p>
+        {% endif %}
+    </div>
+{% endmacro %}
+
 {% block app_content %}
+    <div class="container">
+        Status: <span class="badge">{{ experiment.CoarseStatus.name }}</span> <span class="badge">{{ experiment.Status }}</span>
+        Created: {{ moment(experiment.Created).format('LLL') }} ({{ moment(experiment.Created).fromNow() }})
+    </div>
+
     <div class="accordion" id="logAccordion">
+      {{ executorTimes('Pre-Run', experiment.PreRunner) }}
       {{ accordionCard('logAccordion', 'Pre-Run', experiment.PreRunner.RetrieveLogInfo()) }}
-        <p></p>
+      {{ executorTimes('Run', experiment.Executor) }}
       {{ accordionCard('logAccordion', 'Run', experiment.Executor.RetrieveLogInfo()) }}
-        <p></p>
+      {{ executorTimes('Post-Run', experiment.PostRunner) }}
       {{ accordionCard('logAccordion', 'Post-Run', experiment.PostRunner.RetrieveLogInfo()) }}
     </div>
 {% endblock %}
-

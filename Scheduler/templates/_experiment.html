@@ -1,15 +1,14 @@
 <div class="container">
-    <h3>
-        {{ experiment.Id }}
-        <span class="badge"> {{ experiment.CoarseStatus.name }} </span>
-        <span class="badge"> {{ experiment.Status }} </span>
-        {% if experiment.Status not in ['Finished', 'Cancelled'] %}
-            <a href={{ url_for('experiment.cancel', experimentId=experiment.Id) }}> Cancel</a>
-        {% endif %}
-        <span class="btn btn-info">
-            <a href={{ url_for('experiment.view', experimentId=experiment.Id) }}>View</a>
-        </span>
-    </h3>
+    <span style="font-size:x-large">{{ experiment.Id }}</span>
+    {{ moment(experiment.Created).format('LLL') }} ({{ moment(experiment.Created).fromNow() }})
+    <span class="badge"> {{ experiment.CoarseStatus.name }} </span>
+    <span class="badge"> {{ experiment.Status }} </span>
+    {% if experiment.Status not in ['Finished', 'Cancelled'] %}
+        <a href={{ url_for('experiment.cancel', experimentId=experiment.Id) }}> Cancel</a>
+    {% endif %}
+    <span class="btn btn-info">
+        <a href={{ url_for('experiment.view', experimentId=experiment.Id) }}>View</a>
+    </span>
 </div>
 
 

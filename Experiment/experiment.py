@@ -1,6 +1,7 @@
 from Executor import PreRunner, Executor, PostRunner, ExecutorStatus, ExecutorBase
 from typing import Dict, Optional
 from enum import Enum, unique
+from datetime import datetime
 
 
 @unique
@@ -18,7 +19,7 @@ class Experiment:
         self.PostRunner = PostRunner(self.Params)
         self.CoarseStatus = CoarseStatus.Init
         self.Cancelled = False
-        self.stepFinished = False
+        self.Created = datetime.utcnow()
 
     @property
     def Status(self) -> str:
