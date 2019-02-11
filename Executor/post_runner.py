@@ -1,14 +1,14 @@
-from Helper import Child, Level
+from Helper import Level
 from typing import Dict
 from datetime import datetime
-from .executor_base import ExecutorBase
-from .Tasks import Instantiate, Report, Decommission
 from .status import Status
+from .Tasks import Instantiate, Report, Decommission
+from .executor_base import ExecutorBase
 
 
-class Executor(ExecutorBase):
+class PostRunner(ExecutorBase):
     def __init__(self, params: Dict):
-        super().__init__(params, "Executor")
+        super().__init__(params, "PostRunner")
 
     def Run(self):
         self.Log(Level.INFO, "Starting")
