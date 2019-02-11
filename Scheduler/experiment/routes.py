@@ -1,8 +1,6 @@
 from flask import redirect, url_for, flash, render_template
 from Status import Status, ExperimentQueue
-from Executor import ExecutorStatus
-from Scheduler.executor import bp
-from Interfaces import Management
+from Scheduler.experiment import bp
 
 
 @bp.route('/start')
@@ -32,4 +30,4 @@ def view(experimentId:int):
     if experiment is None:
         flash(f'Experiment {experimentId} does not exist or is not within Scheduler context', 'danger')
         return redirect(url_for('index'))
-    return render_template('executor.html', experiment=experiment)
+    return render_template('experiment.html', experiment=experiment)

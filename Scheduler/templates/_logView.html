@@ -13,13 +13,12 @@
 {% endmacro %}
 
 {% macro logView(logInfo) %}
-    <hr/>
-    <div class="container">
+    <div class="container" style="margin: 5px">
         {% for level in LogLevels %}
             {% set count = logInfo.Count[level] %}
             <button id="button{{ level }}" data-toggle="button"
                     class="btn btn-primary {% if level != 'Debug' %}active{% endif %}"
-                    aria-pressed={{ "true" if level != 'Debug' else "false"}}>
+                    aria-pressed= {{ "true" if level != 'Debug' else "false"}}>
                 {{ level }}
                 {% if count != 0 %}
                     <span class="label color{{ level }}" style="background: navy">{{ count }}</span>
@@ -27,9 +26,7 @@
             </button>
         {% endfor %}
     </div>
-    <hr/>
     {% for level, line in logInfo.Log %}
         <p class="logLine log{{ level }} color{{ level }} {% if level=='Debug' %}hidden{% endif %}">{{ line }}</p>
     {% endfor %}
-    <hr/>
 {% endmacro %}

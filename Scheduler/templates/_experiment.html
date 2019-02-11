@@ -1,10 +1,15 @@
 <div class="container">
-<h3>
-    <span class='badge-pill bg-secondary'>{{ experiment.Id }}</span>
-    <span class="badge"> {{ experiment.CoarseStatus.name }} </span>
-    <span class="badge"> {{ experiment.Status }} </span>
-</h3>
-
+    <h3>
+        {{ experiment.Id }}
+        <span class="badge"> {{ experiment.CoarseStatus.name }} </span>
+        <span class="badge"> {{ experiment.Status }} </span>
+        {% if experiment.Status not in ['Finished', 'Cancelled'] %}
+            <a href={{ url_for('experiment.cancel', experimentId=experiment.Id) }}> Cancel</a>
+        {% endif %}
+        <span class="btn btn-info">
+            <a href={{ url_for('experiment.view', experimentId=experiment.Id) }}>View</a>
+        </span>
+    </h3>
 </div>
 
 
