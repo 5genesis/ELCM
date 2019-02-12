@@ -66,7 +66,7 @@ class LogInfo:
 
 
 class Log:
-    CONSOLE_FORMAT = '%(asctime)s %(levelname)s: %(message)s [%(pathname)s:%(lineno)d]'
+    CONSOLE_FORMAT = '%(asctime)s %(levelname)s: %(message)s'
     FILE_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
 
     # Rotating log files configuration

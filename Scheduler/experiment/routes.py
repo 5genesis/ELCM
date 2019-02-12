@@ -6,21 +6,21 @@ from Scheduler.experiment import bp
 
 @bp.route('/start')
 def start():
-    experimentId, experiment = Status.CreateExperiment()
-    flash(f'Experiment {experimentId} created', 'info')
+    experiment = ExperimentQueue.Create()
+    flash(f'Experiment {experiment.Id} created', 'info')
     return redirect(url_for('index'))
 
 
 @bp.route('<int:experimentId>/cancel')
 def cancel(experimentId: int):
-    Status.CancelExperiment(experimentId)
+    ExperimentQueue.Cancel(experimentId)
     flash(f'Cancelled experiment {experimentId}', 'info')
     return redirect(url_for('index'))
 
 
 @bp.route('<int:experimentId>/delete')
 def delete(experimentId: int):
-    Status.DeleteExperiment(experimentId)
+    ExperimentQueue.Delete(experimentId)
     flash(f'Deleted executor {experimentId}', 'info')
     return redirect(url_for('index'))
 

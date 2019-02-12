@@ -3,7 +3,7 @@
     {{ moment(experiment.Created).format('LLL') }} ({{ moment(experiment.Created).fromNow() }})
     <span class="badge"> {{ experiment.CoarseStatus.name }} </span>
     <span class="badge"> {{ experiment.Status }} </span>
-    {% if experiment.Status not in ['Finished', 'Cancelled'] %}
+    {% if experiment.Active %}
         <a href={{ url_for('experiment.cancel', experimentId=experiment.Id) }}> Cancel</a>
     {% endif %}
     <span class="btn btn-info">

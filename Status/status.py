@@ -1,5 +1,3 @@
-from Experiment import Experiment
-from .experiment_queue import ExperimentQueue
 from threading import Lock
 from Helper import Serialize
 from os.path import exists, dirname
@@ -42,7 +40,7 @@ class Status:
     @synchronized(lock)
     def Save(cls):
         data = {'NextId': cls.nextId}
-        Serialize.Save(data, Serialize.Path('persistence.yml'))
+        Serialize.Save(data, Serialize.Path('persistence'))
 
     @classmethod
     def NextId(cls):
@@ -50,17 +48,3 @@ class Status:
         cls.nextId += 1
         cls.Save()
         return res
-
-    @classmethod
-    def CreateExperiment(cls) -> (int, Experiment):
-        experimentId = cls.NextId()
-        experiment = ExperimentQueue.Create(experimentId)
-        return experimentId, experiment
-
-    @classmethod
-    def DeleteExperiment(cls, experimentId: int):
-        ExperimentQueue.Delete(experimentId)
-
-    @classmethod
-    def CancelExperiment(cls, experimentId: int):
-        ExperimentQueue.Cancel(experimentId)
