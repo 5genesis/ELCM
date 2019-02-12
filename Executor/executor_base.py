@@ -23,7 +23,7 @@ class ExecutorBase(Child):
 
         if self.api is None: self.api = Api('127.0.0.1', '5000')
 
-    def Save(self):
+    def Serialize(self) -> Dict:
         data = {
             'Id': self.Id,
             'Name': self.name,
@@ -34,15 +34,19 @@ class ExecutorBase(Child):
             'Status': self.Status.name,
             'Log': self.LogFile,
         }
-        path = Serialize.Path('Executor', str(self.Id))
+        return data
+
+    def Save(self):
+        data = self.Serialize()
+        path = Serialize.Path(self.Tag, str(self.Id))
         Serialize.Save(data, path)
 
     @classmethod
-    def Load(cls, id: str):
-        path = Serialize.Path('Executor', id)
+    def Load(cls, tag: str, id: str):
+        path = Serialize.Path(tag, id)
         data = Serialize.Load(path)
         tag = data['Tag']
-        params = {'Id': 'Deserialized', 'Deserialized': True}
+        params = {'Id': int(id), 'Deserialized': True}
         if tag == 'PreRunner':
             from .pre_runner import PreRunner
             res = PreRunner(params)

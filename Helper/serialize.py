@@ -10,8 +10,10 @@ class Serialize:
     FORMAT = '%a %b %d %H:%M:%S %Y'
 
     @classmethod
-    def Path(cls, *args):
-        return abspath(join(cls.BASE, *args))
+    def Path(cls, *args: str):
+        tokens = list(args)
+        tokens[-1] = f'{tokens[-1]}.yml'
+        return abspath(join(cls.BASE, *tokens))
 
     @classmethod
     def Save(cls, data, path):

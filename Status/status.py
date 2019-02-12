@@ -29,7 +29,7 @@ class Status:
     @classmethod
     @synchronized(lock)
     def Initialize(cls):
-        path = Serialize.Path('persistence.yml')
+        path = Serialize.Path('persistence')
 
         if not exists(path):
             makedirs(dirname(path), exist_ok=True)

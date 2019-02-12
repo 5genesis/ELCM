@@ -3,7 +3,7 @@ from typing import Dict, Optional
 from enum import Enum, unique
 from datetime import datetime
 from tempfile import TemporaryDirectory
-from Helper import Config
+from Helper import Config, Serialize
 
 
 @unique
@@ -75,3 +75,35 @@ class Experiment:
         elif self.CoarseStatus == CoarseStatus.PostRun and self.PostRunner.Finished:
             self.CoarseStatus = CoarseStatus.Finished
             self.TempFolder.cleanup()
+            self.Save()
+
+    def Serialize(self) -> Dict:
+        data = {
+            'Id': self.Id,
+            'Created': Serialize.DateToString(self.Created),
+            'CoarseStatus': self.CoarseStatus.name,
+            'Cancelled': self.Cancelled
+        }
+        return data
+
+    def Save(self):
+        self.PreRunner.Save()
+        self.Executor.Save()
+        self.PostRunner.Save()
+        data = self.Serialize()
+        path = Serialize.Path('Experiment', str(self.Id))
+        Serialize.Save(data, path)
+
+    @classmethod
+    def Load(self, id: str):
+        path = Serialize.Path('Experiment', id)
+        data = Serialize.Load(path)
+        res = Experiment(-1, None)
+        res.Id, res.Cancelled, status = Serialize.Unroll(data, 'Id', 'Cancelled', 'CoarseStatus')
+        res.Params = {'Id': res.Id, 'Deserialized': True}
+        res.CoarseStatus = CoarseStatus[status]
+        res.PreRunner = Executor.Load('PreRunner', str(res.Id))
+        res.Executor = Executor.Load('Executor', str(res.Id))
+        res.PostRunner = Executor.Load('PostRunner', str(res.Id))
+        res.Created = Serialize.StringToDate(data['Created'])
+        return res
