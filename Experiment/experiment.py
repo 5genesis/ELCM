@@ -8,7 +8,7 @@ from Helper import Config, Serialize
 
 @unique
 class CoarseStatus(Enum):
-    Init, PreRun, Run, PostRun, Finished, Cancelled = range(6)
+    Init, PreRun, Run, PostRun, Finished, Cancelled, Errored = range(7)
 
 
 class Experiment:
@@ -36,6 +36,10 @@ class Experiment:
             return self.CoarseStatus.name
 
     @property
+    def Active(self) -> bool:
+        return self.CoarseStatus.value < CoarseStatus.Finished.value
+
+    @property
     def CurrentChild(self) -> Optional[ExecutorBase]:
         if self.CoarseStatus == CoarseStatus.PreRun: return self.PreRunner
         if self.CoarseStatus == CoarseStatus.Run: return self.Executor
@@ -61,7 +65,7 @@ class Experiment:
         self.PostRunner.Start()
 
     def Advance(self):
-        if self.CoarseStatus == CoarseStatus.Cancelled:
+        if not self.Active:
             return
         elif self.CoarseStatus == CoarseStatus.Init:
             self.PreRun()
@@ -75,7 +79,6 @@ class Experiment:
         elif self.CoarseStatus == CoarseStatus.PostRun and self.PostRunner.Finished:
             self.CoarseStatus = CoarseStatus.Finished
             self.TempFolder.cleanup()
-            self.Save()
 
     def Serialize(self) -> Dict:
         data = {

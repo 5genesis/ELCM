@@ -21,7 +21,9 @@ class ExperimentQueue:
     @classmethod
     def Delete(cls, experimentId):
         experiment = cls.Find(experimentId)
-        if experiment is not None: cls.queue.remove(experiment)
+        if experiment is not None:
+            experiment.Save()
+            cls.queue.remove(experiment)
 
     @classmethod
     def Cancel(cls, experimentId: int):
@@ -38,7 +40,10 @@ class ExperimentQueue:
     @classmethod
     def UpdateAll(cls):
         experiments = cls.Retrieve()
-        Log.D(f'UpdateAll: {experiments}')
         for experiment in experiments:
-            Log.D(f'Advancing Experiment {experiment.Id}')
-            experiment.Advance()
+            if experiment.Active:
+                Log.D(f'Advancing Experiment {experiment.Id}')
+                experiment.Advance()
+            else:
+                Log.D(f'Removing Experiment {experiment.Id} from queue')
+                cls.Delete(experiment.Id)
