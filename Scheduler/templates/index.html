@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
 
+{% block metas %}
+    <!--<meta http-equiv="refresh" content="10" >-->
+{% endblock %}
+
 {% block app_content %}
     <p>Next execution id: {{ executionId }}</p>
     {% for experiment in experiments%}
