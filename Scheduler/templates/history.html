@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block app_content %}
+    {% for experiment in experiments%}
+        <div class="container">
+            {% set id = experiment['Id'] %}
+            <p><a href="{{ url_for('experiment.view', experimentId=experiment.Id) }}">
+                {{ id }} ({{ experiment['Created'] }}): {{ experiment['CoarseStatus'].name }}
+            </a></p>
+        </div>
+    {% endfor %}
+{% endblock %}

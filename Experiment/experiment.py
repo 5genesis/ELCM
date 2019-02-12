@@ -107,3 +107,7 @@ class Experiment:
         res.PostRunner = Executor.Load('PostRunner', str(res.Id))
         res.Created = Serialize.StringToDate(data['Created'])
         return res
+
+    @classmethod
+    def Digest(cls, id: str) -> Dict:
+        return Serialize.Load(Serialize.Path('Experiment', id))

@@ -31,6 +31,8 @@ class ExecutorBase(Child):
             'Created': Serialize.DateToString(self.Created),
             'Started': Serialize.DateToString(self.Started),
             'Finished': Serialize.DateToString(self.Finished),
+            'HasStarted': self.hasStarted,
+            'HasFinished': self.hasFinished,
             'Status': self.Status.name,
             'Log': self.LogFile,
         }
@@ -56,7 +58,8 @@ class ExecutorBase(Child):
         else:
             from .post_runner import PostRunner
             res = PostRunner(params)
-        res.Id, res.Name, res.Log, res.Tag = Serialize.Unroll(data, 'Id', 'Name', 'Log', 'Tag')
+        res.Id, res.Name, res.LogFile, res.Tag, res.hasStarted, res.hasFinished = \
+            Serialize.Unroll(data, 'Id', 'Name', 'Log', 'Tag', 'HasStarted', 'HasFinished')
         res.Created = Serialize.StringToDate(data['Created'])
         res.Started = Serialize.StringToDate(data['Started'])
         res.Finished = Serialize.StringToDate(data['Finished'])

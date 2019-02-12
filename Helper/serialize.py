@@ -1,5 +1,5 @@
-from os.path import join, abspath, exists, dirname
-from os import makedirs
+from os.path import join, abspath, exists, dirname, isdir, isfile
+from os import makedirs, listdir
 import yaml
 from typing import Dict, Optional, List
 from datetime import datetime
@@ -14,6 +14,18 @@ class Serialize:
         tokens = list(args)
         tokens[-1] = f'{tokens[-1]}.yml'
         return abspath(join(cls.BASE, *tokens))
+
+    @classmethod
+    def List(cls, folders: bool = False, fullPath: bool = False, *args: str):
+        path = abspath(join(cls.BASE, *args))
+        if not exists(dirname(path)): return []
+        items = [i for i in listdir(path)]
+        filter = isdir if folders else isfile
+        filtered = [i for i in items if filter(join(path, i))]
+        if fullPath:
+            return [abspath(join(path, i)) for i in filtered]
+        else:
+            return [i.replace('.yml', '') for i in filtered]
 
     @classmethod
     def Save(cls, data, path):

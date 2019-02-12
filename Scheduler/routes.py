@@ -1,9 +1,11 @@
 from Scheduler import app
 from Status import Status, ExperimentQueue
-from flask import render_template, flash, redirect, url_for, make_response
+from Experiment import Experiment
+from flask import render_template, make_response
 from functools import wraps, update_wrapper
 from datetime import datetime
-from Helper import Log
+from Helper import Log, Serialize
+from typing import List, Dict
 
 
 # https://arusahni.net/blog/2014/03/flask-nocache.html
@@ -28,3 +30,13 @@ def index():
 @app.route("/log")
 def log():
     return render_template('mainLog.html', logInfo=Log.RetrieveLogInfo(tail=100))
+
+
+@app.route("/history")
+def history():
+    experiments: List[Dict] = []
+    ids = Serialize.List(False, False, 'Experiment')
+    for id in reversed(sorted(ids)):
+        digest = Experiment.Load(id)
+        experiments.append(digest)
+    return render_template('history.html', experiments=experiments)
