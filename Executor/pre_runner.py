@@ -5,6 +5,7 @@ from .status import Status
 from .Tasks.PreRun import Configure, CheckAvailable, AddExperimentEntry
 from .executor_base import ExecutorBase
 from tempfile import TemporaryDirectory
+from time import sleep
 
 
 class PreRunner(ExecutorBase):
@@ -18,7 +19,12 @@ class PreRunner(ExecutorBase):
         self.Status = Status.Running
 
         Configure(self.Log).Start()
-        CheckAvailable(self.Log).Start()
+        available = False
+        while not available:
+            result = CheckAvailable(self.Log, self.Id).Start()
+            available = result['Available']
+            if not available:
+                sleep(10)
         AddExperimentEntry(self.Log).Start()
 
         self.Finished = datetime.utcnow()
