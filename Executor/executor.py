@@ -4,11 +4,12 @@ from datetime import datetime
 from .executor_base import ExecutorBase
 from .Tasks.Run import Instantiate, Report, Decommission
 from .status import Status
+from tempfile import TemporaryDirectory
 
 
 class Executor(ExecutorBase):
-    def __init__(self, params: Dict):
-        super().__init__(params, "Executor")
+    def __init__(self, params: Dict, tempFolder: TemporaryDirectory = None):
+        super().__init__(params, "Executor", tempFolder)
 
     def Run(self):
         self.Log(Level.INFO, "Starting")

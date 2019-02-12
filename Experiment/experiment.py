@@ -2,6 +2,8 @@ from Executor import PreRunner, Executor, PostRunner, ExecutorStatus, ExecutorBa
 from typing import Dict, Optional
 from enum import Enum, unique
 from datetime import datetime
+from tempfile import TemporaryDirectory
+from Helper import Config
 
 
 @unique
@@ -14,9 +16,10 @@ class Experiment:
         self.Id = id
         self.Params = params if params is not None else {}
         self.Params['Id'] = self.Id
-        self.PreRunner = PreRunner(self.Params)
-        self.Executor = Executor(self.Params)
-        self.PostRunner = PostRunner(self.Params)
+        self.TempFolder = TemporaryDirectory(dir=Config().TempFolder)
+        self.PreRunner = PreRunner(self.Params, tempFolder=self.TempFolder)
+        self.Executor = Executor(self.Params, tempFolder=self.TempFolder)
+        self.PostRunner = PostRunner(self.Params, tempFolder=self.TempFolder)
         self.CoarseStatus = CoarseStatus.Init
         self.Cancelled = False
         self.Created = datetime.utcnow()
@@ -71,3 +74,4 @@ class Experiment:
             self.CoarseStatus = CoarseStatus.PostRun
         elif self.CoarseStatus == CoarseStatus.PostRun and self.PostRunner.Finished:
             self.CoarseStatus = CoarseStatus.Finished
+            self.TempFolder.cleanup()

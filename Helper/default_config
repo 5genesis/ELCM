@@ -1,3 +1,4 @@
+TempFolder: 'Temp'
 Logging:
   Folder: 'Logs'
   AppLevel: INFO

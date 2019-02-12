@@ -4,11 +4,12 @@ from datetime import datetime
 from .status import Status
 from .Tasks.PreRun import Configure, CheckAvailable, AddExperimentEntry
 from .executor_base import ExecutorBase
+from tempfile import TemporaryDirectory
 
 
 class PreRunner(ExecutorBase):
-    def __init__(self, params: Dict):
-        super().__init__(params, "PreRunner")
+    def __init__(self, params: Dict, tempFolder: TemporaryDirectory = None):
+        super().__init__(params, "PreRunner", tempFolder)
 
     def Run(self):
         self.Log(Level.INFO, "Starting")

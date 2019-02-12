@@ -4,14 +4,15 @@ from datetime import datetime
 from .api import Api
 from Helper import Serialize
 from .status import Status
+from tempfile import TemporaryDirectory
 
 
 class ExecutorBase(Child):
     api = None
 
-    def __init__(self, params: Dict, name: str):
+    def __init__(self, params: Dict, name: str, tempFolder: TemporaryDirectory = None):
         now = datetime.utcnow()
-        super().__init__(f"{name}{now.strftime('%y%m%d%H%M%S%f')}")
+        super().__init__(f"{name}{now.strftime('%y%m%d%H%M%S%f')}", tempFolder)
         self.Tag = name
         self.params = params
         self.Id = params['Id']
@@ -20,7 +21,7 @@ class ExecutorBase(Child):
         self.Finished = None
         self.Status = Status.Init
 
-        if self.api is None: self.api=Api('127.0.0.1', '5000')
+        if self.api is None: self.api = Api('127.0.0.1', '5000')
 
     def Save(self):
         data = {

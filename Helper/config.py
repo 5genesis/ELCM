@@ -53,3 +53,7 @@ class Config:
     @property
     def Flask(self):
         return self.data['Flask']
+
+    @property
+    def TempFolder(self):
+        return self.data['TempFolder']

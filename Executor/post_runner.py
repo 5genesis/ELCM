@@ -4,11 +4,12 @@ from datetime import datetime
 from .status import Status
 from .Tasks.PostRun import RequestResults, SaveResults, UpdateExperimentEntry
 from .executor_base import ExecutorBase
+from tempfile import TemporaryDirectory
 
 
 class PostRunner(ExecutorBase):
-    def __init__(self, params: Dict):
-        super().__init__(params, "PostRunner")
+    def __init__(self, params: Dict, tempFolder: TemporaryDirectory = None):
+        super().__init__(params, "PostRunner", tempFolder)
 
     def Run(self):
         self.Log(Level.INFO, "Starting")
