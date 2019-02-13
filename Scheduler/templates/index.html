@@ -10,3 +10,26 @@
         {% include '_experiment.html' %}
     {% endfor %}
 {% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {% for experiment in experiments %}
+        <script>
+            function update{{ experiment.Id }}() {
+                $.get("{{ url_for('experiment.json', experimentId=experiment.Id) }}")
+                    .done(function (response) {
+                        if (response['Coarse'] === 'ERR'){
+                            $("#{{ experiment.Id }}div").fadeTo(500, 0).slideUp(500, function(){ $(this).remove(); });
+                        } else {
+                            $("#coarse{{ experiment.Id }}").text(response['Coarse']);
+                        $("#status{{ experiment.Id }}").text(response['Status']);
+                        }
+                    });
+            }
+        </script>
+
+        <script>
+            setInterval(update{{experiment.Id}}, 5000);
+        </script>
+    {% endfor %}
+{% endblock %}

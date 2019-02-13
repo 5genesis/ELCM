@@ -1,4 +1,4 @@
-from flask import redirect, url_for, flash, render_template
+from flask import redirect, url_for, flash, render_template, jsonify
 from Status import Status, ExperimentQueue
 from Experiment import Experiment
 from Scheduler.experiment import bp
@@ -26,7 +26,7 @@ def delete(experimentId: int):
 
 
 @bp.route('<int:experimentId>')
-def view(experimentId:int):
+def view(experimentId: int):
     experiment = ExperimentQueue.Find(experimentId)
     if experiment is None:
         try:
@@ -37,3 +37,13 @@ def view(experimentId:int):
         return redirect(url_for('index'))
     else:
         return render_template('experiment.html', experiment=experiment)
+
+
+@bp.route('<int:experimentId>/json')
+def json(experimentId: int):
+    experiment = ExperimentQueue.Find(experimentId)
+    coarse = status = 'ERR'
+    if experiment is not None:
+        coarse = experiment.CoarseStatus.name
+        status = experiment.Status
+    return jsonify({'Coarse': coarse, 'Status': status})
