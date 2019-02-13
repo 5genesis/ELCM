@@ -1,7 +1,7 @@
 <div class="container" id="{{ experiment.Id }}div">
     <span style="font-size:x-large">{{ experiment.Id }}</span>
-    {{ moment(experiment.Created).format('LLL') }} ({{ moment(experiment.Created).fromNow() }})
     <span class="badge" id="coarse{{ experiment.Id }}"> {{ experiment.CoarseStatus.name }} </span>
+    {{ moment(experiment.Created).format('LLL') }} ({{ moment(experiment.Created).fromNow() }})
     <span class="badge" id="status{{ experiment.Id }}"> {{ experiment.Status }} </span>
     {% if experiment.Active %}
         <a href={{ url_for('experiment.cancel', experimentId=experiment.Id) }}> Cancel</a>

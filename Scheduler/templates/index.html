@@ -13,6 +13,16 @@
 
 {% block scripts %}
     {{ super() }}
+    <script>
+        function updateOne(element, newValue){
+            if (element.text() !== newValue){
+                element.text(newValue);
+                element.addClass('highlight');
+                setTimeout(function(){element.removeClass('highlight');},3000);
+            }
+        }
+    </script>
+
     {% for experiment in experiments %}
         <script>
             function update{{ experiment.Id }}() {
@@ -21,8 +31,8 @@
                         if (response['Coarse'] === 'ERR'){
                             $("#{{ experiment.Id }}div").fadeTo(500, 0).slideUp(500, function(){ $(this).remove(); });
                         } else {
-                            $("#coarse{{ experiment.Id }}").text(response['Coarse']);
-                        $("#status{{ experiment.Id }}").text(response['Status']);
+                            updateOne($("#coarse{{ experiment.Id }}"), response['Coarse']);
+                            updateOne($("#status{{ experiment.Id }}"), response['Status']);
                         }
                     });
             }
