@@ -1,14 +1,26 @@
-<div class="container" id="{{ experiment.Id }}div">
-    <span style="font-size:x-large">{{ experiment.Id }}</span>
-    <span class="badge" id="coarse{{ experiment.Id }}"> {{ experiment.CoarseStatus.name }} </span>
-    {{ moment(experiment.Created).format('LLL') }} ({{ moment(experiment.Created).fromNow() }})
-    <span class="badge" id="status{{ experiment.Id }}"> {{ experiment.Status }} </span>
-    {% if experiment.Active %}
-        <a href={{ url_for('experiment.cancel', experimentId=experiment.Id) }}> Cancel</a>
-    {% endif %}
-    <span class="btn btn-info">
+<tr id="{{ experiment.Id }}div">
+    <td width="50px">
+        <span style="font-size:x-large">{{ experiment.Id }}</span>
+    </td>
+    <td width="100px">
+        <span class="badge" id="coarse{{ experiment.Id }}"> {{ experiment.CoarseStatus.name }} </span>
+    </td>
+    <td width="350px">
+        {{ moment(experiment.Created).format('LLL') }} ({{ moment(experiment.Created).fromNow() }})
+    </td>
+    <td width="120px">
+        <span class="badge" id="status{{ experiment.Id }}"> {{ experiment.Status }} </span>
+    </td>
+    <td width="70px">
+        {% if experiment.Active %}
+            <span class="btn btn-danger">
+                <a href={{ url_for('experiment.cancel', experimentId=experiment.Id) }}>Cancel</a>
+            </span>
+        {% endif %}
+    </td>
+    <td width="60px"><span class="btn btn-info">
         <a href={{ url_for('experiment.view', experimentId=experiment.Id) }}>View</a>
-    </span>
-</div>
+    </span></td>
+</tr>
 
 

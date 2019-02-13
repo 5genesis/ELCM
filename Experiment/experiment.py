@@ -27,11 +27,11 @@ class Experiment:
     @property
     def Status(self) -> str:
         if self.CoarseStatus == CoarseStatus.PreRun:
-            return f'PreRun: {self.PreRunner.Status}'
+            return f'PreRun: {self.PreRunner.Status.name}'
         elif self.CoarseStatus == CoarseStatus.Run:
-            return f'Run: {self.Executor.Status}'
+            return f'Run: {self.Executor.Status.name}'
         elif self.CoarseStatus == CoarseStatus.PostRun:
-            return f'PostRun: {self.PostRunner.Status}'
+            return f'PostRun: {self.PostRunner.Status.name}'
         else:
             return self.CoarseStatus.name
 
