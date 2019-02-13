@@ -35,16 +35,18 @@ def log():
 
 @app.route("/history")
 def history():
-    experiments: List[Dict] = []
     ids = Serialize.List(False, False, 'Experiment')
-    for id in reversed(sorted(ids)):
-        digest = Experiment.Load(id)
-        experiments.append(digest)
+    ids.sort(key=int, reverse=True)
     page = request.args.get(get_page_parameter(), type=int, default=1)
-    pagination = Pagination(page=page, total=len(experiments), search=False,
+    pagination = Pagination(page=page, total=len(ids), search=False,
                             record_name='experiments', per_page=10, bs_version=4,
                             display_msg='Displaying <b>{start} - {end}</b> {record_name} (out of <b>{total}</b>)')
     start = pagination.skip
     end = start + pagination.per_page
-    experiments = experiments[start:end]
+    ids = ids[start:end]
+    experiments: List[Dict] = []
+    for id in ids:
+        digest = Experiment.Load(id)
+        experiments.append(digest)
+
     return render_template('history.html', experiments=experiments, pagination=pagination)

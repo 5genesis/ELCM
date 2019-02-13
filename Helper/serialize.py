@@ -16,7 +16,7 @@ class Serialize:
         return abspath(join(cls.BASE, *tokens))
 
     @classmethod
-    def List(cls, folders: bool = False, fullPath: bool = False, *args: str):
+    def List(cls, folders: bool = False, fullPath: bool = False, *args: str) -> List[str]:
         path = abspath(join(cls.BASE, *args))
         if not exists(dirname(path)): return []
         items = [i for i in listdir(path)]
