@@ -34,3 +34,19 @@
    -webkit-animation: yellow-fade 2s ease-in 1;
    animation: yellow-fade 2s ease-in 1;
 }
+
+.nanobar {
+    width: 95%;
+    background: lightblue;
+}
+
+.bar {
+    background: dodgerblue;
+}
+
+.message {
+    font-size: xx-small;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

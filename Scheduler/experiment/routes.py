@@ -43,7 +43,14 @@ def view(experimentId: int):
 def json(experimentId: int):
     experiment = ExperimentQueue.Find(experimentId)
     coarse = status = 'ERR'
+    percent = 0
+    messages = []
     if experiment is not None:
         coarse = experiment.CoarseStatus.name
         status = experiment.Status
-    return jsonify({'Coarse': coarse, 'Status': status})
+        percent = experiment.PerCent
+        messages = experiment.Messages
+    return jsonify({
+        'Coarse': coarse, 'Status': status,
+        'PerCent': percent, 'Messages': messages
+    })

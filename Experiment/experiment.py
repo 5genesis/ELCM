@@ -36,6 +36,21 @@ class Experiment:
             return self.CoarseStatus.name
 
     @property
+    def PerCent(self) -> int:
+        current = self.CurrentChild
+        return current.PerCent if current is not None else 0
+
+    @property
+    def LastMessage(self) -> str:
+        current = self.CurrentChild
+        return current.LastMessage if current is not None else 'No active child'
+
+    @property
+    def Messages(self) -> [str]:
+        current = self.CurrentChild
+        return current.Messages if current is not None else []
+
+    @property
     def Active(self) -> bool:
         return self.CoarseStatus.value < CoarseStatus.Finished.value
 

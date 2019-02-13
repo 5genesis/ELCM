@@ -19,11 +19,24 @@
                 setTimeout(function(){element.removeClass('highlight');},3000);
             }
         }
+
+        function updatePerCent(nanobar, percent, hidden){
+            if (percent.toString() !== hidden.text()){
+                nanobar.go(percent);
+                hidden.text(percent);
+            }
+        }
+
+        function updateMessage(element, messages){
+            let message = '...';
+            if (messages.length !== 0){ message = messages[messages.length-1]; }
+            if (element.text() !== message){ element.text(message); }
+        }
     </script>
 
     {% for experiment in experiments %}
         <script>
-            function update{{ experiment.Id }}() {
+            function update{{ experiment.Id }}(nanobar) {
                 $.get("{{ url_for('experiment.json', experimentId=experiment.Id) }}")
                     .done(function (response) {
                         if (response['Coarse'] === 'ERR'){
@@ -31,13 +44,24 @@
                         } else {
                             updateOne($("#coarse{{ experiment.Id }}"), response['Coarse']);
                             updateOne($("#status{{ experiment.Id }}"), response['Status']);
+                            updatePerCent(nanobar, response['PerCent'], $('#percent{{ experiment.Id }}'));
+                            updateMessage($('#message{{ experiment.Id }}'), response['Messages']);
+
+                            setTimeout(function() { update{{ experiment.Id }}(nanobar); }, 1000);
                         }
                     });
             }
         </script>
 
         <script>
-            setInterval(update{{experiment.Id}}, 5000);
+            div = $(
+                "<span class='message' id='message{{ experiment.Id }}'>...</span>" +
+                "<span class='progress'></span>" +
+                "<span id='percent{{ experiment.Id }}' style='display: none;'></span>"
+            );
+            $('#progress{{ experiment.Id }}').append(div);
+            var nanobar = Nanobar({ target: div[1] });
+            update{{ experiment.Id }}(nanobar);
         </script>
     {% endfor %}
 {% endblock %}

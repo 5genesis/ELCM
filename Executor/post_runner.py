@@ -12,15 +12,18 @@ class PostRunner(ExecutorBase):
         super().__init__(params, "PostRunner", tempFolder)
 
     def Run(self):
-        self.Log(Level.INFO, "Starting")
+        self.LogAndMessage(Level.INFO, "Starting")
         self.Started = datetime.utcnow()
         self.api.NotifyStart(self.Id)
         self.Status = Status.Running
 
         RequestResults(self.Log).Start()
+        self.AddMessage('Results received', 30)
         SaveResults(self.Log).Start()
+        self.AddMessage('Results stored', 60)
         UpdateExperimentEntry(self.Log).Start()
+        self.AddMessage('Entry updated', 90)
 
         self.Finished = datetime.utcnow()
         self.api.NotifyStop(self.Id)
-        self.Log(Level.INFO, "Exited")
+        self.LogAndMessage(Level.INFO, "Exited", 100)

@@ -20,8 +20,23 @@ class ExecutorBase(Child):
         self.Started = None
         self.Finished = None
         self.Status = Status.Init
+        self.Messages = []
+        self.PerCent = 0
+        self.AddMessage("Init")
 
         if self.api is None: self.api = Api('127.0.0.1', '5000')
+
+    def AddMessage(self, msg: str, percent: int = None):
+        if percent is not None: self.PerCent = percent
+        self.Messages.append(f'[{self.PerCent}%] {msg}')
+
+    @property
+    def LastMessage(self):
+        return self.Messages[-1]
+
+    def LogAndMessage(self, level: Level, msg: str, percent: int = None):
+        self.Log(level, msg)
+        self.AddMessage(msg, percent)
 
     def Serialize(self) -> Dict:
         data = {
@@ -35,6 +50,8 @@ class ExecutorBase(Child):
             'HasFinished': self.hasFinished,
             'Status': self.Status.name,
             'Log': self.LogFile,
+            'Messages': self.Messages,
+            'PerCent': self.PerCent
         }
         return data
 
@@ -58,10 +75,11 @@ class ExecutorBase(Child):
         else:
             from .post_runner import PostRunner
             res = PostRunner(params)
-        res.Id, res.Name, res.LogFile, res.Tag, res.hasStarted, res.hasFinished = \
-            Serialize.Unroll(data, 'Id', 'Name', 'Log', 'Tag', 'HasStarted', 'HasFinished')
+        res.Id, res.Name, res.LogFile, res.Tag, res.hasStarted, res.hasFinished, res.Messages, res.PerCent = \
+            Serialize.Unroll(data, 'Id', 'Name', 'Log', 'Tag', 'HasStarted', 'HasFinished', 'Messages', 'PerCent')
         res.Created = Serialize.StringToDate(data['Created'])
         res.Started = Serialize.StringToDate(data['Started'])
         res.Finished = Serialize.StringToDate(data['Finished'])
         res.Status = Status[data['Status']]
+
         return res
