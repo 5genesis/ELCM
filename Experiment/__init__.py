@@ -1,1 +1,1 @@
-from .experiment import Experiment, CoarseStatus as ExperimentStatus
+from .experiment import ExperimentRun, CoarseStatus as ExperimentStatus

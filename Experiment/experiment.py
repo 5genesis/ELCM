@@ -11,7 +11,7 @@ class CoarseStatus(Enum):
     Init, PreRun, Run, PostRun, Finished, Cancelled, Errored = range(7)
 
 
-class Experiment:
+class ExperimentRun:
     def __init__(self, id: int, params: Optional[Dict] = None):
         self.Id = id
         self.Params = params if params is not None else {}
@@ -53,6 +53,18 @@ class Experiment:
     @property
     def Active(self) -> bool:
         return self.CoarseStatus.value < CoarseStatus.Finished.value
+
+    @property
+    def User(self) -> Optional[str]:
+        return self.Params.get('User', default=None)
+
+    @property
+    def Name(self) -> Optional[str]:
+        return self.Params.get('Name', default=None)
+
+    @property
+    def ExperimentId(self) -> int:
+        return self.Params.get('ExperimentId', default=-1)
 
     @property
     def CurrentChild(self) -> Optional[ExecutorBase]:
@@ -116,7 +128,7 @@ class Experiment:
     def Load(self, id: str):
         path = Serialize.Path('Experiment', id)
         data = Serialize.Load(path)
-        res = Experiment(-1, None)
+        res = ExperimentRun(-1, None)
         res.Id, res.Cancelled, status = Serialize.Unroll(data, 'Id', 'Cancelled', 'CoarseStatus')
         res.Params = {'Id': res.Id, 'Deserialized': True}
         res.CoarseStatus = CoarseStatus[status]

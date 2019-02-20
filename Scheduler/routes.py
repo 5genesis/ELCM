@@ -1,6 +1,6 @@
 from Scheduler import app
 from Status import Status, ExperimentQueue
-from Experiment import Experiment
+from Experiment import ExperimentRun
 from flask import render_template, make_response, request
 from functools import wraps, update_wrapper
 from datetime import datetime
@@ -46,7 +46,7 @@ def history():
     ids = ids[start:end]
     experiments: List[Dict] = []
     for id in ids:
-        digest = Experiment.Load(id)
+        digest = ExperimentRun.Load(id)
         experiments.append(digest)
 
     return render_template('history.html', experiments=experiments, pagination=pagination)

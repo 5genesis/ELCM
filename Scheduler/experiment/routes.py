@@ -1,12 +1,13 @@
 from flask import redirect, url_for, flash, render_template, jsonify
 from Status import Status, ExperimentQueue
-from Experiment import Experiment
+from Experiment import ExperimentRun
 from Scheduler.experiment import bp
 
 
 @bp.route('/start')
 def start():
-    experiment = ExperimentQueue.Create({})
+    params = {'User': 'LocalAdmin', 'ExperimentId': 0, 'Name': 'LocalTest'}
+    experiment = ExperimentQueue.Create(params)
     flash(f'Experiment {experiment.Id} created', 'info')
     return redirect(url_for('index'))
 
@@ -30,7 +31,7 @@ def view(experimentId: int):
     experiment = ExperimentQueue.Find(experimentId)
     if experiment is None:
         try:
-            experiment = Experiment.Load(str(experimentId))
+            experiment = ExperimentRun.Load(str(experimentId))
         except:
             flash(f'Experiment {experimentId} does not exist or is not within Scheduler context', 'danger')
     if experiment is None:

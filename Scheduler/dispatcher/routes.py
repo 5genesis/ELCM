@@ -1,6 +1,6 @@
 from flask import redirect, url_for, flash, render_template, jsonify, request
 from Status import Status, ExperimentQueue
-from Experiment import Experiment
+from Experiment import ExperimentRun
 from Helper import Serialize
 from Scheduler.dispatcher import bp
 

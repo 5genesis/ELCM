@@ -1,22 +1,22 @@
 from collections import deque
-from Experiment import Experiment, ExperimentStatus
+from Experiment import ExperimentRun, ExperimentStatus
 from typing import Deque, Optional, List, Dict
 from Helper import Log
 from .status import Status
 
 
 class ExperimentQueue:
-    queue: Deque[Experiment] = deque()
+    queue: Deque[ExperimentRun] = deque()
 
     @classmethod
-    def Find(cls, experimentId) -> Optional[Experiment]:
+    def Find(cls, experimentId) -> Optional[ExperimentRun]:
         needles = [e for e in cls.queue if e.Id == experimentId]
         return needles[0] if needles else None
 
     @classmethod
-    def Create(cls, params: Dict) -> Experiment:
+    def Create(cls, params: Dict) -> ExperimentRun:
         experimentId = Status.NextId()
-        experiment = Experiment(experimentId, params)
+        experiment = ExperimentRun(experimentId, params)
         cls.queue.appendleft(experiment)
         return experiment
 
@@ -33,7 +33,7 @@ class ExperimentQueue:
         experiment.Cancel()
 
     @classmethod
-    def Retrieve(cls, status: Optional[ExperimentStatus] = None) -> List[Experiment]:
+    def Retrieve(cls, status: Optional[ExperimentStatus] = None) -> List[ExperimentRun]:
         if status is None:
             return list(cls.queue)
         else:
