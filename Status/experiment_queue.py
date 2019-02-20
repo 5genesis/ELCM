@@ -1,6 +1,6 @@
 from collections import deque
 from Experiment import Experiment, ExperimentStatus
-from typing import Deque, Optional, List
+from typing import Deque, Optional, List, Dict
 from Helper import Log
 from .status import Status
 
@@ -14,9 +14,9 @@ class ExperimentQueue:
         return needles[0] if needles else None
 
     @classmethod
-    def Create(cls) -> Experiment:
+    def Create(cls, params: Dict) -> Experiment:
         experimentId = Status.NextId()
-        experiment = Experiment(experimentId)
+        experiment = Experiment(experimentId, params)
         cls.queue.appendleft(experiment)
         return experiment
 

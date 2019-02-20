@@ -2,7 +2,7 @@ import json
 import re
 from os.path import realpath, join
 from time import time
-from urllib3 import connection_from_url, HTTPResponse
+from urllib3 import connection_from_url
 
 
 class RestClient:
@@ -55,10 +55,3 @@ class RestClient:
     @staticmethod
     def responseToJson(response):
         return json.loads(response.data.decode('utf-8'))
-
-    @staticmethod
-    def checkResponse(response: HTTPResponse, action: str):
-        if not str(response.status).startswith('2'):
-            pass
-            #Log.w(Log.CAMPAIGN, f'Unexpected response while {action}.')
-            #Log.w(Log.CAMPAIGN, f'  Status {response.status}: {response.reason}')

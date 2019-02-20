@@ -6,7 +6,7 @@ from Scheduler.experiment import bp
 
 @bp.route('/start')
 def start():
-    experiment = ExperimentQueue.Create()
+    experiment = ExperimentQueue.Create({})
     flash(f'Experiment {experiment.Id} created', 'info')
     return redirect(url_for('index'))
 
