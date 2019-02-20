@@ -1,5 +1,5 @@
-<tr id="{{ experiment.Id }}div">
-    <td width="50px">
+<tr class="{{ experiment.Id }}div">
+    <td width="50px" style="background-color: lightgray">
         <span style="font-size:x-large">{{ experiment.Id }}</span>
     </td>
     <td width="100px">
@@ -24,6 +24,12 @@
     <td width="60px"><span class="btn btn-info">
         <a href={{ url_for('experiment.view', experimentId=experiment.Id) }}>View</a>
     </span></td>
+</tr>
+<tr class="{{ experiment.Id }}div"
+    style="font-size: smaller; background-color: lightgray; border-bottom: 1px solid black;">
+    <td></td>
+    <td>{{ experiment.User }}</td>
+    <td colspan=3>{{ experiment.Name }} (ID: {{ experiment.ExperimentId }})</td>
 </tr>
 
 

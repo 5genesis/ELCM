@@ -56,15 +56,15 @@ class ExperimentRun:
 
     @property
     def User(self) -> Optional[str]:
-        return self.Params.get('User', default=None)
+        return self.Params.get('User', None)
 
     @property
     def Name(self) -> Optional[str]:
-        return self.Params.get('Name', default=None)
+        return self.Params.get('Name', None)
 
     @property
     def ExperimentId(self) -> int:
-        return self.Params.get('ExperimentId', default=-1)
+        return self.Params.get('ExperimentId', -1)
 
     @property
     def CurrentChild(self) -> Optional[ExecutorBase]:
