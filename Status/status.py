@@ -48,3 +48,7 @@ class Status:
         cls.nextId += 1
         cls.Save()
         return res
+
+    @classmethod
+    def PeekNextId(cls):
+        return cls.nextId

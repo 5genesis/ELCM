@@ -55,3 +55,8 @@ def json(experimentId: int):
         'Coarse': coarse, 'Status': status,
         'PerCent': percent, 'Messages': messages
     })
+
+
+@bp.route('nextExperimentId')
+def nextExperimentId():
+    return jsonify({'NextId': Status.PeekNextId()})

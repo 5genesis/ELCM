@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block app_content %}
+    <p id="hiddenNextId" style="display: none">{{ executionId }}</p>
     <p>Next execution id: {{ executionId }}</p>
     <table style="margin: auto; text-align: center; vertical-align: center">
         {% for experiment in experiments%}
@@ -32,6 +33,18 @@
             if (messages.length !== 0){ message = messages[messages.length-1]; }
             if (element.text() !== message){ element.text(message); }
         }
+
+        function checkNewExecutions(){
+            let current = $('#hiddenNextId').text();
+            $.get("{{ url_for('experiment.nextExperimentId') }}")
+                .done(function (response){
+                   if (response['NextId'].toString() !== current){
+                       location.reload();
+                   }
+                });
+        }
+
+        setInterval(checkNewExecutions, 5000)
     </script>
 
     {% for experiment in experiments %}

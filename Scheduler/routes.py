@@ -25,7 +25,7 @@ def nocache(view):
 @app.route("/")
 @nocache
 def index():
-    return render_template('index.html', executionId=Status.nextId, experiments=ExperimentQueue.Retrieve())
+    return render_template('index.html', executionId=Status.PeekNextId(), experiments=ExperimentQueue.Retrieve())
 
 
 @app.route("/log")
