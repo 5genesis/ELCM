@@ -5,6 +5,19 @@ from typing import Dict
 import logging
 
 
+class Dispatcher:
+    def __init__(self, data: Dict):
+        self.data = data['Dispatcher']
+
+    @property
+    def Host(self):
+        return self.data['Host']
+
+    @property
+    def Port(self):
+        return self.data['Port']
+
+
 class Logging:
     def __init__(self, data: Dict):
         self.data = data['Logging']
@@ -49,6 +62,10 @@ class Config:
     @property
     def Logging(self):
         return Logging(self.data)
+
+    @property
+    def Dispatcher(self):
+        return Dispatcher(self.data)
 
     @property
     def Flask(self):

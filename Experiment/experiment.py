@@ -4,6 +4,7 @@ from enum import Enum, unique
 from datetime import datetime
 from tempfile import TemporaryDirectory
 from Helper import Config, Serialize
+from Interfaces import DispatcherApi
 
 
 @unique
@@ -12,6 +13,8 @@ class CoarseStatus(Enum):
 
 
 class ExperimentRun:
+    api: DispatcherApi = None
+
     def __init__(self, id: int, params: Optional[Dict] = None):
         self.Id = id
         self.Params = params if params is not None else {}
@@ -20,9 +23,22 @@ class ExperimentRun:
         self.PreRunner = PreRunner(self.Params, tempFolder=self.TempFolder)
         self.Executor = Executor(self.Params, tempFolder=self.TempFolder)
         self.PostRunner = PostRunner(self.Params, tempFolder=self.TempFolder)
-        self.CoarseStatus = CoarseStatus.Init
+        self._coarseStatus = CoarseStatus.Init
         self.Cancelled = False
         self.Created = datetime.utcnow()
+
+        if self.api is None:
+            config = Config()
+            self.api = DispatcherApi(config.Dispatcher.Host, config.Dispatcher.Port)
+
+    @property
+    def CoarseStatus(self):
+        return self._coarseStatus
+
+    @CoarseStatus.setter
+    def CoarseStatus(self, value: CoarseStatus):
+        self._coarseStatus = value
+        self.api.UpdateStatus(self.Id, value.name)
 
     @property
     def Status(self) -> str:

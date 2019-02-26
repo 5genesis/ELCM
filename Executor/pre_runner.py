@@ -15,7 +15,6 @@ class PreRunner(ExecutorBase):
     def Run(self):
         self.LogAndMessage(Level.INFO, "Starting")
         self.Started = datetime.utcnow()
-        self.api.NotifyStart(self.Id)
         self.Status = Status.Running
 
         Configure(self.Log).Start()
@@ -33,5 +32,4 @@ class PreRunner(ExecutorBase):
         self.AddMessage('Experiment registered', 80)
 
         self.Finished = datetime.utcnow()
-        self.api.NotifyStop(self.Id)
         self.Log(Level.INFO, "Exited")

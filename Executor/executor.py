@@ -17,7 +17,6 @@ class Executor(ExecutorBase):
     def Run(self):
         self.LogAndMessage(Level.INFO, "Starting")
         self.Started = datetime.utcnow()
-        self.api.NotifyStart(self.Id)
         self.Status = Status.Running
 
         Instantiate(self.Log).Start()
@@ -39,5 +38,4 @@ class Executor(ExecutorBase):
         self.AddMessage('Decommision completed', 100)
 
         self.Finished = datetime.utcnow()
-        self.api.NotifyStop(self.Id)
         self.LogAndMessage(Level.INFO, "Exited")

@@ -1,15 +1,12 @@
 from Helper import Child, Level
 from typing import Dict
 from datetime import datetime
-from .api import Api
 from Helper import Serialize
 from .status import Status
 from tempfile import TemporaryDirectory
 
 
 class ExecutorBase(Child):
-    api = None
-
     def __init__(self, params: Dict, name: str, tempFolder: TemporaryDirectory = None):
         now = datetime.utcnow()
         super().__init__(f"{name}{now.strftime('%y%m%d%H%M%S%f')}", tempFolder)
@@ -23,8 +20,6 @@ class ExecutorBase(Child):
         self.Messages = []
         self.PerCent = 0
         self.AddMessage("Init")
-
-        if self.api is None: self.api = Api('127.0.0.1', '5000')
 
     def AddMessage(self, msg: str, percent: int = None):
         if percent is not None: self.PerCent = percent

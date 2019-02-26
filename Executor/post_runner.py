@@ -14,7 +14,6 @@ class PostRunner(ExecutorBase):
     def Run(self):
         self.LogAndMessage(Level.INFO, "Starting")
         self.Started = datetime.utcnow()
-        self.api.NotifyStart(self.Id)
         self.Status = Status.Running
 
         RequestResults(self.Log).Start()
@@ -25,5 +24,4 @@ class PostRunner(ExecutorBase):
         self.AddMessage('Entry updated', 90)
 
         self.Finished = datetime.utcnow()
-        self.api.NotifyStop(self.Id)
         self.LogAndMessage(Level.INFO, "Exited", 100)

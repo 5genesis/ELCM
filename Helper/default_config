@@ -3,5 +3,8 @@ Logging:
   Folder: 'Logs'
   AppLevel: INFO
   LogLevel: DEBUG
+Dispatcher:
+  Host: '127.0.0.1'
+  Port: 5001
 Flask:
   SECRET_KEY:
