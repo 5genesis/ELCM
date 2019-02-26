@@ -7,6 +7,7 @@ flask-paginate==0.5.2
 itsdangerous==1.1.0
 Jinja2==2.10
 MarkupSafe==1.1.0
+python-dotenv==0.10.1
 PyYAML==3.12
 urllib3==1.24.1
 visitor==0.1.3
