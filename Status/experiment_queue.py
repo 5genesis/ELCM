@@ -18,6 +18,7 @@ class ExperimentQueue:
         experimentId = Status.NextId()
         experiment = ExperimentRun(experimentId, params)
         cls.queue.appendleft(experiment)
+        Log.I(f'Created Experiment {experiment.Id}')
         return experiment
 
     @classmethod
@@ -44,8 +45,10 @@ class ExperimentQueue:
         experiments = cls.Retrieve()
         for experiment in experiments:
             if experiment.Active:
-                Log.D(f'Advancing Experiment {experiment.Id}')
+                pre = experiment.CoarseStatus
+                Log.I(f'Advancing Experiment {experiment.Id}')
                 experiment.Advance()
+                Log.D(f'{experiment.Id}: {pre.name} -> {experiment.CoarseStatus.name}')
             else:
-                Log.D(f'Removing Experiment {experiment.Id} from queue')
+                Log.I(f'Removing Experiment {experiment.Id} from queue (status: {experiment.CoarseStatus.name})')
                 cls.Delete(experiment.Id)

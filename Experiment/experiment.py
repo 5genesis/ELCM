@@ -37,8 +37,9 @@ class ExperimentRun:
 
     @CoarseStatus.setter
     def CoarseStatus(self, value: CoarseStatus):
-        self._coarseStatus = value
-        self.api.UpdateStatus(self.Id, value.name)
+        if value != self._coarseStatus:
+            self._coarseStatus = value
+            self.api.UpdateStatus(self.Id, value.name)
 
     @property
     def Status(self) -> str:
@@ -112,13 +113,10 @@ class ExperimentRun:
             return
         elif self.CoarseStatus == CoarseStatus.Init:
             self.PreRun()
-            self.CoarseStatus = CoarseStatus.PreRun
         elif self.CoarseStatus == CoarseStatus.PreRun and self.PreRunner.Finished:
             self.Run()
-            self.CoarseStatus = CoarseStatus.Run
         elif self.CoarseStatus == CoarseStatus.Run and self.Executor.Finished:
             self.PostRun()
-            self.CoarseStatus = CoarseStatus.PostRun
         elif self.CoarseStatus == CoarseStatus.PostRun and self.PostRunner.Finished:
             self.CoarseStatus = CoarseStatus.Finished
             self.TempFolder.cleanup()
