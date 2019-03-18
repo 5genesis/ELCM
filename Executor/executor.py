@@ -15,9 +15,7 @@ class Executor(ExecutorBase):
         super().__init__(params, "Executor", tempFolder)
 
     def Run(self):
-        self.LogAndMessage(Level.INFO, "Starting")
-        self.Started = datetime.utcnow()
-        self.Status = Status.Running
+        self.SetStarted()
 
         Instantiate(self.Log).Start()
         self.AddMessage('Instantiation completed', 10)
@@ -37,5 +35,4 @@ class Executor(ExecutorBase):
         Decommission(self.Log).Start()
         self.AddMessage('Decommision completed', 100)
 
-        self.Finished = datetime.utcnow()
-        self.LogAndMessage(Level.INFO, "Exited")
+        self.SetFinished(percent=100)

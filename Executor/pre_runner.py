@@ -13,9 +13,7 @@ class PreRunner(ExecutorBase):
         super().__init__(params, "PreRunner", tempFolder)
 
     def Run(self):
-        self.LogAndMessage(Level.INFO, "Starting")
-        self.Started = datetime.utcnow()
-        self.Status = Status.Running
+        self.SetStarted()
 
         Configure(self.Log).Start()
         self.AddMessage("Configuration completed", 30)
@@ -31,5 +29,4 @@ class PreRunner(ExecutorBase):
         AddExperimentEntry(self.Log).Start()
         self.AddMessage('Experiment registered', 80)
 
-        self.Finished = datetime.utcnow()
-        self.Log(Level.INFO, "Exited")
+        self.SetFinished(percent=100)

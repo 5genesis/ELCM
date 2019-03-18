@@ -31,7 +31,11 @@ class ExperimentQueue:
     @classmethod
     def Cancel(cls, experimentId: int):
         experiment = cls.Find(experimentId)
-        experiment.Cancel()
+        if experiment is not None:
+            Log.I(f'Cancelling experiment {experiment.Id}')
+            experiment.Cancel()
+        else:
+            Log.W(f'Cannot cancel experiment {experimentId}: Not found')
 
     @classmethod
     def Retrieve(cls, status: Optional[ExperimentStatus] = None) -> List[ExperimentRun]:

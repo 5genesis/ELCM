@@ -33,6 +33,17 @@ class ExecutorBase(Child):
         self.Log(level, msg)
         self.AddMessage(msg, percent)
 
+    def SetStarted(self):
+        self.LogAndMessage(Level.INFO, "Started")
+        self.Started = datetime.utcnow()
+        self.Status = Status.Running
+
+    def SetFinished(self, status=Status.Finished, percent: int = None):
+        self.Finished = datetime.utcnow()
+        if self.Status.value < Status.Cancelled.value:
+            self.Status = status
+        self.LogAndMessage(Level.INFO, f"Finished (status: {self.Status.name})", percent)
+
     def Serialize(self) -> Dict:
         data = {
             'Id': self.Id,
