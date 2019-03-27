@@ -34,3 +34,14 @@ class ExperimentDescriptor:
     @property
     def UEs(self) -> List[Dict[str, Dict]]:
         return self._data['UEs']
+
+    @property
+    def ValidityCheck(self) -> Tuple[bool, List[str]]:
+        reasons = []
+        if not self.Valid:
+            reasons.append(f'Missing data: {self.Missing}')
+        else:
+            if not self.User.Valid:
+                reasons.append(f'Missing data on User: {self.User.Missing}')
+
+        return len(reasons) == 0, reasons

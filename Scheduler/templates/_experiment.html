@@ -28,8 +28,8 @@
 <tr class="{{ experiment.Id }}div"
     style="font-size: smaller; background-color: lightgray; border-bottom: 1px solid black;">
     <td></td>
-    <td>{{ experiment.User['UserName'] }}</td>
-    <td colspan=3>{{ experiment.Name }} (ID: {{ experiment.Id }})</td>
+    <td>{{ experiment.Descriptor.User.Name }}</td>
+    <td colspan=3>{{ experiment.Descriptor.Name }} (ID: {{ experiment.Descriptor.Id }})</td>
 </tr>
 
 

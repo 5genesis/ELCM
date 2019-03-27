@@ -1,24 +1,24 @@
-from flask import redirect, url_for, flash, render_template, jsonify, request
-from Status import Status, ExperimentQueue
-from Experiment import ExperimentRun
-from Helper import Serialize
+from flask import jsonify, request
+from Status import ExperimentQueue
+from Data import ExperimentDescriptor
 from Scheduler.dispatcher import bp
 
 
 @bp.route('/run', methods=['POST'])
 def start():
-    keys = ['Id', 'User', 'Name']
     data = request.json
-    valid, missing = Serialize.CheckKeys(data, *keys)
+    descriptor = ExperimentDescriptor(data)
+    valid, reasons = descriptor.ValidityCheck
     if not valid:
         executionId = None
         success = False
-        message = f'Missing data: {missing}'
+        message = f'Invalid experiment description: {"; ".join(reasons)}'
     else:
-        experiment, user, name = Serialize.Unroll(data, *keys)
-        executionId = ExperimentQueue.Create(data).Id
+        params = {'Descriptor': descriptor}
+        executionId = ExperimentQueue.Create(params).Id
         success = True
-        message = f'Created execution {executionId} for experiment {name} (Id:{experiment}, User:{user["UserName"]})'
+        message = f'Created execution {executionId} for experiment {descriptor.Name} ' \
+            f'(Id:{descriptor.Id}, User:{descriptor.User.Name})'
     return jsonify({
         'ExecutionId': executionId,
         'Success': success,

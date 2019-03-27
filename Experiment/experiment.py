@@ -1,4 +1,5 @@
-from Executor import PreRunner, Executor, PostRunner, ExecutorStatus, ExecutorBase
+from Executor import PreRunner, Executor, PostRunner, ExecutorBase
+from Data import ExperimentDescriptor
 from typing import Dict, Optional
 from enum import Enum, unique
 from datetime import datetime
@@ -72,16 +73,8 @@ class ExperimentRun:
         return self.CoarseStatus.value < CoarseStatus.Finished.value
 
     @property
-    def User(self) -> Optional[str]:
-        return self.Params.get('User', None)
-
-    @property
-    def Name(self) -> Optional[str]:
-        return self.Params.get('Name', None)
-
-    @property
-    def ExperimentId(self) -> int:
-        return self.Params.get('ExperimentId', -1)
+    def Descriptor(self) -> Optional[ExperimentDescriptor]:
+        return self.Params.get('Descriptor', None)
 
     @property
     def CurrentChild(self) -> Optional[ExecutorBase]:
