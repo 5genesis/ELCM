@@ -73,7 +73,7 @@
                 "<span id='percent{{ experiment.Id }}' style='display: none;'></span>"
             );
             $('#progress{{ experiment.Id }}').append(div);
-            var nanobar = Nanobar({ target: div[1] });
+            let nanobar = Nanobar({ target: div[1] });
             update{{ experiment.Id }}(nanobar);
         </script>
     {% endfor %}

@@ -21,6 +21,9 @@ class ExecutorBase(Child):
         self.PerCent = 0
         self.AddMessage("Init")
 
+    def Run(self):
+        raise NotImplementedError()
+
     def AddMessage(self, msg: str, percent: int = None):
         if percent is not None: self.PerCent = percent
         self.Messages.append(f'[{self.PerCent}%] {msg}')
