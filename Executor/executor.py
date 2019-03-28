@@ -7,6 +7,7 @@ from .status import Status
 from tempfile import TemporaryDirectory
 from random import randint
 from math import floor
+from Composer import PlatformConfiguration
 
 
 class Executor(ExecutorBase):
@@ -25,7 +26,9 @@ class Executor(ExecutorBase):
                 self.LogAndMessage(Level.INFO, "Received stop request, exiting")
                 self.Status = Status.Cancelled
                 break
-            Report(self.Log).Start()
+            config: PlatformConfiguration = self.params['Configuration']
+            experimentName = config.RunParams['Report']['ExperimentName']
+            Report(self.Log, experimentName).Start()
             sleep(1)
             self.AddMessage('Experiment running...', int(floor(10+((i/loops)*80))))
         else:

@@ -1,5 +1,5 @@
 from typing import Dict
-from .Tasks.PreRun import Configure, CheckAvailable, AddExperimentEntry
+from .Tasks.PreRun import CheckAvailable, AddExperimentEntry
 from .executor_base import ExecutorBase
 from tempfile import TemporaryDirectory
 from time import sleep
@@ -12,7 +12,6 @@ class PreRunner(ExecutorBase):
     def Run(self):
         self.SetStarted()
 
-        Configure(self.Log).Start()
         self.AddMessage("Configuration completed", 30)
         available = False
         while not available:

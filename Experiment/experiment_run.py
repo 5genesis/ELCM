@@ -6,6 +6,7 @@ from datetime import datetime
 from tempfile import TemporaryDirectory
 from Helper import Config, Serialize
 from Interfaces import DispatcherApi
+from Composer import Composer, PlatformConfiguration
 
 
 @unique
@@ -20,6 +21,7 @@ class ExperimentRun:
         self.Id = id
         self.Params = params if params is not None else {}
         self.Params['Id'] = self.Id
+        self.Params['Configuration'] = Composer.Compose(self.Descriptor)
         self.TempFolder = TemporaryDirectory(dir=Config().TempFolder)
         self.PreRunner = PreRunner(self.Params, tempFolder=self.TempFolder)
         self.Executor = Executor(self.Params, tempFolder=self.TempFolder)
@@ -75,6 +77,10 @@ class ExperimentRun:
     @property
     def Descriptor(self) -> Optional[ExperimentDescriptor]:
         return self.Params.get('Descriptor', None)
+
+    @property
+    def Configuration(self) -> Optional[PlatformConfiguration]:
+        return self.Params.get('Configuratin', None)
 
     @property
     def CurrentChild(self) -> Optional[ExecutorBase]:
