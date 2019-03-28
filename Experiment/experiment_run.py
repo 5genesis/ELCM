@@ -138,19 +138,5 @@ class ExperimentRun:
         Serialize.Save(data, path)
 
     @classmethod
-    def Load(self, id: str):
-        path = Serialize.Path('Experiment', id)
-        data = Serialize.Load(path)
-        res = ExperimentRun(-1, None)
-        res.Id, res.Cancelled, status = Serialize.Unroll(data, 'Id', 'Cancelled', 'CoarseStatus')
-        res.Params = {'Id': res.Id, 'Deserialized': True}
-        res.CoarseStatus = CoarseStatus[status]
-        res.PreRunner = Executor.Load('PreRunner', str(res.Id))
-        res.Executor = Executor.Load('Executor', str(res.Id))
-        res.PostRunner = Executor.Load('PostRunner', str(res.Id))
-        res.Created = Serialize.StringToDate(data['Created'])
-        return res
-
-    @classmethod
     def Digest(cls, id: str) -> Dict:
         return Serialize.Load(Serialize.Path('Experiment', id))

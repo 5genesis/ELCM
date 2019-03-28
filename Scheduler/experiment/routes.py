@@ -1,6 +1,6 @@
 from flask import redirect, url_for, flash, render_template, jsonify
 from Status import Status, ExperimentQueue
-from Experiment import ExperimentRun
+from Experiment import ExperimentRun, Tombstone
 from Scheduler.experiment import bp
 
 
@@ -31,7 +31,7 @@ def view(experimentId: int):
     experiment = ExperimentQueue.Find(experimentId)
     if experiment is None:
         try:
-            experiment = ExperimentRun.Load(str(experimentId))
+            experiment = Tombstone(str(experimentId))
         except:
             flash(f'Experiment {experimentId} does not exist or is not within Scheduler context', 'danger')
     if experiment is None:

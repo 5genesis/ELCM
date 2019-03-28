@@ -1,6 +1,6 @@
 from Scheduler import app
 from Status import Status, ExperimentQueue
-from Experiment import ExperimentRun
+from Experiment import Tombstone
 from flask import render_template, make_response, request
 from functools import wraps, update_wrapper
 from datetime import datetime
@@ -44,9 +44,9 @@ def history():
     start = pagination.skip
     end = start + pagination.per_page
     ids = ids[start:end]
-    experiments: List[Dict] = []
+    experiments: List[Tombstone] = []
     for id in ids:
-        digest = ExperimentRun.Load(id)
+        digest = Tombstone(id)
         experiments.append(digest)
 
     return render_template('history.html', experiments=experiments, pagination=pagination)
