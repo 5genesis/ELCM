@@ -32,7 +32,7 @@ class ExperimentDescriptor:
         return self._data['TestCases']
 
     @property
-    def UEs(self) -> List[Dict[str, Dict]]:
+    def UEs(self) -> Dict[str, Dict]:
         return self._data['UEs']
 
     @property

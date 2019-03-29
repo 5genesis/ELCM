@@ -80,7 +80,7 @@ class ExperimentRun:
 
     @property
     def Configuration(self) -> Optional[PlatformConfiguration]:
-        return self.Params.get('Configuratin', None)
+        return self.Params.get('Configuration', None)
 
     @property
     def CurrentChild(self) -> Optional[ExecutorBase]:

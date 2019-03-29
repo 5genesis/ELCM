@@ -1,3 +1,10 @@
+from typing import Dict, List, ClassVar
+
+
+class TaskDefinition:
+    def __init__(self):
+        self.Task: ClassVar = None
+        self.Params: Dict = {}
 
 
 class PlatformConfiguration:
@@ -5,4 +12,4 @@ class PlatformConfiguration:
         self.PreRunParams = {}
         self.RunParams = {}
         self.PostRunParams = {}
-        self.RunTasks = []
+        self.RunTasks: List[TaskDefinition] = []

@@ -1,5 +1,7 @@
 from Helper import Child, Level
-from typing import Dict
+from typing import Dict, Optional
+from Data import ExperimentDescriptor
+from Composer import PlatformConfiguration
 from datetime import datetime
 from Helper import Serialize
 from .status import Status
@@ -20,6 +22,14 @@ class ExecutorBase(Child):
         self.Messages = []
         self.PerCent = 0
         self.AddMessage("Init")
+
+    @property
+    def Descriptor(self) -> Optional[ExperimentDescriptor]:
+        return self.params.get('Descriptor', None)
+
+    @property
+    def Configuration(self) -> Optional[PlatformConfiguration]:
+        return self.params.get('Configuration', None)
 
     def Run(self):
         raise NotImplementedError()
