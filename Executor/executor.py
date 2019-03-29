@@ -6,9 +6,7 @@ from Task import Task
 from .Tasks.Run import Instantiate, Report, Decommission
 from .status import Status
 from tempfile import TemporaryDirectory
-from random import randint
 from math import floor
-from Composer import PlatformConfiguration
 
 
 class Executor(ExecutorBase):

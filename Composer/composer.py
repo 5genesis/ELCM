@@ -1,3 +1,4 @@
+from Facility import Facility
 from Data import ExperimentDescriptor
 from .platform_configuration import PlatformConfiguration, TaskDefinition
 from importlib import import_module
@@ -8,13 +9,12 @@ from sys import maxsize
 
 
 class Composer:
-    facility: Dict = None
+    facility: Facility = None
 
     @classmethod
     def Compose(cls, descriptor: ExperimentDescriptor) -> PlatformConfiguration:
         if cls.facility is None:
-            with open('facility.yml', 'r', encoding='utf-8') as file:
-                cls.facility = yaml.load(file)
+            cls.facility = Facility()
 
         name = 'PreRun.Configure'
         configuration = PlatformConfiguration()
@@ -22,9 +22,9 @@ class Composer:
 
         actions: List[Dict] = []
         for ue in descriptor.UEs.keys():
-            actions.extend(cls.getUEActions(ue))
+            actions.extend(cls.facility.GetUEActions(ue))
         for testcase in descriptor.TestCases:
-            actions.extend(cls.getTestCaseActions(testcase))
+            actions.extend(cls.facility.GetTestCaseActions(testcase))
 
         actions.sort(key=lambda action: action.get('Order', maxsize))  # Sort by Order, leave at end if key is not found
 
@@ -36,20 +36,6 @@ class Composer:
             configuration.RunTasks.append(taskDefinition)
 
         return configuration
-
-    @classmethod
-    def getUEActions(cls, id: str) -> List[Dict]:
-        return cls.getFromSection('UEs', id)
-
-    @classmethod
-    def getTestCaseActions(cls, id: str) -> List[Dict]:
-        return cls.getFromSection('TestCases', id)
-
-    @classmethod
-    def getFromSection(cls, section: str, id: str) -> List[Dict]:
-        if section in cls.facility.keys() and id in cls.facility[section].keys():
-            return cls.facility[section][id]
-        return []
 
     @staticmethod
     def getTaskClass(taskName: str):
