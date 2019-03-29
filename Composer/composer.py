@@ -1,4 +1,4 @@
-from Facility import Facility
+from Facility import Facility, ActionInformation
 from Data import ExperimentDescriptor
 from .platform_configuration import PlatformConfiguration, TaskDefinition
 from importlib import import_module
@@ -20,19 +20,18 @@ class Composer:
         configuration = PlatformConfiguration()
         configuration.RunParams['Report'] = {'ExperimentName': descriptor.Name}
 
-        actions: List[Dict] = []
+        actions: List[ActionInformation] = []
         for ue in descriptor.UEs.keys():
             actions.extend(cls.facility.GetUEActions(ue))
         for testcase in descriptor.TestCases:
             actions.extend(cls.facility.GetTestCaseActions(testcase))
 
-        actions.sort(key=lambda action: action.get('Order', maxsize))  # Sort by Order, leave at end if key is not found
+        actions.sort(key=lambda action: action.Order)  # Sort by Order
 
         for action in actions:
             taskDefinition = TaskDefinition()
-            taskDefinition.Task = cls.getTaskClass(action['Task'])
-            if 'Config' in action.keys():
-                taskDefinition.Params = action['Config']
+            taskDefinition.Task = cls.getTaskClass(action.TaskName)
+            taskDefinition.Params = action.Config
             configuration.RunTasks.append(taskDefinition)
 
         return configuration
