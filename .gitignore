@@ -101,3 +101,4 @@ ENV/
 Persistence/
 config.yml
 facility.yml
+*.log.*

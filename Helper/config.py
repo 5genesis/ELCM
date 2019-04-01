@@ -3,6 +3,20 @@ from os.path import exists, abspath
 from shutil import copy
 from typing import Dict
 import logging
+from os.path import realpath, join
+
+
+class TapConfig:
+    def __init__(self, data: Dict):
+        self.data = data
+
+        self.Exe = data['Exe']
+        self.Folder = data['Folder']
+        self.Results = data['Results']
+        self.EnsureClosed = data['EnsureClosed']
+
+    @property
+    def Path(self): return realpath(join(self.Folder, self.Exe))
 
 
 class Dispatcher:
@@ -74,3 +88,7 @@ class Config:
     @property
     def TempFolder(self):
         return self.data['TempFolder']
+
+    @property
+    def Tap(self):
+        return TapConfig(self.data['Tap'])

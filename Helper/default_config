@@ -8,3 +8,8 @@ Dispatcher:
   Port: 5001
 Flask:
   SECRET_KEY:
+Tap:
+  Exe: Keysight.Tap.Cli.exe
+  Folder: C:/Program Files/Keysight/TAP8
+  Results: C:/Program Files/Keysight/TAP8/Results
+  EnsureClosed: True
