@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block app_content %}
+    <p id="hiddenNextId" style="display: none">{{ executionId }}</p>
+    <p>Next execution id: {{ executionId }}</p>
+    <table style="margin: auto; text-align: center; vertical-align: center">
+        {% for experiment in experiments%}
+            {% include '_experiment.html' %}
+        {% endfor %}
+    </table>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+        function updateOne(element, newValue){
+            if (element.text() !== newValue){
+                element.text(newValue);
+                element.addClass('highlight');
+                setTimeout(function(){element.removeClass('highlight');},3000);
+            }
+        }
+
+        function updatePerCent(nanobar, percent, hidden){
+            if (percent.toString() !== hidden.text()){
+                nanobar.go(percent);
+                hidden.text(percent);
+            }
+        }
+
+        function updateMessage(element, messages){
+            let message = '...';
+            if (messages.length !== 0){ message = messages[messages.length-1]; }
+            if (element.text() !== message){ element.text(message); }
+        }
+
+        function checkNewExecutions(){
+            let current = $('#hiddenNextId').text();
+            $.get("{{ url_for('experiment.nextExperimentId') }}")
+                .done(function (response){
+                   if (response['NextId'].toString() !== current){
+                       location.reload();
+                   }
+                });
+        }
+
+        setInterval(checkNewExecutions, 5000)
+    </script>
+
+    {% for experiment in experiments %}
+        <script>
+            function update{{ experiment.Id }}(nanobar) {
+                $.get("{{ url_for('experiment.json', experimentId=experiment.Id) }}")
+                    .done(function (response) {
+                        if (response['Coarse'] === 'ERR'){
+                            $(".{{ experiment.Id }}div").fadeTo(500, 0).slideUp(500, function(){ $(this).remove(); });
+                        } else {
+                            updateOne($("#coarse{{ experiment.Id }}"), response['Coarse']);
+                            updateOne($("#status{{ experiment.Id }}"), response['Status']);
+                            updatePerCent(nanobar, response['PerCent'], $('#percent{{ experiment.Id }}'));
+                            updateMessage($('#message{{ experiment.Id }}'), response['Messages']);
+
+                            setTimeout(function() { update{{ experiment.Id }}(nanobar); }, 1000);
+                        }
+                    });
+            }
+        </script>
+
+        <script>
+            div = $(
+                "<span class='message' id='message{{ experiment.Id }}'>...</span>" +
+                "<span class='progress'></span>" +
+                "<span id='percent{{ experiment.Id }}' style='display: none;'></span>"
+            );
+            $('#progress{{ experiment.Id }}').append(div);
+            let nanobar = Nanobar({ target: div[1] });
+            update{{ experiment.Id }}(nanobar);
+        </script>
+    {% endfor %}
+{% endblock %}
