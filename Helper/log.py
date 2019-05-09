@@ -64,6 +64,12 @@ class LogInfo:
             res.Log.append((level, line))
         return res
 
+    def Serialize(self) -> Dict:
+        return {
+            "Count": self.Count,
+            "Log": self.Log
+        }
+
 
 class Log:
     CONSOLE_FORMAT = '%(asctime)s %(levelname)s: %(message)s'

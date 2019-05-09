@@ -57,6 +57,28 @@ def json(experimentId: int):
     })
 
 
+@bp.route('<int:experimentId>/logs')
+def logs(experimentId: int):
+    experiment = ExperimentQueue.Find(experimentId)
+    if experiment is None:
+        try:
+            experiment = Tombstone(str(experimentId))
+        except:
+            experiment = None
+
+    if experiment is not None:
+        status = "Success"
+        preRun = experiment.PreRunner.RetrieveLogInfo().Serialize()
+        executor = experiment.Executor.RetrieveLogInfo().Serialize()
+        postRun = experiment.PostRunner.RetrieveLogInfo().Serialize()
+    else:
+        status = "Not Found"
+        preRun = executor = postRun = None
+    return jsonify({
+        "Status": status, "PreRun": preRun, "Executor": executor, "PostRun": postRun
+    })
+
+
 @bp.route('nextExperimentId')
 def nextExperimentId():
     return jsonify({'NextId': Status.PeekNextId()})
