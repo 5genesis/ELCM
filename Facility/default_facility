@@ -5,6 +5,10 @@
 # run in order by the Executor (Run stage), using the parameters defined in
 # Config (if any)
 
+# It's possible to expand the value of some variables that start with @ (and
+# enclosed with quotes). Available values are:
+# "@ExperimentId": Experiment execution ID (unique identifier)
+
 UEs:
   TestServer1:
     - Order: 1
@@ -23,3 +27,10 @@ TestCases:
       Config:
         Message: This is a dummy measurement
         Command: ping 8.8.8.8
+    - Order: 6
+      Task: Run.TapExecute
+      Config:
+        TestPlan: C:/Program Files/Keysight/TAP8/test.TapPlan
+        Externals:
+          Instrument: SSH
+          ExperimentID: "@ExperimentId"
