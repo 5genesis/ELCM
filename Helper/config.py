@@ -6,6 +6,15 @@ import logging
 from os.path import realpath, join
 
 
+class Grafana:
+    def __init__(self, data: Dict):
+        self.data = data
+
+        self.Host = data['Host']
+        self.Port = data['Port']
+        self.Bearer = data['Bearer']
+
+
 class TapConfig:
     def __init__(self, data: Dict):
         self.data = data
@@ -92,3 +101,7 @@ class Config:
     @property
     def Tap(self):
         return TapConfig(self.data['Tap'])
+
+    @property
+    def Grafana(self):
+        return Grafana(self.data['Grafana'])

@@ -15,7 +15,8 @@ class CoarseStatus(Enum):
 
 
 class ExperimentRun:
-    api: DispatcherApi = None
+    dispatcher: DispatcherApi = None
+    grafana = None
 
     def __init__(self, id: int, params: Optional[Dict] = None):
         self.Id = id
@@ -30,9 +31,11 @@ class ExperimentRun:
         self.Cancelled = False
         self.Created = datetime.utcnow()
 
-        if self.api is None:
+        if self.dispatcher is None or self.grafana is None:
+            from Helper import DashboardGenerator  # Delayed to avoid cyclic imports
             config = Config()
-            self.api = DispatcherApi(config.Dispatcher.Host, config.Dispatcher.Port)
+            self.dispatcher = DispatcherApi(config.Dispatcher.Host, config.Dispatcher.Port)
+            self.grafana = DashboardGenerator(config.Grafana.Host, config.Grafana.Port, config.Grafana.Bearer)
 
     @property
     def CoarseStatus(self):
@@ -42,7 +45,7 @@ class ExperimentRun:
     def CoarseStatus(self, value: CoarseStatus):
         if value != self._coarseStatus:
             self._coarseStatus = value
-            self.api.UpdateStatus(self.Id, value.name)
+            self.dispatcher.UpdateStatus(self.Id, value.name)
 
     @property
     def Status(self) -> str:
@@ -118,6 +121,7 @@ class ExperimentRun:
             self.PostRun()
         elif self.CoarseStatus == CoarseStatus.PostRun and self.PostRunner.Finished:
             self.CoarseStatus = CoarseStatus.Finished
+            self.grafana.Create(self)
             self.TempFolder.cleanup()
 
     def Serialize(self) -> Dict:
