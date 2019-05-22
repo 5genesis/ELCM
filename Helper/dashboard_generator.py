@@ -1,7 +1,8 @@
+from Helper import Log
 from REST import RestClient
 from Experiment import ExperimentRun
 import json
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional
 
 
 class DashboardGenerator(RestClient):
@@ -13,10 +14,20 @@ class DashboardGenerator(RestClient):
             'Authorization': f"Bearer {self.bearer}"
         }
 
-    def Create(self, experiment: ExperimentRun) -> str:
-        body = self.generateData(experiment)
-        response = self.httpPost(f"{self.api_url}/dashboards/db", self.headers, json.dumps(body))
-        return "" #TODO: Return the dashboard URL
+    def Create(self, experiment: ExperimentRun) -> Optional[str]:
+        body = json.dumps(self.generateData(experiment))
+        Log.D(f"Grafana dashboard data (experiment {experiment.Id}): {body}")
+        response = self.httpPost(f"{self.api_url}/dashboards/db", self.headers, body)
+        if response.status == 200:
+            url = self.responseToJson(response)["url"]
+            Log.I(f"Generated Grafana dashboard for experiment {experiment.Id}: {url}")
+            return url
+        else:
+            Log.E(f"Could not generate Grafana dashboard for experiment {experiment.Id}: "
+                  f"{response.status} - {response.reason}")
+            try: Log.E(f"Response data: {response.data}")
+            except: pass
+            return None
 
     @staticmethod
     def generateData(experiment: ExperimentRun) -> Dict:
