@@ -28,6 +28,7 @@ class ExperimentRun:
         self.Executor = Executor(self.Params, tempFolder=self.TempFolder)
         self.PostRunner = PostRunner(self.Params, tempFolder=self.TempFolder)
         self._coarseStatus = CoarseStatus.Init
+        self._dashboardUrl = None
         self.Cancelled = False
         self.Created = datetime.utcnow()
 
@@ -45,7 +46,17 @@ class ExperimentRun:
     def CoarseStatus(self, value: CoarseStatus):
         if value != self._coarseStatus:
             self._coarseStatus = value
-            self.dispatcher.UpdateStatus(self.Id, value.name)
+            self.dispatcher.UpdateExecutionData(self.Id, status=value.name)
+
+    @property
+    def DashboardUrl(self):
+        return self._dashboardUrl
+
+    @DashboardUrl.setter
+    def DashboardUrl(self, value: str):
+        if value != self._dashboardUrl:
+            self._dashboardUrl = value
+            self.dispatcher.UpdateExecutionData(self.Id, dashboardUrl=value)
 
     @property
     def Status(self) -> str:
@@ -121,7 +132,8 @@ class ExperimentRun:
             self.PostRun()
         elif self.CoarseStatus == CoarseStatus.PostRun and self.PostRunner.Finished:
             self.CoarseStatus = CoarseStatus.Finished
-            self.grafana.Create(self)
+            url = self.grafana.Create(self)
+            self.DashboardUrl = url
             self.TempFolder.cleanup()
 
     def Serialize(self) -> Dict:
