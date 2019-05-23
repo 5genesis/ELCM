@@ -4,13 +4,13 @@ from Helper import Serialize
 
 class DashboardPanel:
     def __init__(self, data: Dict):
-        self.Name, self.Query, self.Order = Serialize.Unroll(data, "Name", "Query", "Order")
+        self.Name, self.Order = Serialize.Unroll(data, "Name", "Order")
         self.Size, self.Position = Serialize.Unroll(data, "Size", "Position")
         self.Lines, self.Percentage = Serialize.Unroll(data, "Lines", "Percentage")
 
     def AsDict(self):
         return {
-            "Name": self.Name, "Query": self.Query, "Order": self.Order,
+            "Name": self.Name, "Order": self.Order,
             "Size": self.Size, "Position": self.Position,
             "Lines": self.Lines, "Percentage": self.Percentage
         }
@@ -77,7 +77,6 @@ class DashboardPanel:
             "measurement": self.Name,
             "orderByTime": self.Order,
             "policy": "default",
-            "query": self.Query,
             "rawQuery": False,
             "refId": "A",
             "resultFormat": "time_series",

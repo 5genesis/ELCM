@@ -5,9 +5,10 @@
 # run in order by the Executor (Run stage), using the parameters defined in
 # Config (if any)
 
-# It's possible to expand the value of some variables that start with @ (and
-# enclosed with quotes). Available values are:
-# "@ExperimentId": Experiment execution ID (unique identifier)
+# It's possible to expand the value of some variables enclosed by @{ }.
+# (Use quotes where required in order to generate valid YAML format)
+# Available values are:
+#   - @{ExperimentId}: Experiment execution ID (unique identifier)
 
 UEs:
   TestServer1:
@@ -34,3 +35,12 @@ TestCases:
         Externals:
           Instrument: SSH
           ExperimentID: "@ExperimentId"
+
+Dashboards:
+  RTT:
+    - Name: "collectd_enb_cpu_vcpu"
+      Order: ASC
+      Size: [9, 12]
+      Position: [0, 0]
+      Lines: True
+      Percentage: False
