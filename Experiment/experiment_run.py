@@ -18,9 +18,9 @@ class ExperimentRun:
     dispatcher: DispatcherApi = None
     grafana = None
 
-    def __init__(self, id: int, params: Optional[Dict] = None):
+    def __init__(self, id: int, params: Dict):
         self.Id = id
-        self.Params = params if params is not None else {}
+        self.Params = params
         self.Params['Id'] = self.Id
         self.Params['Configuration'] = Composer.Compose(self.Descriptor)
         self.TempFolder = TemporaryDirectory(dir=Config().TempFolder)

@@ -16,7 +16,6 @@ class Composer:
         if cls.facility is None:
             cls.facility = Facility()
 
-        name = 'PreRun.Configure'
         configuration = PlatformConfiguration()
         configuration.RunParams['Report'] = {'ExperimentName': descriptor.Name}
 

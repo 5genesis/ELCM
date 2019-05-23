@@ -89,7 +89,7 @@ class DashboardGenerator(RestClient):
             "resultFormat": "time_series",
             "groupBy": [
                 {"params": ["$__interval"], "type": "time"},
-                {"params": ["null"],"type": "fill"}
+                {"params": ["null"], "type": "fill"}
             ],
             "select": [
                 [
@@ -152,5 +152,3 @@ class DashboardGenerator(RestClient):
             ],
             "yaxis": {"align": False, "alignLevel": None}
         }
-
-

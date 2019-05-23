@@ -4,14 +4,6 @@ from Experiment import ExperimentRun, Tombstone
 from Scheduler.experiment import bp
 
 
-@bp.route('/start')
-def start():
-    params = {'User': {'UserName': 'LocalAdmin'}, 'ExperimentId': -1, 'Name': 'LocalTest'}
-    experiment = ExperimentQueue.Create(params)
-    flash(f'Experiment {experiment.Id} created', 'info')
-    return redirect(url_for('index'))
-
-
 @bp.route('<int:experimentId>/cancel')
 def cancel(experimentId: int):
     ExperimentQueue.Cancel(experimentId)
