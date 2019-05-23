@@ -132,6 +132,7 @@ class ExperimentRun:
             self.PostRun()
         elif self.CoarseStatus == CoarseStatus.PostRun and self.PostRunner.Finished:
             self.CoarseStatus = CoarseStatus.Finished
+            self.Configuration.ExpandDashboardPanels(self)
             url = self.grafana.Create(self)
             self.DashboardUrl = url
             self.TempFolder.cleanup()
