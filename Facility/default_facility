@@ -34,13 +34,23 @@ TestCases:
         TestPlan: C:/Program Files/Keysight/TAP8/test.TapPlan
         Externals:
           Instrument: SSH
-          ExperimentID: "@ExperimentId"
+          ExperimentID: "@{ExperimentId}"
 
 Dashboards:
   RTT:
-    - Name: "collectd_enb_cpu_vcpu"
+    - Measurement: collectd_enb_cpu_vcpu
+      Field: collectd_enb_cpu_vcpu
+      Interval: 1s # Leave empty to use default ($__interval)
       Order: ASC
       Size: [9, 12]
       Position: [0, 0]
       Lines: True
+      Percentage: False
+    - Measurement: MONROE.EXP.PING
+      Field: Rtt
+      Interval: 1s
+      Order: ASC
+      Size: [9, 12]
+      Position: [12, 0]
+      Lines: False
       Percentage: False

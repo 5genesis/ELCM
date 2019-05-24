@@ -4,15 +4,16 @@ from Helper import Serialize
 
 class DashboardPanel:
     def __init__(self, data: Dict):
-        self.Name, self.Order = Serialize.Unroll(data, "Name", "Order")
+        self.Measurement, self.Field, self.Order = Serialize.Unroll(data, "Measurement", "Field", "Order")
         self.Size, self.Position = Serialize.Unroll(data, "Size", "Position")
-        self.Lines, self.Percentage = Serialize.Unroll(data, "Lines", "Percentage")
+        self.Interval, self.Lines, self.Percentage = Serialize.Unroll(data, "Interval", "Lines", "Percentage")
+
 
     def AsDict(self):
         return {
-            "Name": self.Name, "Order": self.Order,
+            "Measurement": self.Measurement, "Field": self.Field, "Order": self.Order,
             "Size": self.Size, "Position": self.Position,
-            "Lines": self.Lines, "Percentage": self.Percentage
+            "Interval": self.Interval, "Lines": self.Lines, "Percentage": self.Percentage
         }
 
     def Generate(self, panelId: int, experimentId: int) -> Dict:
@@ -23,7 +24,7 @@ class DashboardPanel:
     def panelBase(self, panelId: int) -> Dict:
         return {
             "id": panelId,
-            "title": self.Name,
+            "title": f"{self.Measurement}: {self.Field}",
             "aliasColors": {},
             "bars": not self.Lines,
             "dashLength": 10,
@@ -74,19 +75,19 @@ class DashboardPanel:
     def getTarget(self, experimentId: int) -> Dict:
         return {
             "hide": False,
-            "measurement": self.Name,
+            "measurement": self.Measurement,
             "orderByTime": self.Order,
             "policy": "default",
             "rawQuery": False,
             "refId": "A",
             "resultFormat": "time_series",
             "groupBy": [
-                {"params": ["$__interval"], "type": "time"},
+                {"params": [f"{'$__interval' if self.Interval is None else self.Interval}"], "type": "time"},
                 {"params": ["null"], "type": "fill"}
             ],
             "select": [
                 [
-                    {"params": [self.Name], "type": "field"},
+                    {"params": [self.Field], "type": "field"},
                     {"params": [], "type": "mean"}
                 ]
             ],
