@@ -36,7 +36,8 @@ class ExperimentRun:
             from Helper import DashboardGenerator  # Delayed to avoid cyclic imports
             config = Config()
             self.dispatcher = DispatcherApi(config.Dispatcher.Host, config.Dispatcher.Port)
-            self.grafana = DashboardGenerator(config.Grafana.Host, config.Grafana.Port, config.Grafana.Bearer)
+            self.grafana = DashboardGenerator(config.Grafana.Enabled, config.Grafana.Host,
+                                              config.Grafana.Port, config.Grafana.Bearer)
 
     @property
     def CoarseStatus(self):
@@ -77,7 +78,7 @@ class ExperimentRun:
     @property
     def LastMessage(self) -> str:
         current = self.CurrentChild
-        return current.LastMessage if current is not None else 'No active child'
+        return current.LastMessage if current is not None else 'Not active child'
 
     @property
     def Messages(self) -> [str]:

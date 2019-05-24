@@ -14,6 +14,7 @@ Tap:
   Results: C:/Program Files/Keysight/TAP8/Results
   EnsureClosed: True
 Grafana:
+  Enabled: False
   Host:
   Port:
   Bearer: #API key without the 'Bearer ' prefix

@@ -1,4 +1,4 @@
-from Helper import Child, Level
+from Helper import Child, Level, Config
 from typing import Dict, Optional
 from Data import ExperimentDescriptor
 from Composer import PlatformConfiguration
@@ -6,10 +6,17 @@ from datetime import datetime
 from Helper import Serialize
 from .status import Status
 from tempfile import TemporaryDirectory
+from Interfaces import DispatcherApi
 
 
 class ExecutorBase(Child):
+    dispatcher: DispatcherApi = None
+
     def __init__(self, params: Dict, name: str, tempFolder: TemporaryDirectory = None):
+        if self.dispatcher is None:
+            config = Config()
+            self.dispatcher = DispatcherApi(config.Dispatcher.Host, config.Dispatcher.Port)
+
         now = datetime.utcnow()
         super().__init__(f"{name}{now.strftime('%y%m%d%H%M%S%f')}", tempFolder)
         self.Tag = name
@@ -37,6 +44,7 @@ class ExecutorBase(Child):
     def AddMessage(self, msg: str, percent: int = None):
         if percent is not None: self.PerCent = percent
         self.Messages.append(f'[{self.PerCent}%] {msg}')
+        self.dispatcher.UpdateExecutionData(self.Id, percent=self.PerCent, message=msg)
 
     @property
     def LastMessage(self):
