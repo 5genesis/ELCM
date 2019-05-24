@@ -6,8 +6,9 @@ from typing import Dict, Tuple, Optional
 
 
 class DashboardGenerator(RestClient):
-    def __init__(self, host: str, port: int, bearer: str):
+    def __init__(self, enabled: bool, host: str, port: int, bearer: str):
         super().__init__(host, port, "/api")
+        self.enabled = enabled
         self.bearer = bearer
         self.headers = {
             'Content-Type': 'application/json; charset=utf-8',
@@ -15,6 +16,8 @@ class DashboardGenerator(RestClient):
         }
 
     def Create(self, experiment: ExperimentRun) -> Optional[str]:
+        if not self.enabled: return None
+
         body = json.dumps(self.generateData(experiment))
         Log.D(f"Grafana dashboard data (experiment {experiment.Id}): {body}")
         response = self.httpPost(f"{self.api_url}/dashboards/db", self.headers, body)

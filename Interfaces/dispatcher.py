@@ -27,7 +27,7 @@ class DispatcherApi(RestClient):
 
         _maybeAdd('Status', status)
         _maybeAdd('Dashboard', dashboardUrl)
-        _maybeAdd('Percent', percent)
+        _maybeAdd('PerCent', percent)
         _maybeAdd('Message', message)
 
         self.httpPatch(url, {'Content-Type': 'application/json'}, json.dumps(payload))

@@ -10,6 +10,7 @@ class Grafana:
     def __init__(self, data: Dict):
         self.data = data
 
+        self.Enabled = data['Enabled']
         self.Host = data['Host']
         self.Port = data['Port']
         self.Bearer = data['Bearer']
