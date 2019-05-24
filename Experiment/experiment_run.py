@@ -77,7 +77,7 @@ class ExperimentRun:
     @property
     def LastMessage(self) -> str:
         current = self.CurrentChild
-        return current.LastMessage if current is not None else 'No active child'
+        return current.LastMessage if current is not None else 'Not active child'
 
     @property
     def Messages(self) -> [str]:
