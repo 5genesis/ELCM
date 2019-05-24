@@ -7,7 +7,7 @@ from typing import Dict, Tuple, Optional
 
 class DashboardGenerator(RestClient):
     def __init__(self, enabled: bool, host: str, port: int, bearer: str):
-        super().__init__(host, port, "/api")
+        if enabled: super().__init__(host, port, "/api")
         self.enabled = enabled
         self.bearer = bearer
         self.headers = {
