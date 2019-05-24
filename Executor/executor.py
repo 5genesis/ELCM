@@ -14,6 +14,8 @@ class Executor(ExecutorBase):
         super().__init__(params, "Executor", tempFolder)
 
     def Run(self):
+        from Experiment import Expander  # Delayed to avoid cyclic imports
+
         self.SetStarted()
 
         Instantiate(self.Log).Start()
@@ -25,7 +27,7 @@ class Executor(ExecutorBase):
                 self.LogAndMessage(Level.INFO, "Received stop request, exiting")
                 self.Status = Status.Cancelled
                 break
-            taskInstance: Task = task.Task(self.Log, self.ExpandParams(task.Params))
+            taskInstance: Task = task.Task(self.Log, Expander.ExpandDict(task.Params, self))
             self.AddMessage(f'Starting task {taskInstance.name}')
             taskInstance.Start()
             sleep(2)

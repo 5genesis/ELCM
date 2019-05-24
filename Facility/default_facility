@@ -5,9 +5,10 @@
 # run in order by the Executor (Run stage), using the parameters defined in
 # Config (if any)
 
-# It's possible to expand the value of some variables that start with @ (and
-# enclosed with quotes). Available values are:
-# "@ExperimentId": Experiment execution ID (unique identifier)
+# It's possible to expand the value of some variables enclosed by @{ }.
+# (Use quotes where required in order to generate valid YAML format)
+# Available values are:
+#   - @{ExperimentId}: Experiment execution ID (unique identifier)
 
 UEs:
   TestServer1:
@@ -33,4 +34,23 @@ TestCases:
         TestPlan: C:/Program Files/Keysight/TAP8/test.TapPlan
         Externals:
           Instrument: SSH
-          ExperimentID: "@ExperimentId"
+          ExperimentID: "@{ExperimentId}"
+
+Dashboards:
+  RTT:
+    - Measurement: collectd_enb_cpu_vcpu
+      Field: collectd_enb_cpu_vcpu
+      Interval: 1s # Leave empty to use default ($__interval)
+      Order: ASC
+      Size: [9, 12]
+      Position: [0, 0]
+      Lines: True
+      Percentage: False
+    - Measurement: MONROE.EXP.PING
+      Field: Rtt
+      Interval: 1s
+      Order: ASC
+      Size: [9, 12]
+      Position: [12, 0]
+      Lines: False
+      Percentage: False

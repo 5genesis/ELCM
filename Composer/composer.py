@@ -1,11 +1,9 @@
-from Facility import Facility, ActionInformation
+from Facility import Facility, ActionInformation, DashboardPanel
 from Data import ExperimentDescriptor
 from .platform_configuration import PlatformConfiguration, TaskDefinition
 from importlib import import_module
 from Helper import Log
-from typing import List, Dict
-import yaml
-from sys import maxsize
+from typing import List
 
 
 class Composer:
@@ -16,15 +14,16 @@ class Composer:
         if cls.facility is None:
             cls.facility = Facility()
 
-        name = 'PreRun.Configure'
         configuration = PlatformConfiguration()
         configuration.RunParams['Report'] = {'ExperimentName': descriptor.Name}
 
         actions: List[ActionInformation] = []
+        panels: List[DashboardPanel] = []
         for ue in descriptor.UEs.keys():
             actions.extend(cls.facility.GetUEActions(ue))
         for testcase in descriptor.TestCases:
             actions.extend(cls.facility.GetTestCaseActions(testcase))
+            panels.extend(cls.facility.GetTestCaseDashboards(testcase))
 
         actions.sort(key=lambda action: action.Order)  # Sort by Order
 
@@ -33,6 +32,8 @@ class Composer:
             taskDefinition.Task = cls.getTaskClass(action.TaskName)
             taskDefinition.Params = action.Config
             configuration.RunTasks.append(taskDefinition)
+
+        configuration.DashboardPanels = panels
 
         return configuration
 

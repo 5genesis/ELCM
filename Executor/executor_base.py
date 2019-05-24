@@ -102,26 +102,3 @@ class ExecutorBase(Child):
         res.Status = Status[data['Status']]
 
         return res
-
-    def ExpandParams(self, params: Dict):
-        return self.expandParams(params)
-
-    def expandParams(self, item: object) -> object:
-        if isinstance(item, dict):
-            res = {}
-            for key, value in item.items():
-                res[key] = self.expandParams(value)
-        elif isinstance(item, list) or isinstance(item, tuple):
-            res = []
-            for value in item:
-                res.append(self.expandParams(value))
-        elif isinstance(item, str):
-            res = self.expand(item)
-        else:
-            res = item
-        return res
-
-    def expand(self, item: str) -> str:
-        if item == "@ExperimentId":
-            return str(self.Id)
-        return item
