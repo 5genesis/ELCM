@@ -4,6 +4,7 @@ from .platform_configuration import PlatformConfiguration, TaskDefinition
 from importlib import import_module
 from Helper import Log
 from typing import List
+from Executor.Tasks.Run import Message
 
 
 class Composer:
@@ -29,8 +30,14 @@ class Composer:
 
         for action in actions:
             taskDefinition = TaskDefinition()
-            taskDefinition.Task = cls.getTaskClass(action.TaskName)
             taskDefinition.Params = action.Config
+            task = cls.getTaskClass(action.TaskName)
+            if task is None:
+                taskDefinition.Task = Message
+                taskDefinition.Params['Severity'] = "ERROR"
+                taskDefinition.Params['Message'] = f"Could not find task {action.TaskName}"
+            else:
+                taskDefinition.Task = task
             configuration.RunTasks.append(taskDefinition)
 
         configuration.DashboardPanels = panels
