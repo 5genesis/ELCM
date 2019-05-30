@@ -2,7 +2,6 @@ from typing import Dict, List, ClassVar
 from Facility import DashboardPanel
 
 
-
 class TaskDefinition:
     def __init__(self):
         self.Task: ClassVar = None
