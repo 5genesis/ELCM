@@ -21,4 +21,4 @@ app.register_blueprint(ExperimentBp, url_prefix='/experiment')
 from Scheduler.dispatcher import bp as DispatcherBp
 app.register_blueprint(DispatcherBp, url_prefix='/api/v0')
 
-from Scheduler import routes, rest_server
+from Scheduler import routes
