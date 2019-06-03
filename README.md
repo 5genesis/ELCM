@@ -2,9 +2,12 @@
 
 ## Requirements
 
-[Python 3.7.x](https://www.python.org)
+ - [Python 3.7.x](https://www.python.org)
+ - [Optional] [Grafana](https://grafana.com/) (tested on version 5.4)
 
 ## Installing (development)
+> A video detailing the deployment procedure of the ELCM (and Portal) can be seen [in BSCW](https://bscw.fokus.fraunhofer.de/bscw/bscw.cgi/d3208170/Coordinationlayer_call20190422.mp4)
+
 > It is recommended, but not required, to run the Portal in a [Python virtual environment](https://virtualenv.pypa.io/en/stable/).
 > If you are not using virtual environments, skip steps 3 and 4.
 
@@ -112,6 +115,10 @@ execution has finished.
 
 More information about the possible values to use in this file and the behavior of the composer when generating the list
 of tasks to execute can be seen on the example file (also at `./Facility/default_facility`). 
+
+## REST API
+
+Information about the current REST API of the ELCM (and Portal) can be seen [in BSCW](https://bscw.fokus.fraunhofer.de/bscw/bscw.cgi/d3228781/OpenAPIv1.docx).
 
 ## Authors
 
