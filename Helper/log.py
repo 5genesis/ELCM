@@ -50,7 +50,7 @@ class LogInfo:
 
     @staticmethod
     def FromLog(log: List[str]):
-        def _inferLevel(line:str) -> str:
+        def _inferLevel(line: str) -> str:
             if ' - CRITICAL - ' in line: return 'Critical'
             if ' - ERROR - ' in line: return 'Error'
             if ' - WARNING - ' in line: return 'Warning'
