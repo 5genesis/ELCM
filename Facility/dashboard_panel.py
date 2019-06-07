@@ -4,7 +4,7 @@ from Helper import Serialize
 
 class DashboardPanel:
     def __init__(self, data: Dict):
-        self.Type, self.MinValue, self.MaxValue, self.Gauge = Serialize.Unroll(data, "Type", "MinValue", "MaxValue")
+        self.Type, self.MinValue, self.MaxValue, self.Gauge = Serialize.Unroll(data, "Type", "MinValue", "MaxValue", "Gauge")
         self.Measurement, self.Field, self.Order = Serialize.Unroll(data, "Measurement", "Field", "Order")
         self.Size, self.Position = Serialize.Unroll(data, "Size", "Position")
         self.Interval, self.Lines, self.Percentage = Serialize.Unroll(data, "Interval", "Lines", "Percentage")
@@ -67,6 +67,10 @@ class DashboardPanel:
                 "maxValue": self.MaxValue if self.Gauge else 100,
                 "thresholdMarkers": True,
                 "thresholdLabels": True
+            },
+            "gridPos": {
+                "h": self.Size[0], "w": self.Size[1],
+                "x": self.Position[0], "y": self.Position[1]
             },
             "tableColumn": ""
         }

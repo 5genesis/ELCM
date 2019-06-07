@@ -9,5 +9,5 @@ class SaveResults(Task):
 
     def Run(self):
         self.Log(Level.INFO, 'Sending results to repo')
-        sleep(3)
+        sleep(1)
         self.Log(Level.INFO, 'Completed')
