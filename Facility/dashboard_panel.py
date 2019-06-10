@@ -4,14 +4,16 @@ from Helper import Serialize
 
 class DashboardPanel:
     def __init__(self, data: Dict):
-        self.Type, self.MinValue, self.MaxValue, self.Gauge = Serialize.Unroll(data, "Type", "MinValue", "MaxValue", "Gauge")
+        self.Type, self.Name = Serialize.Unroll(data, "Type", "Name")
+        self.MinValue, self.MaxValue, self.Gauge = Serialize.Unroll(data, "MinValue", "MaxValue", "Gauge")
         self.Measurement, self.Field, self.Order = Serialize.Unroll(data, "Measurement", "Field", "Order")
         self.Size, self.Position = Serialize.Unroll(data, "Size", "Position")
         self.Interval, self.Lines, self.Percentage = Serialize.Unroll(data, "Interval", "Lines", "Percentage")
 
     def AsDict(self):
         return {
-            "Type": self.Type, "MinValue": self.MinValue, "MaxValue": self.MaxValue, "Gauge": self.Gauge,
+            "Type": self.Type, "Name": self.Name,
+            "MinValue": self.MinValue, "MaxValue": self.MaxValue, "Gauge": self.Gauge,
             "Measurement": self.Measurement, "Field": self.Field, "Order": self.Order,
             "Size": self.Size, "Position": self.Position,
             "Interval": self.Interval, "Lines": self.Lines, "Percentage": self.Percentage
@@ -29,7 +31,7 @@ class DashboardPanel:
     def singlePanel(self, panelId: int) -> Dict:
         return {
             "id": panelId,
-            "title": f"{self.Measurement}: {self.Field}",
+            "title": f"{self.Measurement}: {self.Field}" if self.Name is None else self.Name,
             "type": "singlestat",
             "links": [],
             "maxDataPoints": 100,
@@ -78,7 +80,7 @@ class DashboardPanel:
     def graphPanel(self, panelId: int) -> Dict:
         return {
             "id": panelId,
-            "title": f"{self.Measurement}: {self.Field}",
+            "title": f"{self.Measurement}: {self.Field}" if self.Name is None else self.Name,
             "type": "graph",
             "aliasColors": {},
             "bars": not self.Lines,
