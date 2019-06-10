@@ -11,7 +11,7 @@ class DashboardPanel:
 
     def AsDict(self):
         return {
-            "Type": self.Type, "MinValue": self.MinValue, "MaxValue": self.MaxValue,
+            "Type": self.Type, "MinValue": self.MinValue, "MaxValue": self.MaxValue, "Gauge": self.Gauge,
             "Measurement": self.Measurement, "Field": self.Field, "Order": self.Order,
             "Size": self.Size, "Position": self.Position,
             "Interval": self.Interval, "Lines": self.Lines, "Percentage": self.Percentage
