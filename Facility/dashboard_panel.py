@@ -7,6 +7,7 @@ class DashboardPanel:
         self.Type, self.Name = Serialize.Unroll(data, "Type", "Name")
         self.MinValue, self.MaxValue, self.Gauge = Serialize.Unroll(data, "MinValue", "MaxValue", "Gauge")
         self.Measurement, self.Field, self.Order = Serialize.Unroll(data, "Measurement", "Field", "Order")
+        self.Unit, self.UnitLabel = Serialize.Unroll(data, "Unit", "UnitLabel")
         self.Size, self.Position = Serialize.Unroll(data, "Size", "Position")
         self.Interval, self.Lines, self.Percentage = Serialize.Unroll(data, "Interval", "Lines", "Percentage")
 
@@ -15,6 +16,7 @@ class DashboardPanel:
             "Type": self.Type, "Name": self.Name,
             "MinValue": self.MinValue, "MaxValue": self.MaxValue, "Gauge": self.Gauge,
             "Measurement": self.Measurement, "Field": self.Field, "Order": self.Order,
+            "Unit": self.Unit, "UnitLabel": self.UnitLabel,
             "Size": self.Size, "Position": self.Position,
             "Interval": self.Interval, "Lines": self.Lines, "Percentage": self.Percentage
         }
@@ -97,7 +99,7 @@ class DashboardPanel:
             },
             "lines": self.Lines,
             "linewidth": 1,
-            "nullPointMode": "null",
+            "nullPointMode": "connected" if self.Lines else "null",
             "percentage": self.Percentage,
             "pointradius": 5,
             "points": False,
@@ -117,7 +119,9 @@ class DashboardPanel:
             },
             "yaxes": [
                 {
-                    "format": "short", "label": None, "logBase": 1,
+                    "format": "short" if self.Unit is None else self.Unit,
+                    "label": self.UnitLabel,
+                    "logBase": 1,
                     "max": None, "min": None, "show": True
                 },
                 {
