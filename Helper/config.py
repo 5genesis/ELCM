@@ -14,6 +14,7 @@ class Grafana:
         self.Host = data['Host']
         self.Port = data['Port']
         self.Bearer = data['Bearer']
+        self.ReportGenerator = data['ReportGenerator']
 
 
 class TapConfig:

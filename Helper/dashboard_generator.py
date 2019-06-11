@@ -2,11 +2,11 @@ from Helper import Log
 from REST import RestClient
 from Experiment import ExperimentRun
 import json
-from typing import Dict, Tuple, Optional
+from typing import Dict, Tuple, Optional, List
 
 
 class DashboardGenerator(RestClient):
-    def __init__(self, enabled: bool, host: str, port: int, bearer: str):
+    def __init__(self, enabled: bool, host: str, port: int, bearer: str, generatorUrl: str):
         if enabled: super().__init__(host, port, "/api")
         self.enabled = enabled
         self.bearer = bearer
@@ -14,6 +14,7 @@ class DashboardGenerator(RestClient):
             'Content-Type': 'application/json; charset=utf-8',
             'Authorization': f"Bearer {self.bearer}"
         }
+        self.reportGeneratorUrl = generatorUrl
 
     def Create(self, experiment: ExperimentRun) -> Optional[str]:
         if not self.enabled: return None
@@ -32,8 +33,7 @@ class DashboardGenerator(RestClient):
             except: pass
             return None
 
-    @staticmethod
-    def generateData(experiment: ExperimentRun) -> Dict:
+    def generateData(self, experiment: ExperimentRun) -> Dict:
         return {
             "dashboard": {
                 "id": None,
@@ -51,14 +51,13 @@ class DashboardGenerator(RestClient):
                 "refresh": "5s",
                 "schemaVersion": 17,
                 "version": 1,
-                "links": [],
-                "panels": DashboardGenerator.generatePanels(experiment),
-                "time": DashboardGenerator.generateTime(experiment)
+                "panels": self.generatePanels(experiment),
+                "time": self.generateTime(experiment),
+                "links": self.generateLinks(experiment)
             }
         }
 
-    @staticmethod
-    def generateTime(experiment: ExperimentRun):
+    def generateTime(self, experiment: ExperimentRun) -> Dict:
         timeFormat = "%Y-%m-%dT%H:%M:%S.%fZ"
         runner = experiment.Executor
         return {
@@ -66,10 +65,24 @@ class DashboardGenerator(RestClient):
             "to": str(runner.Finished.strftime(timeFormat)),
         }
 
-    @staticmethod
-    def generatePanels(experiment: ExperimentRun):
+    def generatePanels(self, experiment: ExperimentRun) -> List[Dict]:
         res = []
         panels = experiment.Configuration.DashboardPanels
         for index, panel in zip(range(len(panels)), panels):
             res.append(panel.Generate(index, experiment.Id))
         return res
+
+    def generateLinks(self, experiment: ExperimentRun) -> List[Dict]:
+        report = {
+            "icon": "doc",
+            "includeVars": True,
+            "keepTime": True,
+            "tags": [],
+            "targetBlank": True,
+            "title": "PDF Report",
+            "tooltip": "Retrieve a PDF report generated from this dashboard.",
+            "type": "link",
+            "url": f"{self.reportGeneratorUrl}/api/v5/report/Run{experiment.Id}?apitoken={self.bearer}"
+
+        }
+        return [report]

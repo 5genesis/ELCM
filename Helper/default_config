@@ -18,3 +18,4 @@ Grafana:
   Host:
   Port:
   Bearer: #API key without the 'Bearer ' prefix
+  ReportGenerator:
