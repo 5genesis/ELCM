@@ -82,7 +82,7 @@ class DashboardGenerator(RestClient):
             "title": "PDF Report",
             "tooltip": "Retrieve a PDF report generated from this dashboard.",
             "type": "link",
-            "url": f"{self.reportGeneratorUrl}/api/v5/report/Run{experiment.Id}?apitoken={self.bearer}"
-
+            "url": f"{self.reportGeneratorUrl}/api/v5/report/Run{experiment.Id}?"
+                   f"apitoken={self.bearer}&template=5genesis"
         }
         return [report]
