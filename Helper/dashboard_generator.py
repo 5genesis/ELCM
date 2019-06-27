@@ -73,16 +73,19 @@ class DashboardGenerator(RestClient):
         return res
 
     def generateLinks(self, experiment: ExperimentRun) -> List[Dict]:
-        report = {
-            "icon": "doc",
-            "includeVars": True,
-            "keepTime": True,
-            "tags": [],
-            "targetBlank": True,
-            "title": "PDF Report",
-            "tooltip": "Retrieve a PDF report generated from this dashboard.",
-            "type": "link",
-            "url": f"{self.reportGeneratorUrl}/api/v5/report/Run{experiment.Id}?"
-                   f"apitoken={self.bearer}&template=5genesis"
-        }
-        return [report]
+        if self.reportGeneratorUrl is not None and len(self.reportGeneratorUrl) > 0:
+            report = {
+                "icon": "doc",
+                "includeVars": True,
+                "keepTime": True,
+                "tags": [],
+                "targetBlank": True,
+                "title": "PDF Report",
+                "tooltip": "Retrieve a PDF report generated from this dashboard.",
+                "type": "link",
+                "url": f"{self.reportGeneratorUrl}/api/v5/report/Run{experiment.Id}?"
+                       f"apitoken={self.bearer}&template=5genesis"
+            }
+            return [report]
+        else:
+            return []

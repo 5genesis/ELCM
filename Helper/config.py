@@ -10,21 +10,21 @@ class Grafana:
     def __init__(self, data: Dict):
         self.data = data
 
-        self.Enabled = data['Enabled']
-        self.Host = data['Host']
-        self.Port = data['Port']
-        self.Bearer = data['Bearer']
-        self.ReportGenerator = data['ReportGenerator']
+        self.Enabled = data.get('Enabled', False)
+        self.Host = data.get('Host', '')
+        self.Port = data.get('Port', '')
+        self.Bearer = data.get('Bearer', '')
+        self.ReportGenerator = data.get('ReportGenerator', '')
 
 
 class TapConfig:
     def __init__(self, data: Dict):
         self.data = data
 
-        self.Exe = data['Exe']
-        self.Folder = data['Folder']
-        self.Results = data['Results']
-        self.EnsureClosed = data['EnsureClosed']
+        self.Exe = data.get('Exe', '')
+        self.Folder = data.get('Folder', '')
+        self.Results = data.get('Results', '')
+        self.EnsureClosed = data.get('EnsureClosed', False)
 
     @property
     def Path(self): return realpath(join(self.Folder, self.Exe))
@@ -102,8 +102,8 @@ class Config:
 
     @property
     def Tap(self):
-        return TapConfig(self.data['Tap'])
+        return TapConfig(self.data.get('Tap', {}))
 
     @property
     def Grafana(self):
-        return Grafana(self.data['Grafana'])
+        return Grafana(self.data.get('Grafana', {}))
