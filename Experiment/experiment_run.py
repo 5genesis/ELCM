@@ -37,7 +37,8 @@ class ExperimentRun:
             config = Config()
             self.dispatcher = DispatcherApi(config.Dispatcher.Host, config.Dispatcher.Port)
             self.grafana = DashboardGenerator(config.Grafana.Enabled, config.Grafana.Host,
-                                              config.Grafana.Port, config.Grafana.Bearer)
+                                              config.Grafana.Port, config.Grafana.Bearer,
+                                              config.Grafana.ReportGenerator)
 
     @property
     def CoarseStatus(self):

@@ -19,7 +19,7 @@ class PreRunner(ExecutorBase):
             available = result['Available']
             if not available:
                 self.AddMessage('Not available')
-                sleep(10)
+                sleep(1)
 
         self.AddMessage('Resources granted', 80)
         AddExperimentEntry(self.Log).Start()

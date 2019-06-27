@@ -9,5 +9,5 @@ class UpdateExperimentEntry(Task):
 
     def Run(self):
         self.Log(Level.INFO, 'Sending entry information')
-        sleep(3)
+        sleep(1)
         self.Log(Level.INFO, 'Information sent')

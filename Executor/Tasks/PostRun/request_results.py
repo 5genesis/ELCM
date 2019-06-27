@@ -9,5 +9,5 @@ class RequestResults(Task):
 
     def Run(self):
         self.Log(Level.INFO, 'Requesting execution results')
-        sleep(3)
+        sleep(1)
         self.Log(Level.INFO, 'Completed')
