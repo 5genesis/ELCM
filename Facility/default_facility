@@ -36,21 +36,94 @@ TestCases:
           Instrument: SSH
           ExperimentID: "@{ExperimentId}"
 
+# The following values can be set for the dashboard panels:
+# - [Mandatory] Type: 'singlestat' (gauges or single value) or 'graph' (time series)
+# - [Optional]  Name: Panel name, '{Measurement}: {Field}' if not set
+# - [Mandatory] Measurement: Measurement (table) name
+# - [Mandatory] Field: Field (column) name
+# - [Optional]  Unit: Field unit
+# - [Mandatory] Size: (As list) [<height>, <width>]
+# - [Mandatory] Position: (As list) [<x>, <y>]
+
+# For graph:
+# - [Mandatory] Lines: True to display as lines, False to display as bars
+# - [Mandatory] Percentage: Whether the field is a percentage or not
+# - [Optional]  Interval: Time interval of the graph, default $__interval if not set
+
+# For singlestat:
+# - [Mandatory] Gauge: True to display as a gauge, false to display as numeric value
+# - [Optional]  MaxValue: Max expected value of the gauge, 100 if not set
+# - [Optional]  MaxValue: Min expected value of the gauge, 0 if not set
+
 Dashboards:
   RTT:
-    - Measurement: collectd_enb_cpu_vcpu
-      Field: collectd_enb_cpu_vcpu
-      Interval: 1s # Leave empty to use default ($__interval)
-      Order: ASC
-      Size: [9, 12]
+    - Name: "VIM: Memory usage"
+      Measurement: node_memory_MemFree_bytes
+      Field: node_memory_MemFree_bytes
+      Type: Graph
+      Unit: bytes
+      Interval: 5s # Leave empty to use default ($__interval)
+      Size: [9, 8]
       Position: [0, 0]
       Lines: True
-      Percentage: False
-    - Measurement: MONROE.EXP.PING
-      Field: Rtt
+      Percentage: True
+    - Name: "UE: RoundTrip Time"
+      Measurement: "Downlink: Source on Traffic ADB"
+      Field: "RoundTrip delay (ms)"
+      Unit: ms
+      Type: Graph
       Interval: 1s
-      Order: ASC
       Size: [9, 12]
-      Position: [12, 0]
+      Position: [8, 0]
       Lines: False
+      Percentage: False
+    - Name: "UE: Success Ratio"
+      Measurement: Traffic ADB RTT
+      Field: "Success Ratio"
+      Interval: 1s
+      Gauge: True
+      MinValue: 0.0
+      MaxValue: 1.0
+      Size: [5, 4]
+      Position: [20, 0]
+      Lines: False
+      Percentage: False
+      Type: SingleStat
+    - Name: Success
+      Measurement: Traffic ADB RTT
+      Field: Success
+      Interval: 1s
+      Size: [4, 2]
+      Position: [20, 5]
+      Lines: False
+      Percentage: False
+      Type: SingleStat
+    - Name: Total
+      Measurement: Traffic ADB RTT
+      Field: Total
+      Interval: 1s
+      Size: [4, 2]
+      Position: [22, 5]
+      Lines: False
+      Percentage: False
+      Type: SingleStat
+    - Name: "Power source: Average power"
+      Unit: watt
+      Measurement: SMU
+      Field: Average Power [W]
+      Type: Graph
+      Interval: 1s
+      Size: [9, 12]
+      Position: [0, 9]
+      Lines: True
+      Percentage: False
+    - Name: "eNodeB: Average Throughput"
+      Measurement: Thoughput Measures
+      Field: DL - AverageThput (Kbps)
+      Unit: Kbits
+      Type: Graph
+      Interval: 1s
+      Size: [9, 12]
+      Position: [12, 9]
+      Lines: True
       Percentage: False

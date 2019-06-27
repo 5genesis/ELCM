@@ -6,7 +6,7 @@ class DashboardPanel:
     def __init__(self, data: Dict):
         self.Type, self.Name = Serialize.Unroll(data, "Type", "Name")
         self.MinValue, self.MaxValue, self.Gauge = Serialize.Unroll(data, "MinValue", "MaxValue", "Gauge")
-        self.Measurement, self.Field, self.Order = Serialize.Unroll(data, "Measurement", "Field", "Order")
+        self.Measurement, self.Field = Serialize.Unroll(data, "Measurement", "Field")
         self.Unit, self.UnitLabel = Serialize.Unroll(data, "Unit", "UnitLabel")
         self.Size, self.Position = Serialize.Unroll(data, "Size", "Position")
         self.Interval, self.Lines, self.Percentage = Serialize.Unroll(data, "Interval", "Lines", "Percentage")
@@ -15,7 +15,7 @@ class DashboardPanel:
         return {
             "Type": self.Type, "Name": self.Name,
             "MinValue": self.MinValue, "MaxValue": self.MaxValue, "Gauge": self.Gauge,
-            "Measurement": self.Measurement, "Field": self.Field, "Order": self.Order,
+            "Measurement": self.Measurement, "Field": self.Field,
             "Unit": self.Unit, "UnitLabel": self.UnitLabel,
             "Size": self.Size, "Position": self.Position,
             "Interval": self.Interval, "Lines": self.Lines, "Percentage": self.Percentage
@@ -136,7 +136,7 @@ class DashboardPanel:
         return {
             "hide": False,
             "measurement": self.Measurement,
-            "orderByTime": self.Order,
+            "orderByTime": "ASC",
             "policy": "default",
             "rawQuery": False,
             "refId": "A",

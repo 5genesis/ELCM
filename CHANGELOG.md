@@ -1,3 +1,9 @@
+** 27/06/2019 ** [Version 1.0.5]
+
+ - Added support for singlestat (Gauge) Grafana panels
+ - Added configurable Name, Unit values to panels
+ - Added support for PDF generation using [Grafana reporter](https://github.com/IzakMarais/reporter)
+
 **30/05/2019**
 
  - Implemented Command Line Executor task for performing actions without TAP. 
