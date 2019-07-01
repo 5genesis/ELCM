@@ -8,7 +8,7 @@ from urllib3 import connection_from_url
 class RestClient:
     HEADERS = {'Accept-Language': 'en-US;q=0.5,en;q=0.3'}
     RETRIES = 10
-    FILENAME_PATTERN = re.compile(r".*filename=\"(.*)\"")
+    FILENAME_PATTERN = re.compile(r".*filename=(.*)")
 
     def __init__(self, api_host, api_port, suffix):
         self.api_url = f'http://{api_host}:{api_port}{suffix}'
@@ -28,7 +28,10 @@ class RestClient:
     def getFilename(self, content_disposition):
         result = self.FILENAME_PATTERN.match(content_disposition)
         if result is not None:
-            return result.group(1)
+            filename = result.group(1)
+            if filename.startswith("\"") and filename.endswith("\""):
+                filename = filename[1:-1]
+            return filename
         return "unknown_filename"
 
     def httpGet(self, url):
