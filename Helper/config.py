@@ -6,13 +6,19 @@ import logging
 from os.path import realpath, join
 
 
-class Grafana:
+class restApi:
     def __init__(self, data: Dict):
         self.data = data
 
-        self.Enabled = data.get('Enabled', False)
         self.Host = data.get('Host', '')
         self.Port = data.get('Port', '')
+
+
+class Grafana(restApi):
+    def __init__(self, data: Dict):
+        super().__init__(data)
+
+        self.Enabled = data.get('Enabled', False)
         self.Bearer = data.get('Bearer', '')
         self.ReportGenerator = data.get('ReportGenerator', '')
 
@@ -30,17 +36,16 @@ class TapConfig:
     def Path(self): return realpath(join(self.Folder, self.Exe))
 
 
-class Dispatcher:
-    def __init__(self, data: Dict):
-        self.data = data['Dispatcher']
+class Dispatcher(restApi):
+    pass
+    #def __init__(self, data: Dict):
+    #    super().__init__(data['Dispatcher'])
 
-    @property
-    def Host(self):
-        return self.data['Host']
 
-    @property
-    def Port(self):
-        return self.data['Port']
+class SliceManager(restApi):
+    pass
+    #def __init__(self, data: Dict):
+    #    super().__init__(data['SliceManager'])
 
 
 class Logging:
@@ -90,7 +95,7 @@ class Config:
 
     @property
     def Dispatcher(self):
-        return Dispatcher(self.data)
+        return Dispatcher(self.data.get('Dispatcher', {}))
 
     @property
     def Flask(self):
@@ -107,3 +112,7 @@ class Config:
     @property
     def Grafana(self):
         return Grafana(self.data.get('Grafana', {}))
+
+    @property
+    def SliceManager(self):
+        return SliceManager(self.data.get('SliceManager', {}))
