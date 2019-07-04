@@ -34,26 +34,22 @@ class RestClient:
             return filename
         return "unknown_filename"
 
-    def httpGet(self, url):
-        return self.pool.request('GET',
-                                 url,
-                                 retries=self.RETRIES)
+    def httpGet(self, url, extra_headers = None):
+        extra_headers = {} if extra_headers is None else extra_headers
+        return self.pool.request('GET', url, headers=extra_headers, retries=self.RETRIES)
 
     def httpPost(self, url, extra_headers=None, body=''):
         extra_headers = {} if extra_headers is None else extra_headers
-        return self.pool.request('POST',
-                                 url,
-                                 body=body,
-                                 headers={**self.HEADERS, **extra_headers},
-                                 retries=self.RETRIES)
+        return self.pool.request('POST', url, body=body,
+                                 headers={**self.HEADERS, **extra_headers}, retries=self.RETRIES)
 
     def httpPatch(self, url, extra_headers=None, body=''):
         extra_headers = {} if extra_headers is None else extra_headers
-        return self.pool.request('PATCH',
-                                 url,
-                                 body=body,
-                                 headers={**self.HEADERS, **extra_headers},
-                                 retries=self.RETRIES)
+        return self.pool.request('PATCH', url, body=body,
+                                 headers={**self.HEADERS, **extra_headers}, retries=self.RETRIES)
+
+    def httpDelete(self, url):
+        return self.pool.request('DELETE', url, retries=self.RETRIES)
 
     @staticmethod
     def responseToJson(response):
