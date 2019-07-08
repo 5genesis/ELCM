@@ -1,5 +1,5 @@
 from typing import Dict
-from .Tasks.PreRun import CheckAvailable, AddExperimentEntry
+from .Tasks.PreRun import CheckAvailable, AddExperimentEntry, Instantiate
 from .executor_base import ExecutorBase
 from tempfile import TemporaryDirectory
 from time import sleep
@@ -21,8 +21,12 @@ class PreRunner(ExecutorBase):
                 self.AddMessage('Not available')
                 sleep(1)
 
-        self.AddMessage('Resources granted', 80)
+        self.AddMessage('Resources granted', 50)
         AddExperimentEntry(self.Log).Start()
-        self.AddMessage('Experiment registered', 80)
+        self.AddMessage('Experiment registered', 50)
 
+        sliceId = Instantiate(self.Log, self.TempFolder, self.Configuration.PreRunParams).Start()
+        self.params["SliceId"] = sliceId
+
+        self.AddMessage('Instantiation completed', 80)
         self.SetFinished(percent=100)

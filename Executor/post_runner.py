@@ -1,5 +1,5 @@
 from typing import Dict
-from .Tasks.PostRun import RequestResults, SaveResults, UpdateExperimentEntry
+from .Tasks.PostRun import RequestResults, SaveResults, UpdateExperimentEntry, Decommission
 from .executor_base import ExecutorBase
 from tempfile import TemporaryDirectory
 
@@ -10,6 +10,9 @@ class PostRunner(ExecutorBase):
 
     def Run(self):
         self.SetStarted()
+
+        Decommission(self.Log).Start()
+        self.AddMessage('Resources decommisioned', 10)
 
         RequestResults(self.Log).Start()
         self.AddMessage('Results received', 30)
