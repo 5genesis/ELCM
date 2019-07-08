@@ -31,6 +31,10 @@ class ExecutorBase(Child):
         self.AddMessage("Init")
 
     @property
+    def HasFailed(self) -> bool:
+        return self.hasFailed
+
+    @property
     def Descriptor(self) -> Optional[ExperimentDescriptor]:
         return self.params.get('Descriptor', None)
 

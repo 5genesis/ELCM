@@ -4,7 +4,7 @@ from typing import Dict, Optional
 from enum import Enum, unique
 from datetime import datetime
 from tempfile import TemporaryDirectory
-from Helper import Config, Serialize
+from Helper import Config, Serialize, Log
 from Interfaces import DispatcherApi
 from Composer import Composer, PlatformConfiguration
 
@@ -128,15 +128,41 @@ class ExperimentRun:
             return
         elif self.CoarseStatus == CoarseStatus.Init:
             self.PreRun()
-        elif self.CoarseStatus == CoarseStatus.PreRun and self.PreRunner.Finished:
-            self.Run()
-        elif self.CoarseStatus == CoarseStatus.Run and self.Executor.Finished:
-            self.PostRun()
-        elif self.CoarseStatus == CoarseStatus.PostRun and self.PostRunner.Finished:
-            self.CoarseStatus = CoarseStatus.Finished
+        elif self.CoarseStatus == CoarseStatus.PreRun:
+            if self.PreRunner.HasFailed:
+                self.CoarseStatus = CoarseStatus.Errored
+                Log.I(f'Experiment {self.Id} has failed on PreRun')
+                self.handleExperimentEnd()
+                return
+            if self.PreRunner.Finished:
+                self.Run()
+        elif self.CoarseStatus == CoarseStatus.Run:
+            if self.Executor.HasFailed:
+                self.CoarseStatus = CoarseStatus.Errored
+                Log.I(f'Experiment {self.Id} has failed on Run')
+                self.handleExperimentEnd()
+                return
+            if self.Executor.Finished:
+                self.PostRun()
+        elif self.CoarseStatus == CoarseStatus.PostRun:
+            if self.PostRunner.HasFailed:
+                Log.I(f'Experiment {self.Id} has failed on Run')
+                self.CoarseStatus = CoarseStatus.Errored
+            elif self.PostRunner.Finished:
+                self.CoarseStatus = CoarseStatus.Finished
+            self.handleExperimentEnd()
+
+    def handleExperimentEnd(self):
+        # Try to create the dashboard even in case of error, there might be results to display
+        try:
+            Log.D(f"Trying to generate dashboard for experiment {self.Id}")
             self.Configuration.ExpandDashboardPanels(self)
             url = self.grafana.Create(self)
             self.DashboardUrl = url
+        except Exception as e:
+            Log.E(f"Exception while handling experiment end ({self.Id}): {e}")
+        finally:
+            Log.D(f"Clearing temp folder for experiment {self.Id}")
             self.TempFolder.cleanup()
 
     def Serialize(self) -> Dict:

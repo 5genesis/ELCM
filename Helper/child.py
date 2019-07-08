@@ -16,6 +16,7 @@ class Child:
             daemon=True
         )
         self.hasStarted = False
+        self.hasFailed = False
         self.hasFinished = False
         self.stopRequested = False
         self.TempFolder = None if tempFolder is None else tempFolder.name
@@ -39,9 +40,15 @@ class Child:
             self.LogFile = Log.OpenLogFile(self.name)
             self.Log(Level.DEBUG, f'[Using temporal folder: {self.TempFolder}]')
             self.hasStarted = True
-            self.Run()
-            self.hasFinished = True
-            Log.CloseLogFile(self.name)
+            try:
+                self.Run()
+                self.hasFinished = True
+            except Exception as e:
+                self.Log(Level.ERROR, f'Exception while running ({self.name}): {e}]')
+                self.hasFailed = True
+            finally:
+                Log.CloseLogFile(self.name)
+
         if self.tempFolderIsExternal:
             _innerRun()
         else:

@@ -47,7 +47,9 @@ class ExperimentQueue:
     @classmethod
     def UpdateAll(cls):
         experiments = cls.Retrieve()
+        Log.D(f"UpdateAll: {experiments}")
         for experiment in experiments:
+            Log.D(f"Update Experiment: {experiment.Id}")
             if experiment.Active:
                 pre = experiment.CoarseStatus
                 Log.I(f'Advancing Experiment {experiment.Id}')
