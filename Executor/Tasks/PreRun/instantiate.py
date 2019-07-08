@@ -27,7 +27,7 @@ class Instantiate(Task):
             self.Log(Level.INFO, 'Instantiation not required, no NSD defined.')
 
         self.Log(Level.INFO, 'Instantiation completed')
-        return {"SliceId": sliceId}
+        self.params["SliceId"] = sliceId
 
     def getNsdContent(self, experimentId):
         try:

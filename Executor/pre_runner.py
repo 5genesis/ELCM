@@ -25,8 +25,9 @@ class PreRunner(ExecutorBase):
         AddExperimentEntry(self.Log).Start()
         self.AddMessage('Experiment registered', 50)
 
-        sliceId = Instantiate(self.Log, self.TempFolder, self.Configuration.PreRunParams).Start()
-        self.params["SliceId"] = sliceId
+        result = Instantiate(self.Log, self.TempFolder, self.Configuration.PreRunParams).Start()
+        self.Configuration.PostRunParams["SliceId"] = result["SliceId"]
+        self.params["SliceId"] = result["SliceId"]  # TODO: Improve iter-executor communication
 
         self.AddMessage('Instantiation completed', 80)
         self.SetFinished(percent=100)

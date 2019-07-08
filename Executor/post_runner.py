@@ -11,7 +11,7 @@ class PostRunner(ExecutorBase):
     def Run(self):
         self.SetStarted()
 
-        Decommission(self.Log).Start()
+        Decommission(self.Log, self.Configuration.PostRunParams).Start()
         self.AddMessage('Resources decommisioned', 10)
 
         RequestResults(self.Log).Start()

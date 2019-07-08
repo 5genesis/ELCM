@@ -22,7 +22,7 @@ class Task:
             self.Log(Level.INFO, f'[Task {self.name} not started (condition false)]')
         return self.params
 
-    def Run(self):
+    def Run(self) -> None:
         raise NotImplementedError
 
     def Log(self, level: Union[Level, str], msg: str):

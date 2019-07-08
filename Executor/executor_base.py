@@ -31,6 +31,10 @@ class ExecutorBase(Child):
         self.AddMessage("Init")
 
     @property
+    def Params(self) -> Dict:
+        return self.params
+
+    @property
     def HasFailed(self) -> bool:
         return self.hasFailed
 
