@@ -36,16 +36,19 @@ class TapConfig:
     def Path(self): return realpath(join(self.Folder, self.Exe))
 
 
-class Dispatcher(restApi):
-    pass
-    #def __init__(self, data: Dict):
-    #    super().__init__(data['Dispatcher'])
+class Dispatcher(restApi): pass
 
 
-class SliceManager(restApi):
-    pass
-    #def __init__(self, data: Dict):
-    #    super().__init__(data['SliceManager'])
+class SliceManager(restApi): pass
+
+
+class InfluxDb(restApi):
+    def __init__(self, data: Dict):
+        super().__init__(data)
+
+        self.User = data.get("User", "")
+        self.Password = data.get("Password", "")
+        self.Database = data.get("Database", "")
 
 
 class Logging:
@@ -116,3 +119,7 @@ class Config:
     @property
     def SliceManager(self):
         return SliceManager(self.data.get('SliceManager', {}))
+
+    @property
+    def InfluxDb(self):
+        return InfluxDb(self.data.get('InfluxDb', {}))
