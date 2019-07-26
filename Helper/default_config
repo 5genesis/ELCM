@@ -28,3 +28,6 @@ InfluxDb:
   User:
   Password:
   Database:
+Metadata:
+  HostIp:
+  Facility:

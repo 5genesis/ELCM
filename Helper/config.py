@@ -4,6 +4,7 @@ from shutil import copy
 from typing import Dict
 import logging
 from os.path import realpath, join
+import platform
 
 
 class restApi:
@@ -76,6 +77,16 @@ class Logging:
         return self.toLogLevel(self.data['LogLevel'])
 
 
+class Metadata:
+    def __init__(self, data: Dict):
+        self.data = data['Logging']
+
+        self.HostName = platform.node()
+        ip = data.get("HostIp", None)
+        self.HostIp = ip if ip is not None else "127.0.0.1"
+        self.Facility = data.get("Facility", "")
+
+
 class Config:
     FILENAME = 'config.yml'
 
@@ -123,3 +134,7 @@ class Config:
     @property
     def InfluxDb(self):
         return InfluxDb(self.data.get('InfluxDb', {}))
+
+    @property
+    def Metadata(self):
+        return Metadata(self.data.get('Metadata', {}))
