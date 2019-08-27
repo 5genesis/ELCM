@@ -3,6 +3,7 @@ from REST import RestClient
 from Experiment import ExperimentRun
 import json
 from typing import Dict, Tuple, Optional, List
+from datetime import datetime
 
 
 class DashboardGenerator(RestClient):
@@ -62,7 +63,8 @@ class DashboardGenerator(RestClient):
         runner = experiment.Executor
         return {
             "from": str(runner.Started.strftime(timeFormat)),
-            "to": str(runner.Finished.strftime(timeFormat)),
+            "to": str(runner.Finished.strftime(timeFormat) if not runner.HasFailed
+                      else datetime.utcnow().strftime(timeFormat)),
         }
 
     def generatePanels(self, experiment: ExperimentRun) -> List[Dict]:

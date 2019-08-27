@@ -79,11 +79,10 @@ class Logging:
 
 class Metadata:
     def __init__(self, data: Dict):
-        self.data = data['Logging']
+        self.data = data
 
         self.HostName = platform.node()
-        ip = data.get("HostIp", None)
-        self.HostIp = ip if ip is not None else "127.0.0.1"
+        self.HostIp = data.get("HostIp", "127.0.0.1")
         self.Facility = data.get("Facility", "")
 
 
