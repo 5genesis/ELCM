@@ -10,6 +10,7 @@ class DashboardPanel:
         self.Unit, self.UnitLabel = Serialize.Unroll(data, "Unit", "UnitLabel")
         self.Size, self.Position = Serialize.Unroll(data, "Size", "Position")
         self.Interval, self.Lines, self.Percentage = Serialize.Unroll(data, "Interval", "Lines", "Percentage")
+        self.Dots = Serialize.Unroll(data, "Dots")
 
     def AsDict(self):
         return {
@@ -18,7 +19,8 @@ class DashboardPanel:
             "Measurement": self.Measurement, "Field": self.Field,
             "Unit": self.Unit, "UnitLabel": self.UnitLabel,
             "Size": self.Size, "Position": self.Position,
-            "Interval": self.Interval, "Lines": self.Lines, "Percentage": self.Percentage
+            "Interval": self.Interval, "Lines": self.Lines, "Percentage": self.Percentage,
+            "Dots": self.Dots
         }
 
     def Generate(self, panelId: int, experimentId: int) -> Dict:
@@ -102,7 +104,7 @@ class DashboardPanel:
             "nullPointMode": "connected" if self.Lines else "null",
             "percentage": self.Percentage,
             "pointradius": 5,
-            "points": False,
+            "points": self.Dots if self.Dots is not None else False,
             "renderer": "flot",
             "seriesOverrides": [],
             "spaceLength": 10,

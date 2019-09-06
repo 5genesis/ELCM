@@ -42,9 +42,8 @@ class InfluxDb:
 
     @classmethod
     def initialize(cls):
-        # cls.client = InfluxDBClient("triangle.uma.es", "15003", "admin", "admin", "mydb")
-        # return
         config = Config()
+
         influx = config.InfluxDb
         cls.client = InfluxDBClient(influx.Host, influx.Port,
                                     influx.User, influx.Password, influx.Database)
