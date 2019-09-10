@@ -44,11 +44,13 @@ TestCases:
 # - [Optional]  Unit: Field unit
 # - [Mandatory] Size: (As list) [<height>, <width>]
 # - [Mandatory] Position: (As list) [<x>, <y>]
+# - [Optional]  Color: Graph or text color ("#rrggbb" or "rgba(rrr, ggg, bbb, a.aa)")
 
 # For graph:
 # - [Mandatory] Lines: True to display as lines, False to display as bars
 # - [Mandatory] Percentage: Whether the field is a percentage or not
 # - [Optional]  Interval: Time interval of the graph, default $__interval if not set
+# - [Optional]  Dots: Display dots along with the graph or bar
 
 # For singlestat:
 # - [Mandatory] Gauge: True to display as a gauge, false to display as numeric value

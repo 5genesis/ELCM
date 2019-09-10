@@ -1,4 +1,4 @@
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List
 from Helper import Serialize
 
 
@@ -10,7 +10,7 @@ class DashboardPanel:
         self.Unit, self.UnitLabel = Serialize.Unroll(data, "Unit", "UnitLabel")
         self.Size, self.Position = Serialize.Unroll(data, "Size", "Position")
         self.Interval, self.Lines, self.Percentage = Serialize.Unroll(data, "Interval", "Lines", "Percentage")
-        self.Dots = Serialize.Unroll(data, "Dots")
+        self.Dots, self.Color = Serialize.Unroll(data, "Dots", "Color")
 
     def AsDict(self):
         return {
@@ -20,7 +20,7 @@ class DashboardPanel:
             "Unit": self.Unit, "UnitLabel": self.UnitLabel,
             "Size": self.Size, "Position": self.Position,
             "Interval": self.Interval, "Lines": self.Lines, "Percentage": self.Percentage,
-            "Dots": self.Dots
+            "Dots": self.Dots, "Color": self.Color
         }
 
     def Generate(self, panelId: int, experimentId: int) -> Dict:
@@ -28,12 +28,21 @@ class DashboardPanel:
         if self.Type.lower() == "graph":
             res = self.graphPanel(panelId)
         elif self.Type.lower() == "singlestat":
-            res = self.singlePanel(panelId)
+            res = self.singlestatPanel(panelId)
         res["targets"] = [self.getTarget(experimentId)]
         return res
 
-    def singlePanel(self, panelId: int) -> Dict:
+    def singlestatColor(self) -> Dict:
+        colors = ["#299c46", "rgba(237, 129, 40, 0.89)", "#d44a3a"] if self.Color is None else [self.Color]*3
         return {
+            "thresholds": "",
+            "colorBackground": False,
+            "colorValue": False if self.Color is None else True,
+            "colors": colors
+        }
+
+    def singlestatPanel(self, panelId: int) -> Dict:
+        res = {
             "id": panelId,
             "title": f"{self.Measurement}: {self.Field}" if self.Name is None else self.Name,
             "type": "singlestat",
@@ -57,10 +66,6 @@ class DashboardPanel:
             "prefixFontSize": "50%",
             "valueFontSize": "80%",
             "postfixFontSize": "50%",
-            "thresholds": "",
-            "colorBackground": False,
-            "colorValue": False,
-            "colors": ["#299c46", "rgba(237, 129, 40, 0.89)", "#d44a3a"],
             "sparkline": {
                 "show": False,
                 "full": False,
@@ -80,6 +85,17 @@ class DashboardPanel:
             },
             "tableColumn": ""
         }
+        res.update(self.singlestatColor())
+        return res
+
+    def graphColor(self) -> List[Dict]:
+        if self.Color is None:
+            return []
+        else:
+            return [{
+                'alias': f'{self.Measurement}.mean',
+                'color': self.Color
+            }]
 
     def graphPanel(self, panelId: int) -> Dict:
         return {
@@ -97,7 +113,7 @@ class DashboardPanel:
             },
             "legend": {
                 "avg": False, "current": False, "max": False, "min": False,
-                "show": True, "total": False, "values": False
+                "show": False, "total": False, "values": False
             },
             "lines": self.Lines,
             "linewidth": 1,
@@ -106,7 +122,7 @@ class DashboardPanel:
             "pointradius": 5,
             "points": self.Dots if self.Dots is not None else False,
             "renderer": "flot",
-            "seriesOverrides": [],
+            "seriesOverrides": self.graphColor(),
             "spaceLength": 10,
             "stack": False,
             "steppedLine": False,
