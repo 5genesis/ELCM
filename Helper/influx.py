@@ -33,7 +33,8 @@ class InfluxPayload:
         return data
 
     def __str__(self):
-        return f"InfluxPayload['{self.Measurement}' - Tags: {self.Tags} - Points: {self.Points}]"
+        return f"InfluxPayload['{self.Measurement}' - Tags: {self.Tags} - " + \
+            f"Points: [{', '.join(str(p) for p in self.Points)}]]"
 
 
 class InfluxDb:
@@ -45,8 +46,11 @@ class InfluxDb:
         config = Config()
 
         influx = config.InfluxDb
-        cls.client = InfluxDBClient(influx.Host, influx.Port,
-                                    influx.User, influx.Password, influx.Database)
+        try:
+            cls.client = InfluxDBClient(influx.Host, influx.Port,
+                                        influx.User, influx.Password, influx.Database)
+        except Exception as e:
+            raise Exception(f"Exception while creating Influx client, please review configuration: {e}") from e
 
         metadata = config.Metadata
         cls.baseTags = {

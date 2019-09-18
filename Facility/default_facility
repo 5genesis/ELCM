@@ -55,7 +55,7 @@ TestCases:
 # For singlestat:
 # - [Mandatory] Gauge: True to display as a gauge, false to display as numeric value
 # - [Optional]  MaxValue: Max expected value of the gauge, 100 if not set
-# - [Optional]  MaxValue: Min expected value of the gauge, 0 if not set
+# - [Optional]  MinValue: Min expected value of the gauge, 0 if not set
 
 Dashboards:
   RTT:

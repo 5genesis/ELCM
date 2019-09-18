@@ -10,18 +10,10 @@ class ExperimentDescriptor:
         self._data = data
         if self.Valid:
             self.User = User(self._data['User'])
-            self.Vnfs = self.parseVnfs(self._data['VNF_Locations'])
-
-    @staticmethod
-    def parseVnfs(vnfs: List[Dict]) -> List[Vnf]:
-        res: List[Vnf] = []
-        for vnf in vnfs:
-            res.append(Vnf(vnf))
-        return res
 
     @staticmethod
     def validate(data: Dict) -> Tuple[bool, List[str]]:
-        keys = ['Id', 'Name', 'Platform', 'TestCases', 'UEs', 'User', 'Slice', 'NSD', 'VNF_Locations']
+        keys = ['Id', 'Name', 'Platform', 'TestCases', 'UEs', 'User', 'Slice', 'NSD']
         return Serialize.CheckKeys(data, *keys)
 
     @property
@@ -46,6 +38,7 @@ class ExperimentDescriptor:
 
     @property
     def HasNsd(self) -> bool:
+        # TODO: Modify handling of NSDs to allow multiple network services
         return self._data['NSD'] is not None
 
     @property

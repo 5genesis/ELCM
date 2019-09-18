@@ -1,6 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
-from enum import Enum, unique
+from .log_level import Level
 from flask import Flask
 from os.path import exists, join
 from os import makedirs
@@ -32,11 +32,6 @@ class ColoredFormatter(logging.Formatter):
                               + self.RESET_SEQ
             record.levelname = color_levelname
         return logging.Formatter.format(self, record)
-
-
-@unique
-class Level(Enum):
-    DEBUG, INFO, WARNING, ERROR, CRITICAL = range(5)
 
 
 @dataclass

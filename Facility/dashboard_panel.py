@@ -10,7 +10,7 @@ class DashboardPanel:
         self.Unit, self.UnitLabel = Serialize.Unroll(data, "Unit", "UnitLabel")
         self.Size, self.Position = Serialize.Unroll(data, "Size", "Position")
         self.Interval, self.Lines, self.Percentage = Serialize.Unroll(data, "Interval", "Lines", "Percentage")
-        self.Dots, self.Color = Serialize.Unroll(data, "Dots", "Color")
+        self.Dots, self.Color, self.Thresholds = Serialize.Unroll(data, "Dots", "Color", "Thresholds")
 
     def AsDict(self):
         return {
@@ -20,7 +20,7 @@ class DashboardPanel:
             "Unit": self.Unit, "UnitLabel": self.UnitLabel,
             "Size": self.Size, "Position": self.Position,
             "Interval": self.Interval, "Lines": self.Lines, "Percentage": self.Percentage,
-            "Dots": self.Dots, "Color": self.Color
+            "Dots": self.Dots, "Color": self.Color, "Thresholds": self.Thresholds
         }
 
     def Generate(self, panelId: int, experimentId: int) -> Dict:
@@ -33,13 +33,34 @@ class DashboardPanel:
         return res
 
     def singlestatColor(self) -> Dict:
-        colors = ["#299c46", "rgba(237, 129, 40, 0.89)", "#d44a3a"] if self.Color is None else [self.Color]*3
+        if self.Gauge:
+            colors = self.Color
+        else:
+            colors = ["#299c46", "rgba(237, 129, 40, 0.89)", "#d44a3a"] if self.Color is None else [self.Color]*3
         return {
             "thresholds": "",
             "colorBackground": False,
-            "colorValue": False if self.Color is None else True,
+            "colorValue": False if (self.Gauge or self.Color is None) else True,
             "colors": colors
         }
+
+    def maybeGauge(self) -> Dict:
+        if self.Gauge:
+            a, b, c, d = self.Thresholds
+            return{
+                "gauge": {
+                    "show": True, "minValue": a, "maxValue": d, "thresholdMarkers": True, "thresholdLabels": True
+                },
+                "thresholds": f"{b},{c}"
+            }
+        else:
+            return{
+                "gauge": {
+                    "show": False, "minValue": 0, "maxValue": 0, "thresholdMarkers": True, "thresholdLabels": True
+                }
+            }
+
+
 
     def singlestatPanel(self, panelId: int) -> Dict:
         res = {
@@ -72,13 +93,6 @@ class DashboardPanel:
                 "lineColor": "rgb(31, 120, 193)",
                 "fillColor": "rgba(31, 118, 189, 0.18)"
             },
-            "gauge": {
-                "show": self.Gauge,
-                "minValue": self.MinValue if self.Gauge else 0,
-                "maxValue": self.MaxValue if self.Gauge else 100,
-                "thresholdMarkers": True,
-                "thresholdLabels": True
-            },
             "gridPos": {
                 "h": self.Size[0], "w": self.Size[1],
                 "x": self.Position[0], "y": self.Position[1]
@@ -86,6 +100,7 @@ class DashboardPanel:
             "tableColumn": ""
         }
         res.update(self.singlestatColor())
+        res.update(self.maybeGauge())
         return res
 
     def graphColor(self) -> List[Dict]:

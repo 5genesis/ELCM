@@ -38,7 +38,6 @@ class Facility:
                         Log.W(f"Unable to parse Dashboard Panel for id: {identifier}. Ignored")
                 target[identifier] = panelList
 
-
         if not exists(cls.FILENAME):
             copy('Facility/default_facility', cls.FILENAME)
 

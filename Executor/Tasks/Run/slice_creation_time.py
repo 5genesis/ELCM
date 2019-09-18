@@ -41,6 +41,7 @@ class SliceCreationTime(Task):
             if value != "N/A":
                 point.Fields[key] = float(value)
 
+        payload.Points.append(point)
         self.Log(Level.DEBUG, f"Payload: {payload}")
         self.Log(Level.INFO, f"Sending results to InfluxDb")
         InfluxDb.Send(payload)
