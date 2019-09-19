@@ -59,6 +59,15 @@ class LogInfo:
             res.Log.append((level, line))
         return res
 
+    @staticmethod
+    def FromTuple(log: List[Tuple[Level, str]]):
+        res = LogInfo()
+        for level, message in log:
+            level = level.name.capitalize()
+            res.Count[level] += 1
+            res.Log.append((level, message))
+        return res
+
     def Serialize(self) -> Dict:
         return {
             "Count": self.Count,

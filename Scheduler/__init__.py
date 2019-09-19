@@ -6,8 +6,12 @@ from flask_moment import Moment
 from Helper import Config
 from .heartbeat import HeartBeat
 
-app = Flask(__name__)
 config = Config()
+print("Config validation:")
+for level, message in config.Validation:
+    print(f"  {level.name:8}: {message}")
+
+app = Flask(__name__)
 app.config.from_mapping(config.Flask)
 bootstrap = Bootstrap(app)
 moment = Moment(app)

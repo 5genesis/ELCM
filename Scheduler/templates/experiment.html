@@ -6,29 +6,6 @@
     {{ logView.logScripts() }}
 {% endblock %}
 
-{% macro accordionCard(accordion, card, logInfo) %}
-    {% set LogLevels = ['Debug', 'Info', 'Warning', 'Error', 'Critical'] %}
-    <div class="card">
-    <div class="card-header" id="{{ card }}Header">
-        <button class="btn btn-block" type="button" data-toggle="collapse"
-                data-target="#{{ card }}Log" aria-expanded="false" aria-controls="{{ card }}Log">
-          {{ card }} Log
-            {% for level in LogLevels %}
-                {% set count = logInfo.Count[level] %}
-                {% if count != 0 %}
-                    <span class="label color{{ level }}" style="background: navy">{{ count }}</span>
-                {% endif %}
-            {% endfor %}
-        </button>
-    </div>
-    <div id="{{ card }}Log" class="collapse" aria-labelledby="{{ card }}Header" data-parent="#{{ accordion }}">
-      <div class="card-body">
-        {{ logView.logView(logInfo) }}
-      </div>
-    </div>
-  </div>
-{% endmacro %}
-
 {% macro executorTimes(name, executor) %}
     <div class="container">
         <h3>{{ name }}</h3>
@@ -57,10 +34,10 @@
 
     <div class="accordion" id="logAccordion">
       {{ executorTimes('Pre-Run', experiment.PreRunner) }}
-      {{ accordionCard('logAccordion', 'Pre-Run', experiment.PreRunner.RetrieveLogInfo()) }}
+      {{ logView.logAccordionCard('logAccordion', 'Pre-Run', experiment.PreRunner.RetrieveLogInfo()) }}
       {{ executorTimes('Run', experiment.Executor) }}
-      {{ accordionCard('logAccordion', 'Run', experiment.Executor.RetrieveLogInfo()) }}
+      {{ logView.logAccordionCard('logAccordion', 'Run', experiment.Executor.RetrieveLogInfo()) }}
       {{ executorTimes('Post-Run', experiment.PostRunner) }}
-      {{ accordionCard('logAccordion', 'Post-Run', experiment.PostRunner.RetrieveLogInfo()) }}
+      {{ logView.logAccordionCard('logAccordion', 'Post-Run', experiment.PostRunner.RetrieveLogInfo()) }}
     </div>
 {% endblock %}

@@ -4,7 +4,7 @@ from Experiment import Tombstone
 from flask import render_template, make_response, request
 from functools import wraps, update_wrapper
 from datetime import datetime
-from Helper import Log, Serialize
+from Helper import Log, Serialize, LogInfo, Config
 from typing import List, Dict
 from flask_paginate import Pagination, get_page_parameter
 
@@ -25,7 +25,10 @@ def nocache(view):
 @app.route("/")
 @nocache
 def index():
-    return render_template('index.html', executionId=Status.PeekNextId(), experiments=ExperimentQueue.Retrieve())
+    config = Config()
+    configLog = LogInfo.FromTuple(config.Validation)
+    return render_template('index.html', executionId=Status.PeekNextId(),
+                           experiments=ExperimentQueue.Retrieve(), configLog=configLog)
 
 
 @app.route("/log")

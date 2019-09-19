@@ -1,17 +1,30 @@
 {% extends 'base.html' %}
+{% import '_logView.html' as logView %}
 
 {% block app_content %}
+    <h3>Running Experiments:</h3>
+    {% if experiments|count == 0 %}
+        <p style="text-align: center">(Idle)</p>
+    {% else %}
+        <table style="margin: auto; text-align: center; vertical-align: center">
+            {% for experiment in experiments%}
+                {% include '_experiment.html' %}
+            {% endfor %}
+        </table>
+    {% endif %}
+    <p style="text-align:right; font-size: x-small">Next execution id: {{ executionId }}</p>
     <p id="hiddenNextId" style="display: none">{{ executionId }}</p>
-    <p>Next execution id: {{ executionId }}</p>
-    <table style="margin: auto; text-align: center; vertical-align: center">
-        {% for experiment in experiments%}
-            {% include '_experiment.html' %}
-        {% endfor %}
-    </table>
+    <hr>
+    <h3>Diagnostics</h3>
+    <div class="accordion" id="logAccordion">
+      {{ logView.logAccordionCard('logAccordion', 'Configuration', configLog) }}
+    </div>
+    <hr>
 {% endblock %}
 
 {% block scripts %}
     {{ super() }}
+    {{ logView.logScripts() }}
     <script>
         function updateOne(element, newValue){
             if (element.text() !== newValue){

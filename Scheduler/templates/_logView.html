@@ -12,6 +12,29 @@
     </script>
 {% endmacro %}
 
+{% macro logAccordionCard(accordion, card, logInfo) %}
+    {% set LogLevels = ['Debug', 'Info', 'Warning', 'Error', 'Critical'] %}
+    <div class="card">
+    <div class="card-header" id="{{ card }}Header">
+        <button class="btn btn-block" type="button" data-toggle="collapse"
+                data-target="#{{ card }}Log" aria-expanded="false" aria-controls="{{ card }}Log">
+          {{ card }} Log
+            {% for level in LogLevels %}
+                {% set count = logInfo.Count[level] %}
+                {% if count != 0 %}
+                    <span class="label color{{ level }}" style="background: navy">{{ count }}</span>
+                {% endif %}
+            {% endfor %}
+        </button>
+    </div>
+    <div id="{{ card }}Log" class="collapse" aria-labelledby="{{ card }}Header" data-parent="#{{ accordion }}">
+      <div class="card-body">
+        {{ logView(logInfo) }}
+      </div>
+    </div>
+  </div>
+{% endmacro %}
+
 {% macro logView(logInfo) %}
     <div class="container" style="margin: 5px">
         {% for level in LogLevels %}
