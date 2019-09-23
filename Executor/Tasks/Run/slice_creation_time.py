@@ -46,3 +46,6 @@ class SliceCreationTime(Task):
         self.Log(Level.INFO, f"Sending results to InfluxDb")
         InfluxDb.Send(payload)
 
+        # TODO: Artificial wait until the slice is 'configured'
+        # TODO: In the future the slice manager should also report this status
+        sleep(60)

@@ -1,5 +1,5 @@
 from Task import Task
-from Helper import Tap
+from Helper import Tap, Config, Level
 
 
 class TapExecute(Task):
@@ -7,10 +7,13 @@ class TapExecute(Task):
         super().__init__("Tap Execute", params, logMethod, None)
 
     def Run(self):
-        tapPlan = self.params['TestPlan']
-        externals = self.params['Externals']
+        if not Config().Tap.Enabled:
+            self.Log(Level.CRITICAL, "Trying to run TapExecute Task while TAP is not enabled")
+        else:
+            tapPlan = self.params['TestPlan']
+            externals = self.params['Externals']
 
-        tap = Tap(tapPlan, externals, self.logMethod)
-        tap.Execute()
+            tap = Tap(tapPlan, externals, self.logMethod)
+            tap.Execute()
 
 

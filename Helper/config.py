@@ -5,6 +5,7 @@ from typing import Dict, List, Tuple, Optional
 import logging
 from os.path import realpath, join
 import platform
+from REST import RestClient
 from .log_level import Level
 
 
@@ -49,6 +50,17 @@ class restApi(validable):
     @property
     def Port(self):
         return self._keyOrDefault('Port')
+
+    @property
+    def Validation(self) -> List[Tuple['Level', str]]:
+        res = super().Validation
+        if all([e[0] == Level.INFO for e in res]):
+            # No errors, but check if a rest server can be created with the configuration
+            try:
+                _ = RestClient(self.Host, self.Port, "")
+            except Exception as e:
+                res.append((Level.ERROR, f'Exception creating {self.section} client: {e}'))
+        return res
 
 
 class Grafana(restApi):
@@ -282,6 +294,10 @@ class Config:
 
     def Validate(self):
         self.Validation = []
+        keys = set(self.data.keys())
+        keys.discard('Flask')
+        keys.discard('TempFolder')
+
         if 'Flask' not in self.data or 'SECRET_KEY' not in self.Flask:
             self.Validation.append((Level.ERROR, "Secret key not defined ('Flask: SECRET_KEY: <value>')"))
         if 'TempFolder' not in self.data:
@@ -290,3 +306,7 @@ class Config:
         for entry in [self.Logging, self.Dispatcher, self.SliceManager, self.Tap,
                       self.Grafana, self.InfluxDb, self.Metadata, ]:
             self.Validation.extend(entry.Validation)
+            keys.discard(entry.section)
+
+        if len(keys) != 0:
+            self.Validation.append((Level.WARNING, f"Unrecognized keys found: {(', '.join(keys))}"))
