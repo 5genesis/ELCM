@@ -239,7 +239,7 @@ class Config:
     Validation: List[Tuple['Level', str]] = []
 
     def __init__(self):
-        if self.data is None:
+        if Config.data is None:
             self.Reload()
 
     def Reload(self):
@@ -248,7 +248,7 @@ class Config:
 
         try:
             with open(self.FILENAME, 'r', encoding='utf-8') as file:
-                self.data = yaml.safe_load(file)
+                Config.data = yaml.safe_load(file)
         except Exception as e:
             from .log import Log
             Log.C(f"Exception while loading config file: {e}")
@@ -258,49 +258,49 @@ class Config:
 
     @property
     def Logging(self):
-        return Logging(self.data.get('Logging', {}))
+        return Logging(Config.data.get('Logging', {}))
 
     @property
     def Dispatcher(self):
-        return Dispatcher(self.data.get('Dispatcher', {}))
+        return Dispatcher(Config.data.get('Dispatcher', {}))
 
     @property
     def Flask(self):
-        return self.data['Flask']
+        return Config.data['Flask']
 
     @property
     def TempFolder(self):
-        return self.data.get('TempFolder', 'Temp')
+        return Config.data.get('TempFolder', 'Temp')
 
     @property
     def Tap(self):
-        return TapConfig(self.data.get('Tap', {}))
+        return TapConfig(Config.data.get('Tap', {}))
 
     @property
     def Grafana(self):
-        return Grafana(self.data.get('Grafana', {}))
+        return Grafana(Config.data.get('Grafana', {}))
 
     @property
     def SliceManager(self):
-        return SliceManager(self.data.get('SliceManager', {}))
+        return SliceManager(Config.data.get('SliceManager', {}))
 
     @property
     def InfluxDb(self):
-        return InfluxDb(self.data.get('InfluxDb', {}))
+        return InfluxDb(Config.data.get('InfluxDb', {}))
 
     @property
     def Metadata(self):
-        return Metadata(self.data.get('Metadata', {}))
+        return Metadata(Config.data.get('Metadata', {}))
 
     def Validate(self):
         self.Validation = []
-        keys = set(self.data.keys())
+        keys = set(Config.data.keys())
         keys.discard('Flask')
         keys.discard('TempFolder')
 
-        if 'Flask' not in self.data or 'SECRET_KEY' not in self.Flask:
-            self.Validation.append((Level.ERROR, "Secret key not defined ('Flask: SECRET_KEY: <value>')"))
-        if 'TempFolder' not in self.data:
+        if 'Flask' not in Config.data or 'SECRET_KEY' not in self.Flask:
+            self.Validation.append((Level.CRITICAL, "Secret key not defined ('Flask: SECRET_KEY: <value>')"))
+        if 'TempFolder' not in Config.data:
             self.Validation.append((Level.INFO, "TempFolder not defined, using 'Temp'"))
 
         for entry in [self.Logging, self.Dispatcher, self.SliceManager, self.Tap,
