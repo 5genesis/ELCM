@@ -20,8 +20,14 @@
             <h3>Diagnostics</h3>
         </div></div>
         <div class="row"><div class="col">
-            <div class="accordion" id="logAccordion">
-              {{ logView.logAccordionCard('logAccordion', 'Configuration', configLog) }}
+            <div class="accordion" id="configAccordion">
+              {{ logView.logAccordionCard('configAccordion', 'Configuration', configLog) }}
+            </div>
+        </div></div>
+        <br>
+        <div class="row"><div class="col">
+            <div class="accordion" id="facilityAccordion">
+              {{ logView.logAccordionCard('facilityAccordion', 'Facility', facilityLog) }}
             </div>
         </div></div>
         <hr>

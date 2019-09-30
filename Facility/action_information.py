@@ -21,6 +21,9 @@ class ActionInformation:
             Log.E(f'Facility: Key not found on action information: {e} (Data="{data}")')
             return None
 
+    def __str__(self):
+        return f'ActionInformation [Order: {self.Order}; Task: {self.TaskName}; Config: {self.Config}]'
+
     @staticmethod
     def DummyAction(config: Dict):
         res = ActionInformation()

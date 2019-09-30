@@ -5,6 +5,7 @@ from flask import render_template, make_response, request, flash, redirect, url_
 from functools import wraps, update_wrapper
 from datetime import datetime
 from Helper import Log, Serialize, LogInfo, Config
+from Facility import Facility
 from typing import List, Dict
 from flask_paginate import Pagination, get_page_parameter
 
@@ -27,8 +28,9 @@ def nocache(view):
 def index():
     config = Config()
     configLog = LogInfo.FromTuple(config.Validation)
+    facilityLog = LogInfo.FromTuple(Facility.Validation)
     return render_template('index.html', executionId=Status.PeekNextId(),
-                           experiments=ExperimentQueue.Retrieve(), configLog=configLog)
+                           experiments=ExperimentQueue.Retrieve(), configLog=configLog, facilityLog=facilityLog)
 
 
 @app.route("/log")
@@ -68,5 +70,9 @@ def reloadConfig():
 
 @app.route("/reload_facility")
 def reloadFacility():
-    flash("TODO")  # TODO
+    Facility.Reload()
+    Log.I("Facility reloaded:")
+    for level, message in Facility.Validation:
+        Log.Log(level, message)
+    flash("Reloaded Facility")
     return redirect(url_for('index'))

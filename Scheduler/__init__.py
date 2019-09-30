@@ -4,11 +4,17 @@ from Status import Status
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from Helper import Config
+from Facility import Facility
 from .heartbeat import HeartBeat
 
 config = Config()
 print("Config validation:")
 for level, message in config.Validation:
+    print(f"  {level.name:8}: {message}")
+
+Facility.Reload()
+print("Facility validation:")
+for level, message in Facility.Validation:
     print(f"  {level.name:8}: {message}")
 
 app = Flask(__name__)
