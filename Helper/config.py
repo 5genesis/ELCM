@@ -1,9 +1,9 @@
 import yaml
-from os.path import exists, abspath
+from os.path import exists, abspath, realpath, join
+from os import getenv
 from shutil import copy
 from typing import Dict, List, Tuple, Optional
 import logging
-from os.path import realpath, join
 import platform
 from REST import RestClient
 from .log_level import Level
@@ -265,10 +265,6 @@ class Config:
         return Dispatcher(Config.data.get('Dispatcher', {}))
 
     @property
-    def Flask(self):
-        return Config.data['Flask']
-
-    @property
     def TempFolder(self):
         return Config.data.get('TempFolder', 'Temp')
 
@@ -298,8 +294,10 @@ class Config:
         keys.discard('Flask')
         keys.discard('TempFolder')
 
-        if 'Flask' not in Config.data or 'SECRET_KEY' not in self.Flask:
-            Config.Validation.append((Level.CRITICAL, "Secret key not defined ('Flask: SECRET_KEY: <value>')"))
+        if getenv('SECRET_KEY') is None:
+            Config.Validation.append((Level.CRITICAL,
+                                      "SECRET_KEY not defined. Use environment variables or set a value in .flaskenv"))
+
         if 'TempFolder' not in Config.data:
             Config.Validation.append((Level.INFO, "TempFolder not defined, using 'Temp'"))
 

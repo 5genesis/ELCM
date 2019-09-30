@@ -6,6 +6,7 @@ from flask_moment import Moment
 from Helper import Config
 from Facility import Facility
 from .heartbeat import HeartBeat
+import os
 
 config = Config()
 print("Config validation:")
@@ -18,7 +19,8 @@ for level, message in Facility.Validation:
     print(f"  {level.name:8}: {message}")
 
 app = Flask(__name__)
-app.config.from_mapping(config.Flask)
+app.secret_key = os.getenv('SECRET_KEY')
+
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 Log.Initialize(app)
