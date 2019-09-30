@@ -243,11 +243,11 @@ class Config:
             self.Reload()
 
     def Reload(self):
-        if not exists(self.FILENAME):
-            copy('Helper/default_config', self.FILENAME)
+        if not exists(Config.FILENAME):
+            copy('Helper/default_config', Config.FILENAME)
 
         try:
-            with open(self.FILENAME, 'r', encoding='utf-8') as file:
+            with open(Config.FILENAME, 'r', encoding='utf-8') as file:
                 Config.data = yaml.safe_load(file)
         except Exception as e:
             from .log import Log
@@ -293,20 +293,20 @@ class Config:
         return Metadata(Config.data.get('Metadata', {}))
 
     def Validate(self):
-        self.Validation = []
+        Config.Validation = []
         keys = set(Config.data.keys())
         keys.discard('Flask')
         keys.discard('TempFolder')
 
         if 'Flask' not in Config.data or 'SECRET_KEY' not in self.Flask:
-            self.Validation.append((Level.CRITICAL, "Secret key not defined ('Flask: SECRET_KEY: <value>')"))
+            Config.Validation.append((Level.CRITICAL, "Secret key not defined ('Flask: SECRET_KEY: <value>')"))
         if 'TempFolder' not in Config.data:
-            self.Validation.append((Level.INFO, "TempFolder not defined, using 'Temp'"))
+            Config.Validation.append((Level.INFO, "TempFolder not defined, using 'Temp'"))
 
         for entry in [self.Logging, self.Dispatcher, self.SliceManager, self.Tap,
                       self.Grafana, self.InfluxDb, self.Metadata, ]:
-            self.Validation.extend(entry.Validation)
+            Config.Validation.extend(entry.Validation)
             keys.discard(entry.section)
 
         if len(keys) != 0:
-            self.Validation.append((Level.WARNING, f"Unrecognized keys found: {(', '.join(keys))}"))
+            Config.Validation.append((Level.WARNING, f"Unrecognized keys found: {(', '.join(keys))}"))

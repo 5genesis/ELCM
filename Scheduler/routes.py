@@ -1,7 +1,7 @@
 from Scheduler import app
 from Status import Status, ExperimentQueue
 from Experiment import Tombstone
-from flask import render_template, make_response, request
+from flask import render_template, make_response, request, flash, redirect, url_for
 from functools import wraps, update_wrapper
 from datetime import datetime
 from Helper import Log, Serialize, LogInfo, Config
@@ -53,3 +53,20 @@ def history():
         experiments.append(digest)
 
     return render_template('history.html', experiments=experiments, pagination=pagination)
+
+
+@app.route("/reload_config")
+def reloadConfig():
+    config = Config()
+    config.Reload()
+    Log.I("Configuration reloaded:")
+    for level, message in config.Validation:
+        Log.Log(level, message)
+    flash("Reloaded configuration")
+    return redirect(url_for('index'))
+
+
+@app.route("/reload_facility")
+def reloadFacility():
+    flash("TODO")  # TODO
+    return redirect(url_for('index'))

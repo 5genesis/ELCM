@@ -15,11 +15,22 @@
     <p style="text-align:right; font-size: x-small">Next execution id: {{ executionId }}</p>
     <p id="hiddenNextId" style="display: none">{{ executionId }}</p>
     <hr>
-    <h3>Diagnostics</h3>
-    <div class="accordion" id="logAccordion">
-      {{ logView.logAccordionCard('logAccordion', 'Configuration', configLog) }}
+    <div class="container">
+        <div class="row"><div class="col">
+            <h3>Diagnostics</h3>
+        </div></div>
+        <div class="row"><div class="col">
+            <div class="accordion" id="logAccordion">
+              {{ logView.logAccordionCard('logAccordion', 'Configuration', configLog) }}
+            </div>
+        </div></div>
+        <hr>
+        <div class="row">
+            <div class="col-sm-6"><a class="btn btn-primary center-block" href="{{ url_for('reloadConfig') }}" role="button">Reload configuration</a></div>
+            <div class="col-sm-6"><a class="btn btn-primary center-block" href="{{ url_for('reloadFacility') }}" role="button">Reload facility</a></div>
+        </div>
     </div>
-    <hr>
+
 {% endblock %}
 
 {% block scripts %}
