@@ -53,8 +53,11 @@ class Facility:
                     actionList.append(ActionInformation.MessageAction(
                         'ERROR', f'Incorrect Action (data="{action}")'
                     ))
-            for action in actionList:
-                cls.Validation.append((Level.DEBUG, str(action)))
+            if len(actionList) == 0:
+                cls.Validation.append((Level.WARNING, 'No actions defined'))
+            else:
+                for action in actionList:
+                    cls.Validation.append((Level.DEBUG, str(action)))
             return actionList
 
         def _get_PanelList(data: Dict) -> List[DashboardPanel]:
@@ -62,7 +65,11 @@ class Facility:
             for panel in data:
                 try:
                     parsedPanel = DashboardPanel(panel)
-                    panelList.append(parsedPanel)
+                    valid, error = parsedPanel.Validate()
+                    if not valid:
+                        cls.Validation.append((Level.ERROR, f'Could not validate panel (data={panel}) - {error}'))
+                    else:
+                        panelList.append(parsedPanel)
                 except Exception as e:
                     cls.Validation.append((Level.ERROR, f"Unable to parse Dashboard Panel (data={panel}), ignored. {e}"))
             cls.Validation.append((Level.DEBUG, f'Defined {len(panelList)} dashboard panels'))
