@@ -45,6 +45,9 @@ class Child:
                 self.hasFinished = True
             except Exception as e:
                 self.Log(Level.ERROR, f'Exception while running ({self.name}): {e}]')
+                trace = Log.GetTraceback()
+                for line in trace:
+                    self.Log(Level.DEBUG, line.strip())
                 self.hasFailed = True
             finally:
                 Log.CloseLogFile(self.name)

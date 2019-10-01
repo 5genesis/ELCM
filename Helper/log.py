@@ -8,6 +8,7 @@ from .config import Config
 import traceback
 from typing import Union, Optional, List, Dict, Tuple
 from dataclasses import dataclass
+import sys
 
 
 class ColoredFormatter(logging.Formatter):
@@ -152,11 +153,15 @@ class Log:
         if level == Level.CRITICAL: cls.C(msg, logger)
 
     @classmethod
-    def Traceback(cls, info):
-        exc_type, exc_value, exc_traceback = info
-        lines = traceback.format_exception(exc_type, exc_value, exc_traceback, limit=2)
+    def GetTraceback(cls):
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        return traceback.format_exception(exc_type, exc_value, exc_traceback)
+
+    @classmethod
+    def Traceback(cls, logger: Optional[str] = None):
+        lines = cls.GetTraceback()
         for line in lines:
-            cls.D(line.strip())
+            Log.D(line, logger)
 
     @classmethod
     def OpenLogFile(cls, identifier: str, filePath: Optional[str] = None) -> str:
