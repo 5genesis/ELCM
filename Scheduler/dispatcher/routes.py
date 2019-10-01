@@ -1,5 +1,5 @@
 from flask import jsonify, request
-from Status import ExperimentQueue
+from Status import ExecutionQueue
 from Data import ExperimentDescriptor
 from Scheduler.dispatcher import bp
 
@@ -15,7 +15,7 @@ def start():
         message = f'Invalid experiment description: {"; ".join(reasons)}'
     else:
         params = {'Descriptor': descriptor}
-        executionId = ExperimentQueue.Create(params).Id
+        executionId = ExecutionQueue.Create(params).Id
         success = True
         message = f'Created execution {executionId} for experiment {descriptor.Name} ' \
             f'(Id:{descriptor.Id}, User:{descriptor.User.Name})'

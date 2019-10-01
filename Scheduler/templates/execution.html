@@ -28,16 +28,16 @@
 
 {% block app_content %}
     <div class="container">
-        Status: <span class="badge">{{ experiment.CoarseStatus.name }}</span> <span class="badge">{{ experiment.Status }}</span>
-        Created: {{ moment(experiment.Created).format('LLL') }} ({{ moment(experiment.Created).fromNow() }})
+        Status: <span class="badge">{{ execution.CoarseStatus.name }}</span> <span class="badge">{{ execution.Status }}</span>
+        Created: {{ moment(execution.Created).format('LLL') }} ({{ moment(execution.Created).fromNow() }})
     </div>
 
     <div class="accordion" id="logAccordion">
-      {{ executorTimes('Pre-Run', experiment.PreRunner) }}
-      {{ logView.logAccordionCard('logAccordion', 'Pre-Run', experiment.PreRunner.RetrieveLogInfo()) }}
-      {{ executorTimes('Run', experiment.Executor) }}
-      {{ logView.logAccordionCard('logAccordion', 'Run', experiment.Executor.RetrieveLogInfo()) }}
-      {{ executorTimes('Post-Run', experiment.PostRunner) }}
-      {{ logView.logAccordionCard('logAccordion', 'Post-Run', experiment.PostRunner.RetrieveLogInfo()) }}
+      {{ executorTimes('Pre-Run', execution.PreRunner) }}
+      {{ logView.logAccordionCard('logAccordion', 'Pre-Run', execution.PreRunner.RetrieveLogInfo()) }}
+      {{ executorTimes('Run', execution.Executor) }}
+      {{ logView.logAccordionCard('logAccordion', 'Run', execution.Executor.RetrieveLogInfo()) }}
+      {{ executorTimes('Post-Run', execution.PostRunner) }}
+      {{ logView.logAccordionCard('logAccordion', 'Post-Run', execution.PostRunner.RetrieveLogInfo()) }}
     </div>
 {% endblock %}

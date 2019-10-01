@@ -5,37 +5,37 @@ from Helper import Log
 from .status import Status
 
 
-class ExperimentQueue:
+class ExecutionQueue:
     queue: Deque[ExperimentRun] = deque()
 
     @classmethod
-    def Find(cls, experimentId) -> Optional[ExperimentRun]:
-        needles = [e for e in cls.queue if e.Id == experimentId]
+    def Find(cls, executionId) -> Optional[ExperimentRun]:
+        needles = [e for e in cls.queue if e.Id == executionId]
         return needles[0] if needles else None
 
     @classmethod
     def Create(cls, params: Dict) -> ExperimentRun:
-        experimentId = Status.NextId()
-        experiment = ExperimentRun(experimentId, params)
-        cls.queue.appendleft(experiment)
-        Log.I(f'Created Experiment {experiment.Id}')
-        return experiment
+        executionId = Status.NextId()
+        execution = ExperimentRun(executionId, params)
+        cls.queue.appendleft(execution)
+        Log.I(f'Created Execution {execution.Id}')
+        return execution
 
     @classmethod
-    def Delete(cls, experimentId):
-        experiment = cls.Find(experimentId)
-        if experiment is not None:
-            experiment.Save()
-            cls.queue.remove(experiment)
+    def Delete(cls, executionId):
+        execution = cls.Find(executionId)
+        if execution is not None:
+            execution.Save()
+            cls.queue.remove(execution)
 
     @classmethod
-    def Cancel(cls, experimentId: int):
-        experiment = cls.Find(experimentId)
-        if experiment is not None:
-            Log.I(f'Cancelling experiment {experiment.Id}')
-            experiment.Cancel()
+    def Cancel(cls, executionId: int):
+        execution = cls.Find(executionId)
+        if execution is not None:
+            Log.I(f'Cancelling execution {execution.Id}')
+            execution.Cancel()
         else:
-            Log.W(f'Cannot cancel experiment {experimentId}: Not found')
+            Log.W(f'Cannot cancel execution {executionId}: Not found')
 
     @classmethod
     def Retrieve(cls, status: Optional[ExperimentStatus] = None) -> List[ExperimentRun]:
@@ -46,15 +46,15 @@ class ExperimentQueue:
 
     @classmethod
     def UpdateAll(cls):
-        experiments = cls.Retrieve()
-        Log.D(f"UpdateAll: {experiments}")
-        for experiment in experiments:
-            Log.D(f"Update Experiment: {experiment.Id}")
-            if experiment.Active:
-                pre = experiment.CoarseStatus
-                Log.I(f'Advancing Experiment {experiment.Id}')
-                experiment.Advance()
-                Log.D(f'{experiment.Id}: {pre.name} -> {experiment.CoarseStatus.name}')
+        executions = cls.Retrieve()
+        Log.D(f"UpdateAll: {(', '.join(str(e) for e in executions))}")
+        for execution in executions:
+            Log.D(f"Update Execution: {execution.Id}")
+            if execution.Active:
+                pre = execution.CoarseStatus
+                Log.I(f'Advancing Execution {execution.Id}')
+                execution.Advance()
+                Log.D(f'{execution.Id}: {pre.name} -> {execution.CoarseStatus.name}')
             else:
-                Log.I(f'Removing Experiment {experiment.Id} from queue (status: {experiment.CoarseStatus.name})')
-                cls.Delete(experiment.Id)
+                Log.I(f'Removing Execution {execution.Id} from queue (status: {execution.CoarseStatus.name})')
+                cls.Delete(execution.Id)

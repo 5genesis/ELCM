@@ -3,9 +3,9 @@ from Helper import Level
 from time import sleep
 
 
-class UpdateExperimentEntry(Task):
+class UpdateExecutionEntry(Task):
     def __init__(self, logMethod):
-        super().__init__("Update Experiment Entry", None, logMethod, None)
+        super().__init__("Update Execution Entry", None, logMethod, None)
 
     def Run(self):
         self.Log(Level.INFO, 'Sending entry information')

@@ -16,10 +16,10 @@ class PlatformConfiguration:
         self.RunTasks: List[TaskDefinition] = []
         self.DashboardPanels: List[DashboardPanel] = []
 
-    def ExpandDashboardPanels(self, experiment):
+    def ExpandDashboardPanels(self, experimentRun):
         from Experiment import Expander
         newPanels = []
         for panel in self.DashboardPanels:
-            newPanel = DashboardPanel(Expander.ExpandDict(panel.AsDict(), context=experiment))
+            newPanel = DashboardPanel(Expander.ExpandDict(panel.AsDict(), context=experimentRun))
             newPanels.append(newPanel)
         self.DashboardPanels = newPanels

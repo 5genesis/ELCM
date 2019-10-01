@@ -27,6 +27,6 @@ class Expander:
     @classmethod
     def expand(cls, item: str, context: Union[ExecutorBase, ExperimentRun]) -> str:
         expanded = item
-        expanded = expanded.replace("@{ExperimentId}", str(context.Id))
+        expanded = expanded.replace("@{ExecutionId}", str(context.Id))
         expanded = expanded.replace("@{SliceId}", str(context.Params.get("SliceId", "None")))
         return expanded

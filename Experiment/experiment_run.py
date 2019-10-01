@@ -32,13 +32,24 @@ class ExperimentRun:
         self.Cancelled = False
         self.Created = datetime.utcnow()
 
-        if self.dispatcher is None or self.grafana is None:
+        if ExperimentRun.dispatcher is None or ExperimentRun.grafana is None:
             from Helper import DashboardGenerator  # Delayed to avoid cyclic imports
             config = Config()
-            self.dispatcher = DispatcherApi(config.Dispatcher.Host, config.Dispatcher.Port)
-            self.grafana = DashboardGenerator(config.Grafana.Enabled, config.Grafana.Host,
-                                              config.Grafana.Port, config.Grafana.Bearer,
-                                              config.Grafana.ReportGenerator)
+            ExperimentRun.dispatcher = DispatcherApi(config.Dispatcher.Host, config.Dispatcher.Port)
+            ExperimentRun.grafana = DashboardGenerator(config.Grafana.Enabled, config.Grafana.Host,
+                                                       config.Grafana.Port, config.Grafana.Bearer,
+                                                       config.Grafana.ReportGenerator)
+
+    def __str__(self):
+        return f'[ID: {self.Id} (Exp. ID {self.ExperimentId}: {self.ExperimentName})]'
+
+    @property
+    def ExperimentId(self):
+        return self.Descriptor.Id if self.Descriptor is not None else None
+
+    @property
+    def ExperimentName(self):
+        return self.Descriptor.Name if self.Descriptor is not None else None
 
     @property
     def CoarseStatus(self):
@@ -48,7 +59,7 @@ class ExperimentRun:
     def CoarseStatus(self, value: CoarseStatus):
         if value != self._coarseStatus:
             self._coarseStatus = value
-            self.dispatcher.UpdateExecutionData(self.Id, status=value.name)
+            ExperimentRun.dispatcher.UpdateExecutionData(self.Id, status=value.name)
 
     @property
     def DashboardUrl(self):
@@ -58,7 +69,7 @@ class ExperimentRun:
     def DashboardUrl(self, value: str):
         if value != self._dashboardUrl:
             self._dashboardUrl = value
-            self.dispatcher.UpdateExecutionData(self.Id, dashboardUrl=value)
+            ExperimentRun.dispatcher.UpdateExecutionData(self.Id, dashboardUrl=value)
 
     @property
     def Status(self) -> str:
@@ -131,38 +142,38 @@ class ExperimentRun:
         elif self.CoarseStatus == CoarseStatus.PreRun:
             if self.PreRunner.HasFailed:
                 self.CoarseStatus = CoarseStatus.Errored
-                Log.I(f'Experiment {self.Id} has failed on PreRun')
-                self.handleExperimentEnd()
+                Log.I(f'Execution {self.Id} has failed on PreRun')
+                self.handleExecutionEnd()
                 return
             if self.PreRunner.Finished:
                 self.Run()
         elif self.CoarseStatus == CoarseStatus.Run:
             if self.Executor.HasFailed:
                 self.CoarseStatus = CoarseStatus.Errored
-                Log.I(f'Experiment {self.Id} has failed on Run')
-                self.handleExperimentEnd()
+                Log.I(f'Execution {self.Id} has failed on Run')
+                self.handleExecutionEnd()
                 return
             if self.Executor.Finished:
                 self.PostRun()
         elif self.CoarseStatus == CoarseStatus.PostRun:
             if self.PostRunner.HasFailed:
-                Log.I(f'Experiment {self.Id} has failed on Run')
+                Log.I(f'Execution {self.Id} has failed on Run')
                 self.CoarseStatus = CoarseStatus.Errored
             elif self.PostRunner.Finished:
                 self.CoarseStatus = CoarseStatus.Finished
-            self.handleExperimentEnd()
+            self.handleExecutionEnd()
 
-    def handleExperimentEnd(self):
+    def handleExecutionEnd(self):
         # Try to create the dashboard even in case of error, there might be results to display
         try:
-            Log.D(f"Trying to generate dashboard for experiment {self.Id}")
+            Log.D(f"Trying to generate dashboard for execution {self.Id}")
             self.Configuration.ExpandDashboardPanels(self)
-            url = self.grafana.Create(self)
+            url = ExperimentRun.grafana.Create(self)
             self.DashboardUrl = url
         except Exception as e:
-            Log.E(f"Exception while handling experiment end ({self.Id}): {e}")
+            Log.E(f"Exception while handling execution end ({self.Id}): {e}")
         finally:
-            Log.D(f"Clearing temp folder for experiment {self.Id}")
+            Log.D(f"Clearing temp folder for execution {self.Id}")
             self.TempFolder.cleanup()
 
     def Serialize(self) -> Dict:
@@ -179,9 +190,9 @@ class ExperimentRun:
         self.Executor.Save()
         self.PostRunner.Save()
         data = self.Serialize()
-        path = Serialize.Path('Experiment', str(self.Id))
+        path = Serialize.Path('Execution', str(self.Id))
         Serialize.Save(data, path)
 
     @classmethod
     def Digest(cls, id: str) -> Dict:
-        return Serialize.Load(Serialize.Path('Experiment', id))
+        return Serialize.Load(Serialize.Path('Execution', id))

@@ -23,7 +23,7 @@ class DashboardPanel:
             "Dots": self.Dots, "Color": self.Color, "Thresholds": self.Thresholds
         }
 
-    def Generate(self, panelId: int, experimentId: int) -> Dict:
+    def Generate(self, panelId: int, executionId: int) -> Dict:
         res = {}
 
         try:
@@ -43,7 +43,7 @@ class DashboardPanel:
             res = self.graphPanel(panelId, title, gridPos)
         elif self.Type.lower() == "singlestat":
             res = self.singlestatPanel(panelId, title, gridPos)
-        res["targets"] = [self.getTarget(experimentId)]
+        res["targets"] = [self.getTarget(executionId)]
         return res
 
     def singlestatColor(self) -> Dict:
@@ -184,7 +184,7 @@ class DashboardPanel:
             "yaxis": {"align": False, "alignLevel": None}
         }
 
-    def getTarget(self, experimentId: int) -> Dict:
+    def getTarget(self, executionId: int) -> Dict:
         return {
             "hide": False,
             "measurement": self.Measurement,
@@ -203,7 +203,7 @@ class DashboardPanel:
                     {"params": [], "type": "mean"}
                 ]
             ],
-            "tags": [{"key": "ExperimentId", "operator": "=", "value": str(experimentId)}]
+            "tags": [{"key": "ExecutionId", "operator": "=", "value": str(executionId)}]
         }
 
     def Validate(self) -> Tuple[bool, str]:

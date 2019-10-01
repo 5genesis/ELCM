@@ -27,8 +27,8 @@ Log.Initialize(app)
 Status.Initialize()
 HeartBeat.Initialize()
 
-from Scheduler.experiment import bp as ExperimentBp
-app.register_blueprint(ExperimentBp, url_prefix='/experiment')
+from Scheduler.execution import bp as ExecutionBp
+app.register_blueprint(ExecutionBp, url_prefix='/execution')
 
 from Scheduler.dispatcher import bp as DispatcherBp
 app.register_blueprint(DispatcherBp, url_prefix='/api/v0')

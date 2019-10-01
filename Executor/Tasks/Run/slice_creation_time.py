@@ -10,7 +10,7 @@ class SliceCreationTime(Task):
         super().__init__("Slice Creation Time Measurement", params, logMethod, None)
 
     def Run(self):
-        experimentId = self.params['ExperimentId']
+        executionId = self.params['ExecutionId']
         waitForRunning = self.params['WaitForRunning']
         timeout = self.params.get('Timeout', None)
         sliceId = self.params['SliceId']
@@ -33,7 +33,7 @@ class SliceCreationTime(Task):
         from Helper import InfluxDb, InfluxPayload, InfluxPoint  # Delayed to avoid cyclic imports
 
         payload = InfluxPayload("Slice Creation Time")
-        payload.Tags = {'ExperimentId': str(experimentId)}
+        payload.Tags = {'ExecutionId': str(executionId)}
         point = InfluxPoint(datetime.utcnow())
 
         for key in ["Slice_Deployment_Time", "Placement_Time", "Provisioning_Time"]:

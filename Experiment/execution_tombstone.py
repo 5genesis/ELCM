@@ -5,7 +5,7 @@ from .experiment_run import CoarseStatus
 
 class Tombstone:
     def __init__(self, id: str):
-        path = Serialize.Path('Experiment', id)
+        path = Serialize.Path('Execution', id)
         data = Serialize.Load(path)
         self.Id, self.Cancelled, status = Serialize.Unroll(data, 'Id', 'Cancelled', 'CoarseStatus')
         self.Params = {'Id': self.Id, 'Deserialized': True}
