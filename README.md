@@ -234,6 +234,22 @@ Displays a message on the log, with the configured severity. Configuration value
 - `Severity`: Severity level (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`)
 - `Message`: Text of the message
 
+#### Run.Publish
+Saves a value (identified with a name) for use in another task that runs later. The value can be retrieved using 
+variable expansion `@[key]`. If the key is not defined at the time of expansion it will be replaced by the string
+`<<UNDEFINED>>` unless another default is defined using `@[key:default]`. For example, the following tasks:
+```yaml
+- Order: 5
+  Task: Run.Publish
+  Config: { Publish1: "Text", Publish2: 1 }
+- Order: 10
+  Task: Run.Message
+  Config: { Severity: INFO,Message: "1: @[Publish1]; 2: @[Publish2]; 3: @[Publish3]; 4: @[Publish4:NoProblem]" }
+```
+Will produce this message in the log:
+
+`- INFO - 1: Text; 2: 1; 3: <<UNDEFINED>>; 4: NoProblem`
+
 #### Run.SliceCreationTime
 Sends the Slice Creation Time reported by the Slice Manager to InfluxDb. Configuration values:
 - `ExecutionId`: Id of the execution (can be dinamically expanded from `@{ExecutionId}`)
