@@ -2,7 +2,7 @@ from Helper import Child
 from typing import Dict
 from Helper import Level
 from time import sleep
-from Status import ExperimentQueue
+from Status import ExecutionQueue
 
 
 class Beat(Child):
@@ -13,7 +13,7 @@ class Beat(Child):
     def Run(self):
         while not self.stopRequested:
             self.Broadcast(Level.DEBUG, 'Alive')
-            ExperimentQueue.UpdateAll()
+            ExecutionQueue.UpdateAll()
             Beat.wait()
 
     @staticmethod

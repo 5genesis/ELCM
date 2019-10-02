@@ -1,6 +1,7 @@
 from typing import Dict, Union
 from .experiment_run import ExperimentRun
 from Executor import ExecutorBase
+from re import finditer
 
 
 class Expander:
@@ -27,5 +28,19 @@ class Expander:
     @classmethod
     def expand(cls, item: str, context: Union[ExecutorBase, ExperimentRun]) -> str:
         expanded = item
-        expanded = expanded.replace("@{ExperimentId}", str(context.Id))
+        expanded = expanded.replace("@{ExecutionId}", str(context.Id))
+        expanded = expanded.replace("@{SliceId}", str(context.Params.get("SliceId", "None")))
+
+        # Expand custom values published by Run.Publish
+        for match in [m for m in finditer(r'@\[(.*?)]', item)]:
+            all = match.group()
+            capture = match.groups()[0]
+            if ':' in capture:
+                key, default = capture.split(':')
+            else:
+                key = capture
+                default = '<<UNDEFINED>>'
+            value = context.params.get(key, default)
+            expanded = expanded.replace(all, str(value))
+
         return expanded

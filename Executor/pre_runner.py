@@ -1,5 +1,5 @@
 from typing import Dict
-from .Tasks.PreRun import CheckAvailable, AddExperimentEntry
+from .Tasks.PreRun import CheckAvailable, AddExecutionEntry, Instantiate
 from .executor_base import ExecutorBase
 from tempfile import TemporaryDirectory
 from time import sleep
@@ -21,8 +21,13 @@ class PreRunner(ExecutorBase):
                 self.AddMessage('Not available')
                 sleep(1)
 
-        self.AddMessage('Resources granted', 80)
-        AddExperimentEntry(self.Log).Start()
-        self.AddMessage('Experiment registered', 80)
+        self.AddMessage('Resources granted', 50)
+        AddExecutionEntry(self.Log).Start()
+        self.AddMessage('Execution registered', 50)
 
+        result = Instantiate(self.Log, self.TempFolder, self.Configuration.PreRunParams).Start()
+        self.Configuration.PostRunParams["SliceId"] = result["SliceId"]
+        self.params["SliceId"] = result["SliceId"]  # TODO: Improve inter-executor communication
+
+        self.AddMessage('Instantiation completed', 80)
         self.SetFinished(percent=100)

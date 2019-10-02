@@ -1,6 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
-from enum import Enum, unique
+from .log_level import Level
 from flask import Flask
 from os.path import exists, join
 from os import makedirs
@@ -8,6 +8,7 @@ from .config import Config
 import traceback
 from typing import Union, Optional, List, Dict, Tuple
 from dataclasses import dataclass
+import sys
 
 
 class ColoredFormatter(logging.Formatter):
@@ -34,11 +35,6 @@ class ColoredFormatter(logging.Formatter):
         return logging.Formatter.format(self, record)
 
 
-@unique
-class Level(Enum):
-    DEBUG, INFO, WARNING, ERROR, CRITICAL = range(5)
-
-
 @dataclass
 class LogInfo:
     Log: List[Tuple[str, str]] = None
@@ -62,6 +58,15 @@ class LogInfo:
             level = _inferLevel(line)
             res.Count[level] += 1
             res.Log.append((level, line))
+        return res
+
+    @staticmethod
+    def FromTuple(log: List[Tuple[Level, str]]):
+        res = LogInfo()
+        for level, message in log:
+            level = level.name.capitalize()
+            res.Count[level] += 1
+            res.Log.append((level, message))
         return res
 
     def Serialize(self) -> Dict:
@@ -148,11 +153,15 @@ class Log:
         if level == Level.CRITICAL: cls.C(msg, logger)
 
     @classmethod
-    def Traceback(cls, info):
-        exc_type, exc_value, exc_traceback = info
-        lines = traceback.format_exception(exc_type, exc_value, exc_traceback, limit=2)
+    def GetTraceback(cls):
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        return traceback.format_exception(exc_type, exc_value, exc_traceback)
+
+    @classmethod
+    def Traceback(cls, logger: Optional[str] = None):
+        lines = cls.GetTraceback()
         for line in lines:
-            cls.D(line.strip())
+            Log.D(line, logger)
 
     @classmethod
     def OpenLogFile(cls, identifier: str, filePath: Optional[str] = None) -> str:

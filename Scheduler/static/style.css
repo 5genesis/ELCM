@@ -1,9 +1,12 @@
 .logLine {
-    font-family: Consolas;
-    background: black;
+    font-family: Consolas, monospace;
+    background: #101020;
     font-size: small;
     padding:0;
     margin:0;
+}
+.logLine:hover {
+    background: #102040;
 }
 
 .logDebug { }

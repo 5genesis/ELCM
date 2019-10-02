@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% import '_logView.html' as logView %}
+
+{% block scripts %}
+    {{ super() }}
+    {{ logView.logScripts() }}
+{% endblock %}
+
+{% macro executorTimes(name, executor) %}
+    <div class="container">
+        <h3>{{ name }}</h3>
+        {% if executor.Started is not none %}
+            <p>
+                Started: {{ moment(executor.Started).format('LLL') }} ({{ moment(executor.Started).fromNow() }}, waited
+                {{ moment(executor.Started).fromTime(executor.Created, no_suffix = True) }})
+            </p>
+        {% else %}
+            <p> Not started</p>
+        {% endif %}
+        {% if executor.Finished is not none %}
+            <p>
+                Finished: {{ moment(executor.Finished).format('LLL') }} ({{ moment(executor.Finished).fromNow() }}, ran for
+                {{ moment(executor.Started).fromTime(executor.Created, no_suffix = True) }})
+            </p>
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{% block app_content %}
+    <div class="container">
+        Status: <span class="badge">{{ execution.CoarseStatus.name }}</span> <span class="badge">{{ execution.Status }}</span>
+        Created: {{ moment(execution.Created).format('LLL') }} ({{ moment(execution.Created).fromNow() }})
+    </div>
+
+    <div class="accordion" id="logAccordion">
+      {{ executorTimes('Pre-Run', execution.PreRunner) }}
+      {{ logView.logAccordionCard('logAccordion', 'Pre-Run', execution.PreRunner.RetrieveLogInfo()) }}
+      {{ executorTimes('Run', execution.Executor) }}
+      {{ logView.logAccordionCard('logAccordion', 'Run', execution.Executor.RetrieveLogInfo()) }}
+      {{ executorTimes('Post-Run', execution.PostRunner) }}
+      {{ logView.logAccordionCard('logAccordion', 'Post-Run', execution.PostRunner.RetrieveLogInfo()) }}
+    </div>
+{% endblock %}

@@ -18,6 +18,10 @@ class Composer:
         configuration = PlatformConfiguration()
         configuration.RunParams['Report'] = {'ExperimentName': descriptor.Name}
 
+        instantiation = {'HasNsd': descriptor.HasNsd, 'ExperimentId': descriptor.Id}
+        configuration.PreRunParams.update(instantiation)
+        configuration.PostRunParams.update(instantiation)
+
         actions: List[ActionInformation] = []
         panels: List[DashboardPanel] = []
         for ue in descriptor.UEs.keys():

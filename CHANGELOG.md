@@ -1,4 +1,13 @@
-** 27/06/2019 ** [Version 1.0.5]
+**02/10/2019** [Version 1.1.0]
+ 
+ - Overhauled configuration procedure (see README.md)
+ - Added configuration, facility validation and reload buttons to dashboard 
+ - Added support for Katana Slice Manager, automatic instantiation, decommision of slices.
+ - Added SliceCreationTime task
+ - Added Dots, Color and Threshold configuration values to panels
+ - Improved communication between tasks, added Publish task, custom variables expansion
+
+**27/06/2019** [Version 1.0.5]
 
  - Added support for singlestat (Gauge) Grafana panels
  - Added configurable Name, Unit values to panels

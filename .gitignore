@@ -102,3 +102,5 @@ Persistence/
 config.yml
 facility.yml
 *.log.*
+TestCases/
+UEs/

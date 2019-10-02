@@ -1,4 +1,4 @@
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List
 from Helper import Serialize
 
 
@@ -10,6 +10,7 @@ class DashboardPanel:
         self.Unit, self.UnitLabel = Serialize.Unroll(data, "Unit", "UnitLabel")
         self.Size, self.Position = Serialize.Unroll(data, "Size", "Position")
         self.Interval, self.Lines, self.Percentage = Serialize.Unroll(data, "Interval", "Lines", "Percentage")
+        self.Dots, self.Color, self.Thresholds = Serialize.Unroll(data, "Dots", "Color", "Thresholds")
 
     def AsDict(self):
         return {
@@ -18,22 +19,78 @@ class DashboardPanel:
             "Measurement": self.Measurement, "Field": self.Field,
             "Unit": self.Unit, "UnitLabel": self.UnitLabel,
             "Size": self.Size, "Position": self.Position,
-            "Interval": self.Interval, "Lines": self.Lines, "Percentage": self.Percentage
+            "Interval": self.Interval, "Lines": self.Lines, "Percentage": self.Percentage,
+            "Dots": self.Dots, "Color": self.Color, "Thresholds": self.Thresholds
         }
 
-    def Generate(self, panelId: int, experimentId: int) -> Dict:
+    def Generate(self, panelId: int, executionId: int) -> Dict:
         res = {}
+
+        try:
+            title = f"{self.Measurement}: {self.Field}" if self.Name is None else self.Name
+        except Exception as e:
+            raise RuntimeError(f'Error: Could not generate panel title: {e}')
+
+        try:
+            gridPos = {
+                "h": self.Size[0], "w": self.Size[1],
+                "x": self.Position[0], "y": self.Position[1]
+            }
+        except Exception as e:
+            raise RuntimeError(f'Error: Could not generate panel geometry: {e}')
+
         if self.Type.lower() == "graph":
-            res = self.graphPanel(panelId)
+            res = self.graphPanel(panelId, title, gridPos)
         elif self.Type.lower() == "singlestat":
-            res = self.singlePanel(panelId)
-        res["targets"] = [self.getTarget(experimentId)]
+            res = self.singlestatPanel(panelId, title, gridPos)
+        res["targets"] = [self.getTarget(executionId)]
         return res
 
-    def singlePanel(self, panelId: int) -> Dict:
+    def singlestatColor(self) -> Dict:
+        default = ["#299c46", "rgba(237, 129, 40, 0.89)", "#d44a3a"]
+        if self.Color is None:
+            colors = default
+        else:
+            if self.Gauge:  # Color must be a list of 3 str
+                if not isinstance(self.Color, list) or len(self.Color) != 3:
+                    raise RuntimeError(f"Error: Gauge with incorrectly defined Color. "
+                                       f"Expected [str, str, str], found {self.Color} ")
+                colors = self.Color
+            else:  # Color must be a single str
+                if not isinstance(self.Color, str):
+                    raise RuntimeError(f"Error: Panel with incorrectly defined Color. "
+                                       f"Expected str, found {self.Color} ")
+                colors = [self.Color]*3
         return {
+            "thresholds": "",
+            "colorBackground": False,
+            "colorValue": False if (self.Gauge or self.Color is None) else True,
+            "colors": colors
+        }
+
+    def maybeGauge(self) -> Dict:
+        if self.Gauge:
+            try:
+                a, b, c, d = self.Thresholds
+                return{
+                    "gauge": {
+                        "show": True, "minValue": a, "maxValue": d, "thresholdMarkers": True, "thresholdLabels": True
+                    },
+                    "thresholds": f"{b},{c}"
+                }
+            except Exception as e:
+                raise RuntimeError(f'Error: Gauge panel with incorrect or no Thresholds: {e}')
+        else:
+            return{
+                "gauge": {
+                    "show": False, "minValue": 0, "maxValue": 0, "thresholdMarkers": True, "thresholdLabels": True
+                }
+            }
+
+    def singlestatPanel(self, panelId: int, title: str, gridPos: Dict) -> Dict:
+        res = {
             "id": panelId,
-            "title": f"{self.Measurement}: {self.Field}" if self.Name is None else self.Name,
+            "title": title,
             "type": "singlestat",
             "links": [],
             "maxDataPoints": 100,
@@ -55,56 +112,51 @@ class DashboardPanel:
             "prefixFontSize": "50%",
             "valueFontSize": "80%",
             "postfixFontSize": "50%",
-            "thresholds": "",
-            "colorBackground": False,
-            "colorValue": False,
-            "colors": ["#299c46", "rgba(237, 129, 40, 0.89)", "#d44a3a"],
             "sparkline": {
                 "show": False,
                 "full": False,
                 "lineColor": "rgb(31, 120, 193)",
                 "fillColor": "rgba(31, 118, 189, 0.18)"
             },
-            "gauge": {
-                "show": self.Gauge,
-                "minValue": self.MinValue if self.Gauge else 0,
-                "maxValue": self.MaxValue if self.Gauge else 100,
-                "thresholdMarkers": True,
-                "thresholdLabels": True
-            },
-            "gridPos": {
-                "h": self.Size[0], "w": self.Size[1],
-                "x": self.Position[0], "y": self.Position[1]
-            },
+            "gridPos": gridPos,
             "tableColumn": ""
         }
+        res.update(self.singlestatColor())
+        res.update(self.maybeGauge())
+        return res
 
-    def graphPanel(self, panelId: int) -> Dict:
+    def graphColor(self) -> List[Dict]:
+        if self.Color is None:
+            return []
+        else:
+            return [{
+                'alias': f'{self.Measurement}.mean',
+                'color': self.Color
+            }]
+
+    def graphPanel(self, panelId: int, title: str, gridPos: Dict) -> Dict:
         return {
             "id": panelId,
-            "title": f"{self.Measurement}: {self.Field}" if self.Name is None else self.Name,
+            "title": title,
             "type": "graph",
             "aliasColors": {},
             "bars": not self.Lines,
             "dashLength": 10,
             "dashes": False,
             "fill": 1,
-            "gridPos": {
-                "h": self.Size[0], "w": self.Size[1],
-                "x": self.Position[0], "y": self.Position[1]
-            },
+            "gridPos": gridPos,
             "legend": {
                 "avg": False, "current": False, "max": False, "min": False,
-                "show": True, "total": False, "values": False
+                "show": False, "total": False, "values": False
             },
             "lines": self.Lines,
             "linewidth": 1,
             "nullPointMode": "connected" if self.Lines else "null",
             "percentage": self.Percentage,
             "pointradius": 5,
-            "points": False,
+            "points": self.Dots if self.Dots is not None else False,
             "renderer": "flot",
-            "seriesOverrides": [],
+            "seriesOverrides": self.graphColor(),
             "spaceLength": 10,
             "stack": False,
             "steppedLine": False,
@@ -132,7 +184,7 @@ class DashboardPanel:
             "yaxis": {"align": False, "alignLevel": None}
         }
 
-    def getTarget(self, experimentId: int) -> Dict:
+    def getTarget(self, executionId: int) -> Dict:
         return {
             "hide": False,
             "measurement": self.Measurement,
@@ -151,5 +203,13 @@ class DashboardPanel:
                     {"params": [], "type": "mean"}
                 ]
             ],
-            "tags": [{"key": "ExperimentId", "operator": "=", "value": str(experimentId)}]
+            "tags": [{"key": "ExecutionId", "operator": "=", "value": str(executionId)}]
         }
+
+    def Validate(self) -> Tuple[bool, str]:
+        """Returns (True, 'No errors') if the panel is valid, otherwise (False, str(exception))"""
+        try:
+            _ = self.Generate(0, 0)
+            return True, 'No errors'
+        except Exception as e:
+            return False, str(e)

@@ -6,6 +6,9 @@ Logging:
 Dispatcher:
   Host: '127.0.0.1'
   Port: 5001
+SliceManager:
+  Host: '192.168.32.136'
+  Port: 8000
 Flask:
   SECRET_KEY:
 Tap:
@@ -19,3 +22,12 @@ Grafana:
   Port:
   Bearer: #API key without the 'Bearer ' prefix
   ReportGenerator:
+InfluxDb:
+  Host:
+  Port:
+  User:
+  Password:
+  Database:
+Metadata:
+  HostIp:
+  Facility:

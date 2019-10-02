@@ -1,7 +1,7 @@
 from os.path import join, abspath, exists, dirname, isdir, isfile
 from os import makedirs, listdir
 import yaml
-from typing import Dict, Optional, List as _List, Tuple
+from typing import Dict, Optional, List as _List, Tuple, Union
 from datetime import datetime
 
 
@@ -48,11 +48,13 @@ class Serialize:
         return datetime.strptime(string, cls.FORMAT) if string is not None else None
 
     @staticmethod
-    def Unroll(data: Dict, *args: str) -> _List[object]:
-        res = []
-        for arg in args:
-            res.append(data.get(arg, None))
-        return res
+    def Unroll(data: Dict, *args: str) -> Union[Optional[object], _List[object]]:
+        if len(args) == 0:
+            return None
+        elif len(args) == 1:
+            return data.get(args[0], None)
+        else:
+            return [data.get(arg, None) for arg in args]
 
     @staticmethod
     def CheckKeys(data: Dict, *args: str) -> Tuple[bool, _List[str]]:
