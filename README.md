@@ -203,7 +203,7 @@ that corresponds to the TestCase. The following values can be set for each panel
 - [Optional]  `Unit`: Field unit
 - [Mandatory] `Size`: (As list) [<height>, <width>]
 - [Mandatory] `Position`: (As list) [<x>, <y>]
-- [Optional]  `Color`: Graph or text color ("#rrggbb" or "rgba(rrr, ggg, bbb, a.aa)")
+- [Optional]  `Color`: Graph or text color(s). For Gauges this is a list of 3 colors, otherwise a single value. Each color can be defined using these formats: "#rrggbb" or "rgba(rrr, ggg, bbb, a.aa)"
 
 #### For graph:
 - [Mandatory] `Lines`: True to display as lines, False to display as bars
@@ -237,14 +237,15 @@ Displays a message on the log, with the configured severity. Configuration value
 #### Run.Publish
 Saves a value (identified with a name) for use in another task that runs later. The value can be retrieved using 
 variable expansion `@[key]`. If the key is not defined at the time of expansion it will be replaced by the string
-`<<UNDEFINED>>` unless another default is defined using `@[key:default]`. For example, the following tasks:
+`<<UNDEFINED>>` unless another default is defined using `@[key:default]`. In this case the `Config` dictionary
+contains the keys and values that will be published. For example, the following tasks:
 ```yaml
 - Order: 5
   Task: Run.Publish
   Config: { Publish1: "Text", Publish2: 1 }
 - Order: 10
   Task: Run.Message
-  Config: { Severity: INFO,Message: "1: @[Publish1]; 2: @[Publish2]; 3: @[Publish3]; 4: @[Publish4:NoProblem]" }
+  Config: { Severity: INFO, Message: "1: @[Publish1]; 2: @[Publish2]; 3: @[Publish3]; 4: @[Publish4:NoProblem]" }
 ```
 Will produce this message in the log:
 
