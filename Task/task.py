@@ -24,7 +24,7 @@ class Task:
         return self.params
 
     def Publish(self, key: str, value: object):
-        self.Log(Level.DEBUG, f'Published value {value} under key "{key}"')
+        self.Log(Level.DEBUG, f'Published value "{value}" under key "{key}"')
         self.Vault[key] = value
 
     def Run(self) -> None:

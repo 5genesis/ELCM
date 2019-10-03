@@ -66,7 +66,7 @@ class LogInfo:
         for level, message in log:
             level = level.name.capitalize()
             res.Count[level] += 1
-            res.Log.append((level, message))
+            res.Log.append((level, f'{message}\n'))
         return res
 
     def Serialize(self) -> Dict:
