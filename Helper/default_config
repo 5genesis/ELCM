@@ -9,12 +9,12 @@ Dispatcher:
 SliceManager:
   Host: '192.168.32.136'
   Port: 8000
-Flask:
-  SECRET_KEY:
 Tap:
-  Exe: Keysight.Tap.Cli.exe
-  Folder: C:/Program Files/Keysight/TAP8
-  Results: C:/Program Files/Keysight/TAP8/Results
+  Enabled: False
+  OpenTap: True
+  Exe: tap.exe
+  Folder: C:/Program Files/OpenTAP
+  Results: C:/Program Files/OpenTAP/Results
   EnsureClosed: True
 Grafana:
   Enabled: False
@@ -29,5 +29,5 @@ InfluxDb:
   Password:
   Database:
 Metadata:
-  HostIp:
+  HostIp: "127.0.0.1"
   Facility:
