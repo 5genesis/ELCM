@@ -96,9 +96,10 @@ class TapConfig(validable):
     def __init__(self, data: Dict):
         defaults = {
             'Enabled': (False, Level.WARNING),
-            'Exe': ('Keysight.Tap.Cli.exe', Level.WARNING),
-            'Folder': ('C:/Program Files/Keysight/TAP8', Level.WARNING),
-            'Results': ('C:/Program Files/Keysight/TAP8/Results', Level.WARNING),
+            'OpenTap': (True, Level.WARNING),
+            'Exe': ('tap.exe', Level.WARNING),
+            'Folder': ('C:/Program Files/OpenTAP', Level.WARNING),
+            'Results': ('C:/Program Files/OpenTAP/Results', Level.WARNING),
             'EnsureClosed': (False, Level.WARNING),
         }
         super().__init__(data, 'Tap', defaults)
@@ -106,6 +107,10 @@ class TapConfig(validable):
     @property
     def Enabled(self):
         return self._keyOrDefault('Enabled')
+
+    @property
+    def OpenTap(self):
+        return self._keyOrDefault('OpenTap')
 
     @property
     def Exe(self):

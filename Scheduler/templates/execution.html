@@ -8,21 +8,29 @@
 
 {% macro executorTimes(name, executor) %}
     <div class="container">
-        <h3>{{ name }}</h3>
-        {% if executor.Started is not none %}
-            <p>
-                Started: {{ moment(executor.Started).format('LLL') }} ({{ moment(executor.Started).fromNow() }}, waited
-                {{ moment(executor.Started).fromTime(executor.Created, no_suffix = True) }})
-            </p>
-        {% else %}
-            <p> Not started</p>
-        {% endif %}
-        {% if executor.Finished is not none %}
-            <p>
-                Finished: {{ moment(executor.Finished).format('LLL') }} ({{ moment(executor.Finished).fromNow() }}, ran for
-                {{ moment(executor.Started).fromTime(executor.Created, no_suffix = True) }})
-            </p>
-        {% endif %}
+        <div class="row"><div class="col-">
+            <h3>{{ name }}</h3>
+        </div></div>
+        <div class="row">
+            <div class="col-sm-6">
+                {% if executor.Started is not none %}
+                    <p>
+                        Started: {{ moment(executor.Started).format('LLL') }} ({{ moment(executor.Started).fromNow() }}, waited
+                        {{ moment(executor.Started).fromTime(executor.Created, no_suffix = True) }})
+                    </p>
+                {% else %}
+                    <p> Not started</p>
+                {% endif %}
+            </div>
+            <div class="col-sm-6">
+                {% if executor.Finished is not none %}
+                    <p>
+                        Finished: {{ moment(executor.Finished).format('LLL') }} ({{ moment(executor.Finished).fromNow() }}, ran for
+                        {{ moment(executor.Started).fromTime(executor.Created, no_suffix = True) }})
+                    </p>
+                {% endif %}
+            </div>
+        </div>
     </div>
 {% endmacro %}
 
@@ -33,11 +41,13 @@
     </div>
 
     <div class="accordion" id="logAccordion">
-      {{ executorTimes('Pre-Run', execution.PreRunner) }}
-      {{ logView.logAccordionCard('logAccordion', 'Pre-Run', execution.PreRunner.RetrieveLogInfo()) }}
-      {{ executorTimes('Run', execution.Executor) }}
-      {{ logView.logAccordionCard('logAccordion', 'Run', execution.Executor.RetrieveLogInfo()) }}
-      {{ executorTimes('Post-Run', execution.PostRunner) }}
-      {{ logView.logAccordionCard('logAccordion', 'Post-Run', execution.PostRunner.RetrieveLogInfo()) }}
+        {{ executorTimes('Pre-Run', execution.PreRunner) }}
+        {{ logView.logView(execution.PreRunner.RetrieveLogInfo(), 'Pre-Run') }}
+        <hr>
+        {{ executorTimes('Run', execution.Executor) }}
+        {{ logView.logView(execution.Executor.RetrieveLogInfo(), 'Run') }}
+        <hr>
+        {{ executorTimes('Post-Run', execution.PostRunner) }}
+        {{ logView.logView(execution.PostRunner.RetrieveLogInfo(), 'Post-Run') }}
     </div>
 {% endblock %}

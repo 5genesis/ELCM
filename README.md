@@ -95,6 +95,7 @@ The values that can be configured on `config.yml` are:
 > The Dispatcher does not currently exist as a separate entity, so this information refers to the Portal during Release A.
 * Tap: 
     * Enabled: Whether or not to use TAP, if set to False the settings below will be ignored
+    * OpenTap: True if using OpenTap (TAP 9), False if using TAP 8
     * Exe: TAP CLI executable
     * Folder: TAP installation folder
     * Results: TAP results folder

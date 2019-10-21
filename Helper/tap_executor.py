@@ -31,7 +31,10 @@ class Tap:
 
     @staticmethod
     def getArgs(tapPlan: str, externals: Dict[str, str]):
-        args = [Tap.tapConfig.Path, '-v']
+        if Tap.tapConfig.OpenTap:
+            args = [Tap.tapConfig.Path, 'run', '-v']
+        else:
+            args = [Tap.tapConfig.Path, '-v']
 
         for key, value in externals.items():
             args.extend(['-e', f'{key}={value}'])

@@ -1,3 +1,7 @@
+**21/10/2019** [Version 1.1.1]
+
+ - Added support for OpenTAP
+
 **02/10/2019** [Version 1.1.0]
  
  - Overhauled configuration procedure (see README.md)
