@@ -6,7 +6,10 @@ from flask_moment import Moment
 from Helper import Config
 from Facility import Facility
 from .heartbeat import HeartBeat
+from dotenv import load_dotenv
 import os
+
+load_dotenv(dotenv_path='./.flaskenv', verbose=True)
 
 config = Config()
 print("Config validation:")
