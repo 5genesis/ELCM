@@ -11,12 +11,12 @@ import os
 config = Config()
 print("Config validation:")
 for level, message in config.Validation:
-    print(f"  {level.name:8}: {message}")
+    print(f"  {level.name:8}: {message}", flush=True)
 
 Facility.Reload()
 print("Facility validation:")
 for level, message in Facility.Validation:
-    print(f"  {level.name:8}: {message}")
+    print(f"  {level.name:8}: {message}", flush=True)
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
