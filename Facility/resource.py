@@ -10,4 +10,4 @@ class Resource:
 
     @property
     def Locked(self):
-        return self.Owner is None
+        return self.Owner is not None

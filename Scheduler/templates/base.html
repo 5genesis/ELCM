@@ -3,12 +3,14 @@
 {% block styles %}
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='fa_all.min.css') }}">
 {% endblock %}
 
 {% block scripts %}
     {{ super() }}
     {{ moment.include_moment() }}
     <script src="{{ url_for('static', filename='nanobar.min.js') }}"></script>
+    <script defer src="{{url_for('static', filename='fa_all.min.js')}}"></script>
     <script>
         window.setTimeout(function() {
             $(".alert").fadeTo(500, 0).slideUp(500, function(){ $(this).remove(); });

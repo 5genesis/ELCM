@@ -177,6 +177,10 @@ class Facility:
         return [res for res in cls.resources.values() if not res.Locked]
 
     @classmethod
+    def Resources(cls):
+        return cls.resources
+
+    @classmethod
     def LockResource(cls, id: str, owner: 'ExperimentRun'):
         resource = cls.resources.get(id, None)
         if resource is not None:
