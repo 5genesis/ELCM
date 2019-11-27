@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block app_content %}
+    {{ pagination.info }}
+    <p></p>
+    {% for execution in executions %}
+        <div class="container">
+            {% set id = execution['Id'] %}
+            <p>{{ loop.index+pagination.skip }}.
+                <a href="{{ url_for('execution.view', executionId=execution.Id) }}">
+                ID: {{ id }} ({{ execution['Created'] }}): {{ execution['CoarseStatus'].name }}
+            </a></p>
+        </div>
+    {% endfor %}
+    {{ pagination.links }}
+{% endblock %}

@@ -1,0 +1,58 @@
+.logLine {
+    font-family: Consolas, monospace;
+    background: #101020;
+    font-size: small;
+    padding:0;
+    margin:0;
+}
+.logLine:hover {
+    background: #102040;
+}
+
+.logDebug { }
+.logInfo { }
+.logWarning { }
+.logError { }
+.logCritical { }
+
+.colorDebug { color: darkgrey; }
+.colorInfo { color: aliceblue; }
+.colorWarning { color: gold; }
+.colorError { color: red; }
+.colorCritical { color: fuchsia; }
+
+.hidden { display: none; }
+
+@keyframes yellow-fade {
+   0% {border: 2px solid gold;}
+   100% {border: none;}
+}
+
+.highlight {
+   animation: yellow-fade 2s ease-in 1;
+}
+
+@keyframes copy-fade {
+    0% {background-color: gold;}
+   100% {background-color: white;}
+}
+
+.copy-highlight {
+   animation: copy-fade 1s;
+}
+
+.nanobar {
+    width: 95%;
+    background: lightblue;
+}
+
+.bar {
+    background: dodgerblue;
+}
+
+.message {
+    font-size: xx-small;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

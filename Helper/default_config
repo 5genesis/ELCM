@@ -1,0 +1,33 @@
+TempFolder: 'Temp'
+Logging:
+  Folder: 'Logs'
+  AppLevel: INFO
+  LogLevel: DEBUG
+Dispatcher:
+  Host: '127.0.0.1'
+  Port: 5001
+SliceManager:
+  Host: '192.168.32.136'
+  Port: 8000
+Tap:
+  Enabled: False
+  OpenTap: True
+  Exe: tap.exe
+  Folder: C:/Program Files/OpenTAP
+  Results: C:/Program Files/OpenTAP/Results
+  EnsureClosed: True
+Grafana:
+  Enabled: False
+  Host:
+  Port:
+  Bearer: #API key without the 'Bearer ' prefix
+  ReportGenerator:
+InfluxDb:
+  Host:
+  Port:
+  User:
+  Password:
+  Database:
+Metadata:
+  HostIp: "127.0.0.1"
+  Facility:

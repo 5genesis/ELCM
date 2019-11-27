@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% import '_logView.html' as logView %}
+
+{% block app_content %}
+    <h3>Running Experiments:</h3>
+    {% if executions|count == 0 %}
+        <p style="text-align: center">(Idle)</p>
+    {% else %}
+        <table style="margin: auto; text-align: center; vertical-align: center">
+            {% for execution in executions%}
+                {% include '_execution.html' %}
+            {% endfor %}
+        </table>
+    {% endif %}
+    <p style="text-align:right; font-size: x-small">Next execution id: {{ executionId }}</p>
+    <p id="hiddenNextId" style="display: none">{{ executionId }}</p>
+    <hr>
+    <div class="container">
+        <div class="row"><div class="col">
+            <h3>Diagnostics</h3>
+        </div></div>
+        <div class="row"><div class="col">
+            <div class="accordion" id="configAccordion">
+              {{ logView.logAccordionCard('configAccordion', 'Configuration', configLog) }}
+            </div>
+        </div></div>
+        <br>
+        <div class="row"><div class="col">
+            <div class="accordion" id="facilityAccordion">
+              {{ logView.logAccordionCard('facilityAccordion', 'Facility', facilityLog) }}
+            </div>
+        </div></div>
+        <hr>
+        <div class="row">
+            <div class="col-sm-6"><a class="btn btn-primary center-block" href="{{ url_for('reloadConfig') }}" role="button">Reload configuration</a></div>
+            <div class="col-sm-6"><a class="btn btn-primary center-block" href="{{ url_for('reloadFacility') }}" role="button">Reload facility</a></div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {{ logView.logScripts() }}
+    <script>
+        function updateOne(element, newValue){
+            if (element.text() !== newValue){
+                element.text(newValue);
+                element.addClass('highlight');
+                setTimeout(function(){element.removeClass('highlight');},3000);
+            }
+        }
+
+        function updatePerCent(nanobar, percent, hidden){
+            if (percent.toString() !== hidden.text()){
+                nanobar.go(percent);
+                hidden.text(percent);
+            }
+        }
+
+        function updateMessage(element, messages){
+            let message = '...';
+            if (messages.length !== 0){ message = messages[messages.length-1]; }
+            if (element.text() !== message){ element.text(message); }
+        }
+
+        function checkNewExecutions(){
+            let current = $('#hiddenNextId').text();
+            $.get("{{ url_for('execution.nextExecutionId') }}")
+                .done(function (response){
+                   if (response['NextId'].toString() !== current){
+                       location.reload();
+                   }
+                });
+        }
+
+        setInterval(checkNewExecutions, 5000)
+    </script>
+
+    {% for execution in executions %}
+        <script>
+            function update{{ execution.Id }}(nanobar) {
+                $.get("{{ url_for('execution.json', executionId=execution.Id) }}")
+                    .done(function (response) {
+                        if (response['Coarse'] === 'ERR'){
+                            $(".{{ execution.Id }}div").fadeTo(500, 0).slideUp(500, function(){ $(this).remove(); });
+                        } else {
+                            updateOne($("#coarse{{ execution.Id }}"), response['Coarse']);
+                            updateOne($("#status{{ execution.Id }}"), response['Status']);
+                            updatePerCent(nanobar, response['PerCent'], $('#percent{{ execution.Id }}'));
+                            updateMessage($('#message{{ execution.Id }}'), response['Messages']);
+
+                            setTimeout(function() { update{{ execution.Id }}(nanobar); }, 1000);
+                        }
+                    });
+            }
+        </script>
+
+        <script>
+            div = $(
+                "<span class='message' id='message{{ execution.Id }}'>...</span>" +
+                "<span class='progress'></span>" +
+                "<span id='percent{{ execution.Id }}' style='display: none;'></span>"
+            );
+            $('#progress{{ execution.Id }}').append(div);
+            var nanobar = Nanobar({ target: div[1] }); //Ignore 'var' warning: Scope is fine.
+            update{{ execution.Id }}(nanobar);
+        </script>
+    {% endfor %}
+{% endblock %}

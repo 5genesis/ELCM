@@ -1,0 +1,77 @@
+{% set LogLevels = ['Debug', 'Info', 'Warning', 'Error', 'Critical'] %}
+
+{% macro logScripts() %}
+    <script type="text/javascript">
+        function copyToClipboard(element, button) {
+            let text = $(element).text();
+            let copy = $("<textarea>");
+            let b = $(button);
+            $("body").append(copy);
+            copy.val(text);
+            copy.select();
+            document.execCommand("copy");
+            copy.remove();
+            b.addClass('copy-highlight');
+            setTimeout(function(){b.removeClass('copy-highlight');},3000);
+        }
+
+        $(document).ready(function() {
+            {% for level in LogLevels %}
+                $(document).on('click', "#button{{ level }}", function(){
+                    $(".log{{ level }}").toggleClass('hidden')
+                });
+            {% endfor %}
+        });
+    </script>
+{% endmacro %}
+
+{% macro logAccordionCard(accordion, card, logInfo) %}
+    {% set LogLevels = ['Debug', 'Info', 'Warning', 'Error', 'Critical'] %}
+    <div class="card">
+    <div class="card-header" id="{{ card }}Header">
+        <button class="btn btn-block" type="button" data-toggle="collapse"
+                data-target="#{{ card }}Log" aria-expanded="false" aria-controls="{{ card }}Log">
+          {{ card }} Log
+            {% for level in LogLevels %}
+                {% set count = logInfo.Count[level] %}
+                {% if count != 0 %}
+                    <span class="label color{{ level }}" style="background: navy">{{ count }}</span>
+                {% endif %}
+            {% endfor %}
+        </button>
+    </div>
+    <div id="{{ card }}Log" class="collapse" aria-labelledby="{{ card }}Header" data-parent="#{{ accordion }}">
+      <div class="card-body">
+        {{ logView(logInfo, card+'Log') }}
+      </div>
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro logView(logInfo, logId) %}
+    <div class="container" style="margin: 5px">
+        {% for level in LogLevels %}
+            {% set count = logInfo.Count[level] %}
+            <button id="button{{ level }}" data-toggle="button"
+                    class="btn btn-primary {% if level != 'Debug' %}active{% endif %}"
+                    aria-pressed= {{ "true" if level != 'Debug' else "false"}}>
+                {{ level }}
+                {% if count != 0 %}
+                    <span class="label color{{ level }}" style="background: navy">{{ count }}</span>
+                {% endif %}
+            </button>
+        {% endfor %}
+        <button id="{{ logId }}CopyButton" class="btn btn-default"
+                onclick="copyToClipboard('#{{ logId }}Content', '#{{ logId }}CopyButton')" >📋</button>
+    </div>
+    {% for level, line in logInfo.Log %}
+        <p class="logLine log{{ level }} color{{ level }} {% if level=='Debug' %}hidden{% endif %}">{{ line }}</p>
+    {% endfor %}
+    <div class="hidden" id="{{ logId }}Content">
+    {# Keep indent and - signs to avoid extra whitespaces on copied text #}
+{%- for _, line in logInfo.Log -%}
+<p>{{ line }}</p><br>
+{%- endfor -%}
+    </div>
+{% endmacro %}
+
