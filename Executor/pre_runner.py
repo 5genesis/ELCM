@@ -15,7 +15,7 @@ class PreRunner(ExecutorBase):
         self.AddMessage("Configuration completed", 30)
         available = False
         while not available:
-            result = CheckAvailable(self.Log, self.Id).Start()
+            result = CheckAvailable(self.Log, self.Id, self.Configuration.Requirements).Start()
             available = result['Available']
             if not available:
                 self.AddMessage('Not available')

@@ -15,6 +15,7 @@ class PlatformConfiguration:
         self.PostRunParams = {}
         self.RunTasks: List[TaskDefinition] = []
         self.DashboardPanels: List[DashboardPanel] = []
+        self.Requirements: List[str] = []
 
     def ExpandDashboardPanels(self, experimentRun):
         from Experiment import Expander

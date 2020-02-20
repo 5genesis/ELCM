@@ -1,6 +1,7 @@
 from sys import maxsize
 from typing import Mapping, Dict
 from Helper import Log
+from typing import List
 
 
 class ActionInformation:
@@ -8,6 +9,7 @@ class ActionInformation:
         self.Order = maxsize  # Default to the lowest order
         self.TaskName = ''
         self.Config = {}
+        self.Requirements: List[str] = []
 
     @classmethod
     def FromMapping(cls, data: Mapping):
@@ -16,6 +18,7 @@ class ActionInformation:
             res.Order = data['Order']
             res.TaskName = data['Task']
             res.Config = data['Config']
+            res.Requirements = data.get('Requirements', [])
             return res
         except KeyError as e:
             Log.E(f'Facility: Key not found on action information: {e} (Data="{data}")')

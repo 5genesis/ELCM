@@ -31,8 +31,11 @@ class Composer:
             panels.extend(cls.facility.GetTestCaseDashboards(testcase))
 
         actions.sort(key=lambda action: action.Order)  # Sort by Order
+        requirements = set()
 
         for action in actions:
+            requirements.update(action.Requirements)
+
             taskDefinition = TaskDefinition()
             taskDefinition.Params = action.Config
             task = cls.getTaskClass(action.TaskName)
@@ -44,6 +47,7 @@ class Composer:
                 taskDefinition.Task = task
             configuration.RunTasks.append(taskDefinition)
 
+        configuration.Requirements = list(requirements)
         configuration.DashboardPanels = panels
 
         return configuration
