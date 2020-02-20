@@ -101,6 +101,7 @@ class TapConfig(validable):
             'Folder': ('C:/Program Files/OpenTAP', Level.WARNING),
             'Results': ('C:/Program Files/OpenTAP/Results', Level.WARNING),
             'EnsureClosed': (False, Level.WARNING),
+            'EnsureAdbClosed': (False, Level.WARNING),
         }
         super().__init__(data, 'Tap', defaults)
 
@@ -127,6 +128,10 @@ class TapConfig(validable):
     @property
     def EnsureClosed(self):
         return self._keyOrDefault('EnsureClosed')
+
+    @property
+    def EnsureAdbClosed(self):
+        return self._keyOrDefault('EnsureAdbClosed')
 
     @property
     def Path(self): return realpath(join(self.Folder, self.Exe))

@@ -11,7 +11,7 @@ class TapExecute(Task):
             self.Log(Level.CRITICAL, "Trying to run TapExecute Task while TAP is not enabled")
         else:
             tapPlan = self.params['TestPlan']
-            externals = self.params['Externals']
+            externals = self.params.get('Externals', {})
 
             tap = Tap(tapPlan, externals, self.logMethod)
             tap.Execute()
