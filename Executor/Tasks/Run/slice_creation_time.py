@@ -6,8 +6,8 @@ from datetime import datetime
 
 
 class SliceCreationTime(Task):
-    def __init__(self, logMethod, params):
-        super().__init__("Slice Creation Time Measurement", params, logMethod, None)
+    def __init__(self, logMethod, parent, params):
+        super().__init__("Slice Creation Time Measurement", parent, params, logMethod, None)
 
     def Run(self):
         executionId = self.params['ExecutionId']

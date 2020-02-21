@@ -3,8 +3,8 @@ from Helper import Tap, Config, Level
 
 
 class TapExecute(Task):
-    def __init__(self, logMethod, params):
-        super().__init__("Tap Execute", params, logMethod, None)
+    def __init__(self, logMethod, parent, params):
+        super().__init__("Tap Execute", parent, params, logMethod, None)
 
     def Run(self):
         if not Config().Tap.Enabled:

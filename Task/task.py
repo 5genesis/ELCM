@@ -3,11 +3,14 @@ from Helper import Log, Level
 
 
 class Task:
-    def __init__(self, name: str, params: Optional[Dict] = None,
+    def __init__(self, name: str, parent, params: Optional[Dict] = None,
                  logMethod: Optional[Callable] = None,
                  conditionMethod: Optional[Callable] = None):
+        from Executor import ExecutorBase
+
         self.name = name
         self.params = {} if params is None else params
+        self.parent: ExecutorBase = parent
         self.logMethod = Log.Log if logMethod is None else logMethod
         self.condition = conditionMethod
         self.Vault = {}

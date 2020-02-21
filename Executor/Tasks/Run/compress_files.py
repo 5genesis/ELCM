@@ -6,8 +6,8 @@ from typing import List
 
 
 class CompressFiles(Task):
-    def __init__(self, logMethod, params):
-        super().__init__("Compress Files", params, logMethod, None)
+    def __init__(self, logMethod, parent, params):
+        super().__init__("Compress Files", parent, params, logMethod, None)
 
     @classmethod
     def listFiles(cls, path) -> List[str]:

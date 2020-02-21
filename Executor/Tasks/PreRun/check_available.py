@@ -4,8 +4,8 @@ from Interfaces import Management
 
 
 class CheckAvailable(Task):
-    def __init__(self, logMethod, id, requirements):
-        super().__init__("Check Availability", {'Id': id, 'Available': False, 'Requirements': requirements}, logMethod, None)
+    def __init__(self, logMethod, id, requirements, parent):
+        super().__init__("Check Availability", parent, {'Id': id, 'Available': False, 'Requirements': requirements}, logMethod, None)
 
     def Run(self):
         self.Log(Level.INFO, 'Requesting availability')

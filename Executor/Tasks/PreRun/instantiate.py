@@ -4,8 +4,8 @@ from Interfaces import Management, PortalApi
 
 
 class Instantiate(Task):
-    def __init__(self, logMethod, tempFolder, params):
-        super().__init__("Instantiate", params, logMethod, None)
+    def __init__(self, logMethod, tempFolder, parent, params):
+        super().__init__("Instantiate", parent, params, logMethod, None)
         self.tempFolder = tempFolder
 
     def Run(self):

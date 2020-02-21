@@ -23,7 +23,7 @@ class Executor(ExecutorBase):
                 self.LogAndMessage(Level.INFO, "Received stop request, exiting")
                 self.Status = Status.Cancelled
                 break
-            taskInstance: Task = task.Task(self.Log, Expander.ExpandDict(task.Params, self))
+            taskInstance: Task = task.Task(self.Log, self, Expander.ExpandDict(task.Params, self))
             self.AddMessage(f'Starting task {taskInstance.name}')
             taskInstance.Start()
 

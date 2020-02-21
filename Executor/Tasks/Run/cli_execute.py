@@ -3,8 +3,8 @@ from Helper import Cli
 
 
 class CliExecute(Task):
-    def __init__(self, logMethod, params):
-        super().__init__("CLI Execute", params, logMethod, None)
+    def __init__(self, logMethod, parent, params):
+        super().__init__("CLI Execute", parent, params, logMethod, None)
 
     def Run(self):
         parameters = self.params['Parameters']
