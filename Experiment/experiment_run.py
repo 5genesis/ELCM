@@ -7,8 +7,7 @@ from tempfile import TemporaryDirectory
 from Helper import Config, Serialize, Log
 from Interfaces import DispatcherApi
 from Composer import Composer, PlatformConfiguration
-from os.path import exists, join, abspath
-from os import makedirs
+from os.path import join, abspath
 
 
 @unique
@@ -174,10 +173,10 @@ class ExperimentRun:
     def handleExecutionEnd(self):
         # Compress all generated files
         try:
-            from Helper import Compress
+            from Helper import Compress, IO
             Log.I(f"Experiment generated files: {self.GeneratedFiles}")
             folder = abspath(Config().ResultsFolder)
-            if not exists(folder): makedirs(folder, exist_ok=True)
+            IO.EnsureFolder(folder)
             path = join(folder, f"{self.Id}-Exp_{self.ExperimentId}.zip")
             Compress.Zip(self.GeneratedFiles, path, flat=True)
         except Exception as e:

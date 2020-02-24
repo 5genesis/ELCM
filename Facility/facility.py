@@ -1,6 +1,4 @@
-from os.path import exists, abspath, join
-from os import makedirs, listdir
-from shutil import copy
+from os.path import abspath, join
 import yaml
 from .action_information import ActionInformation
 from .dashboard_panel import DashboardPanel
@@ -23,14 +21,15 @@ class Facility:
 
     @classmethod
     def Reload(cls):
+        from Helper import IO
+
         def _ensureFolder(path: str):
-            if not exists(path):
-                makedirs(path)
+            if not IO.EnsureFolder(path):
                 cls.Validation.append((Level.INFO, f'Auto-generated folder: {path}'))
 
         def _loadFolder(path: str, kind: str, callable: Callable):
             ignored = []
-            for file in [f for f in listdir(path)]:
+            for file in IO.ListFiles(path):
                 if file.endswith('.yml'):
                     cls.Validation.append((Level.INFO, f'Loading {kind}: {file}'))
                     callable(join(path, file))

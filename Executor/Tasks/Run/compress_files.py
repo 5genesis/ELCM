@@ -1,35 +1,14 @@
 from Task import Task
 from Helper import Level
-from os.path import abspath, join, isdir, isfile
-from os import listdir
-from typing import List
+from os.path import abspath
 
 
 class CompressFiles(Task):
     def __init__(self, logMethod, parent, params):
         super().__init__("Compress Files", parent, params, logMethod, None)
 
-    @classmethod
-    def listFiles(cls, path) -> List[str]:
-        return [join(path, f) for f in listdir(path) if isfile(join(path, f))]
-
-    @classmethod
-    def listFolders(cls, path) -> List[str]:
-        return [join(path, f) for f in listdir(path) if isdir(join(path, f))]
-
-    @classmethod
-    def getAllFiles(cls, path) -> List[str]:
-        res = []
-
-        for folder in cls.listFolders(path):
-            res.extend(cls.getAllFiles(folder))
-        for file in cls.listFiles(path):
-            res.append(file)
-
-        return res
-
     def Run(self):
-        from Helper import Compress
+        from Helper import Compress, IO
 
         files = [abspath(f) for f in self.params.get("Files", [])]
         folders = [abspath(f) for f in self.params.get("Folders", [])]
@@ -37,7 +16,7 @@ class CompressFiles(Task):
         self.Log(Level.INFO, f"Compressing files to output: {output}")
 
         for folder in folders:
-            files.extend(self.getAllFiles(folder))
+            files.extend(IO.GetAllFiles(folder))
 
         self.Log(Level.DEBUG, f"Files to compress: {files}")
 
