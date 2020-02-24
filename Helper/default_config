@@ -1,4 +1,5 @@
 TempFolder: 'Temp'
+ResultsFolder: 'Results'
 Logging:
   Folder: 'Logs'
   AppLevel: INFO

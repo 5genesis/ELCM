@@ -1,11 +1,11 @@
 from typing import List
 import zipfile
-from os.path import abspath, dirname
+from os.path import abspath, dirname, basename
 
 
 class Compress:
     @staticmethod
-    def Zip(files: List[str], output: str) -> None:
+    def Zip(files: List[str], output: str, flat: bool = False) -> None:
         output = zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED)
 
         files = [abspath(file) for file in files]
@@ -13,7 +13,7 @@ class Compress:
 
         for file in files:
             file = abspath(file)
-            archiveName = file.replace(rootFolder, '')
+            archiveName = basename(file) if flat else file.replace(rootFolder, '')
             output.write(file, archiveName)
 
         output.close()
