@@ -1,7 +1,10 @@
-from flask import redirect, url_for, flash, render_template, jsonify
+from flask import redirect, url_for, flash, render_template, jsonify, send_from_directory
 from Status import Status, ExecutionQueue
 from Experiment import ExperimentRun, Tombstone
 from Scheduler.execution import bp
+from typing import Union, Optional
+from Helper import Config
+from os.path import join, isfile, abspath
 
 
 @bp.route('<int:executionId>/cancel')
@@ -50,14 +53,19 @@ def json(executionId: int):
     })
 
 
-@bp.route('<int:executionId>/logs')
-def logs(executionId: int):
+def executionOrTombstone(executionId: int) -> Optional[Union[ExperimentRun, Tombstone]]:
     execution = ExecutionQueue.Find(executionId)
     if execution is None:
         try:
             execution = Tombstone(str(executionId))
         except:
             execution = None
+    return execution
+
+
+@bp.route('<int:executionId>/logs')
+def logs(executionId: int):
+    execution = executionOrTombstone(executionId)
 
     if execution is not None:
         status = "Success"
@@ -70,6 +78,20 @@ def logs(executionId: int):
     return jsonify({
         "Status": status, "PreRun": preRun, "Executor": executor, "PostRun": postRun
     })
+
+
+@bp.route('<int:executionId>/results')
+def results(executionId: int):
+    execution = executionOrTombstone(executionId)
+    if execution is not None:
+        folder = abspath(Config().ResultsFolder)
+        filename = f"{executionId}-Exp_{execution.ExperimentId}.zip"
+        if isfile(join(folder, filename)):
+            return send_from_directory(folder, filename, as_attachment=True)
+        else:
+            return f"No results for execution {executionId}", 404
+    else:
+        return f"Execution {executionId} not found", 404
 
 
 @bp.route('nextExecutionId')

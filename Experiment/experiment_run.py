@@ -199,7 +199,8 @@ class ExperimentRun:
             'Id': self.Id,
             'Created': Serialize.DateToString(self.Created),
             'CoarseStatus': self.CoarseStatus.name,
-            'Cancelled': self.Cancelled
+            'Cancelled': self.Cancelled,
+            'ExperimentId': self.ExperimentId
         }
         return data
 
