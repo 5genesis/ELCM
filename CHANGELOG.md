@@ -1,3 +1,8 @@
+**16/03/2020** [Version 2.0.0]
+
+ - Added CompressFiles task
+ - Added functionality for gathering TAP results
+
 **21/10/2019** [Version 1.1.1]
 
  - Added support for OpenTAP
