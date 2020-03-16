@@ -1,9 +1,8 @@
-from os.path import exists, abspath, join
-from os import makedirs, listdir
-from shutil import copy
+from os.path import abspath, join
 import yaml
 from .action_information import ActionInformation
 from .dashboard_panel import DashboardPanel
+from .resource import Resource
 from Helper import Log, Level
 from typing import Dict, List, Union, Tuple, Callable, Optional
 
@@ -11,19 +10,26 @@ from typing import Dict, List, Union, Tuple, Callable, Optional
 class Facility:
     TESTCASE_FOLDER = abspath('TestCases')
     UE_FOLDER = abspath('UEs')
-    data: Dict[str, Dict[str, List[ActionInformation]]] = None
+    RESOURCE_FOLDER = abspath('Resources')
+
+    ues: Dict[str, List[ActionInformation]] = {}
+    testCases: Dict[str, List[ActionInformation]] = {}
+    dashboards: Dict[str, List[ActionInformation]] = {}
+    resources: Dict[str, Resource] = {}
+
     Validation: List[Tuple[Level, str]] = []
 
     @classmethod
     def Reload(cls):
+        from Helper import IO
+
         def _ensureFolder(path: str):
-            if not exists(path):
-                makedirs(path)
+            if not IO.EnsureFolder(path):
                 cls.Validation.append((Level.INFO, f'Auto-generated folder: {path}'))
 
         def _loadFolder(path: str, kind: str, callable: Callable):
             ignored = []
-            for file in [f for f in listdir(path)]:
+            for file in IO.ListFiles(path):
                 if file.endswith('.yml'):
                     cls.Validation.append((Level.INFO, f'Loading {kind}: {file}'))
                     callable(join(path, file))
@@ -108,44 +114,92 @@ class Facility:
             except Exception as e:
                 cls.Validation.append((Level.ERROR, f'Exception loading UE file {path}: {e}'))
 
+        def _resourceLoader(path: str):
+            try:
+                data = _loadFile(path)
+                resource = Resource(data)
+                resources[resource.Id] = resource
+            except Exception as e:
+                cls.Validation.append((Level.ERROR, f'Exception loading Resource file {path}: {e}'))
+
         cls.Validation.clear()
 
         _ensureFolder(cls.TESTCASE_FOLDER)
         _ensureFolder(cls.UE_FOLDER)
+        _ensureFolder(cls.RESOURCE_FOLDER)
 
         testCases = {}
         ues = {}
         dashboards = {}
 
+        if len(cls.BusyResources()) != 0:
+            resources = cls.resources
+            cls.Validation.append((Level.WARNING, "Resources in use, skipping reload"))
+        else:
+            resources = {}
+            _loadFolder(cls.RESOURCE_FOLDER, "Resource", _resourceLoader)
+
         _loadFolder(cls.TESTCASE_FOLDER, "TestCase", _testcaseLoader)
         _loadFolder(cls.UE_FOLDER, "UE", _ueLoader)
 
-        for collection, name in [(testCases, "TestCases"), (ues, "UEs"), (dashboards, "DashBoards")]:
+        for collection, name in [(testCases, "TestCases"), (ues, "UEs"),
+                                 (dashboards, "DashBoards"), (resources, "Resources")]:
             keys = collection.keys()
             if len(keys) == 0:
                 cls.Validation.append((Level.WARNING, f'No {name} defined on the facility.'))
             else:
                 cls.Validation.append((Level.INFO, f'{len(keys)} {name} defined on the facility: {(", ".join(keys))}.'))
 
-        cls.data = {'UEs': ues, 'TestCases': testCases, 'Dashboards': dashboards}
+        cls.ues = ues
+        cls.testCases = testCases
+        cls.dashboards = dashboards
+        cls.resources = resources
 
     @classmethod
     def GetUEActions(cls, id: str) -> List[ActionInformation]:
-        return cls.getFromSection('UEs', id)
+        return cls.ues.get(id, [])
 
     @classmethod
     def GetTestCaseActions(cls, id: str) -> List[ActionInformation]:
-        return cls.getFromSection('TestCases', id)
+        return cls.testCases.get(id, [])
 
     @classmethod
     def GetTestCaseDashboards(cls, id: str) -> List[DashboardPanel]:
-        res = cls.getFromSection('Dashboards', id)
-        return res
+        return cls.dashboards.get(id, [])
 
     @classmethod
-    def getFromSection(cls, section: str, id: str) -> List[Union[ActionInformation, DashboardPanel]]:
-        if cls.data is None: cls.Reload()
+    def BusyResources(cls) -> List[Resource]:
+        return [res for res in cls.resources.values() if res.Locked]
 
-        if id in cls.data[section].keys():
-            return cls.data[section][id]
-        return []
+    @classmethod
+    def IdleResources(cls) -> List[Resource]:
+        return [res for res in cls.resources.values() if not res.Locked]
+
+    @classmethod
+    def Resources(cls):
+        return cls.resources
+
+    @classmethod
+    def LockResource(cls, id: str, owner: 'ExperimentRun'):
+        resource = cls.resources.get(id, None)
+        if resource is not None:
+            if not resource.Locked:
+                resource.Owner = owner
+                Log.I(f"Resource '{resource.Name}'({resource.Id}) locked by {resource.Owner.Id}")
+            else:
+                Log.E(f"Unable to lock resource '{resource.Name}'({resource.Id}) for run {owner.Id}, "
+                      f"locked by '{resource.Owner.ExperimentName}'({resource.Owner.Id})")
+        else:
+            Log.E(f"Resource id {id} not found")
+
+    @classmethod
+    def ReleaseResource(cls, id: str):
+        resource = cls.resources.get(id, None)
+        if resource is not None:
+            if resource.Locked:
+                Log.I(f"Releasing '{resource.Name}'({resource.Id}) "
+                      f"(locked by '{resource.Owner.ExperimentName}'({resource.Owner.Id})))")
+                resource.Owner = None
+            else:
+                Log.W(f"Tried to release resource {id} while idle")
+

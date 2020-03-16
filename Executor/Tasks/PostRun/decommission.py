@@ -4,8 +4,8 @@ from Interfaces import Management
 
 
 class Decommission(Task):
-    def __init__(self, logMethod, params):
-        super().__init__("Decommission", params, logMethod, None)
+    def __init__(self, logMethod, parent, params):
+        super().__init__("Decommission", parent, params, logMethod, None)
 
     def Run(self):
         self.Log(Level.INFO, 'Decommision started')

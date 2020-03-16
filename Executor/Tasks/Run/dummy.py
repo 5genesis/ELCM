@@ -4,8 +4,8 @@ from time import sleep
 
 
 class Dummy(Task):
-    def __init__(self, logMethod, params):
-        super().__init__("Dummy", params, logMethod, None)
+    def __init__(self, logMethod, parent, params):
+        super().__init__("Dummy", parent, params, logMethod, None)
 
     def Run(self):
         self.Log(Level.INFO, f'Running Dummy task with params: {self.params}')

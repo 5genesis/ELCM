@@ -101,6 +101,7 @@ class TapConfig(validable):
             'Folder': ('C:/Program Files/OpenTAP', Level.WARNING),
             'Results': ('C:/Program Files/OpenTAP/Results', Level.WARNING),
             'EnsureClosed': (False, Level.WARNING),
+            'EnsureAdbClosed': (False, Level.WARNING),
         }
         super().__init__(data, 'Tap', defaults)
 
@@ -127,6 +128,10 @@ class TapConfig(validable):
     @property
     def EnsureClosed(self):
         return self._keyOrDefault('EnsureClosed')
+
+    @property
+    def EnsureAdbClosed(self):
+        return self._keyOrDefault('EnsureAdbClosed')
 
     @property
     def Path(self): return realpath(join(self.Folder, self.Exe))
@@ -274,6 +279,10 @@ class Config:
         return Config.data.get('TempFolder', 'Temp')
 
     @property
+    def ResultsFolder(self):
+        return Config.data.get('ResultsFolder', 'Results')
+
+    @property
     def Tap(self):
         return TapConfig(Config.data.get('Tap', {}))
 
@@ -294,17 +303,22 @@ class Config:
         return Metadata(Config.data.get('Metadata', {}))
 
     def Validate(self):
+        def _validateSingle(key: str, default: str):
+            if key not in Config.data:
+                Config.Validation.append((Level.INFO, f"{key} not defined, using '{default}'"))
+
         Config.Validation = []
         keys = set(Config.data.keys())
         keys.discard('Flask')
         keys.discard('TempFolder')
+        keys.discard('ResultsFolder')
 
         if getenv('SECRET_KEY') is None:
             Config.Validation.append((Level.CRITICAL,
                                       "SECRET_KEY not defined. Use environment variables or set a value in .flaskenv"))
 
-        if 'TempFolder' not in Config.data:
-            Config.Validation.append((Level.INFO, "TempFolder not defined, using 'Temp'"))
+        for key, default in [('TempFolder', 'Temp'), ('ResultsFolder', 'Results')]:
+            _validateSingle(key, default)
 
         for entry in [self.Logging, self.Dispatcher, self.SliceManager, self.Tap,
                       self.Grafana, self.InfluxDb, self.Metadata, ]:

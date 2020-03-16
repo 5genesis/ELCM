@@ -104,3 +104,6 @@ facility.yml
 *.log.*
 TestCases/
 UEs/
+Resources/
+Temp/
+Results/

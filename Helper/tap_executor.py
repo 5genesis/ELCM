@@ -92,10 +92,10 @@ class Tap:
                     self.closedInstruments += 1
                     if self.closedInstruments >= 3 and not self.closeStarted:
                         self.closeStarted = True
-                        Tap.ensureTapClosed(self.process, self.logger)
+                        Tap.ensureTapClosed(self.process, self.logger, self.tapConfig.EnsureAdbClosed)
 
     @staticmethod
-    def ensureTapClosed(tapProcess: psutil.Process, logger):
+    def ensureTapClosed(tapProcess: psutil.Process, logger, closeAdb):
         logger(Level.INFO, 'Ensuring that TAP is correctly closed (in 15 seconds).')
         sleep(15)
 
@@ -106,6 +106,12 @@ class Tap:
             logger(Level.INFO, 'Process tree closed')
         else:
             logger(Level.INFO, 'TAP closed correctly')
+
+        if closeAdb:
+            for p in psutil.process_iter():
+                if p.name() == 'adb.exe':
+                    logger(Level.WARNING, f"Closing rogue adb process with PID: {p.pid}")
+                    p.kill()
 
     @classmethod
     def endProcessTree(cls, process: psutil.Process):

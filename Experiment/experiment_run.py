@@ -7,6 +7,7 @@ from tempfile import TemporaryDirectory
 from Helper import Config, Serialize, Log
 from Interfaces import DispatcherApi
 from Composer import Composer, PlatformConfiguration
+from os.path import join, abspath
 
 
 @unique
@@ -42,6 +43,12 @@ class ExperimentRun:
 
     def __str__(self):
         return f'[ID: {self.Id} (Exp. ID {self.ExperimentId}: {self.ExperimentName})]'
+
+    @property
+    def GeneratedFiles(self):
+        return [
+            self.PreRunner.LogFile, self.Executor.LogFile, self.PostRunner.LogFile,
+            *self.PreRunner.GeneratedFiles, *self.Executor.GeneratedFiles, *self.PostRunner.GeneratedFiles]
 
     @property
     def ExperimentId(self):
@@ -90,7 +97,7 @@ class ExperimentRun:
     @property
     def LastMessage(self) -> str:
         current = self.CurrentChild
-        return current.LastMessage if current is not None else 'Not active child'
+        return current.LastMessage if current is not None else 'No active child'
 
     @property
     def Messages(self) -> [str]:
@@ -164,6 +171,17 @@ class ExperimentRun:
             self.handleExecutionEnd()
 
     def handleExecutionEnd(self):
+        # Compress all generated files
+        try:
+            from Helper import Compress, IO
+            Log.I(f"Experiment generated files: {self.GeneratedFiles}")
+            folder = abspath(Config().ResultsFolder)
+            IO.EnsureFolder(folder)
+            path = join(folder, f"{self.Id}-Exp_{self.ExperimentId}.zip")
+            Compress.Zip(self.GeneratedFiles, path, flat=True)
+        except Exception as e:
+            Log.E(f"Exception while compressing experiment files ({self.Id}): {e}")
+
         # Try to create the dashboard even in case of error, there might be results to display
         try:
             Log.D(f"Trying to generate dashboard for execution {self.Id}")
@@ -181,7 +199,8 @@ class ExperimentRun:
             'Id': self.Id,
             'Created': Serialize.DateToString(self.Created),
             'CoarseStatus': self.CoarseStatus.name,
-            'Cancelled': self.Cancelled
+            'Cancelled': self.Cancelled,
+            'ExperimentId': self.ExperimentId
         }
         return data
 

@@ -11,14 +11,14 @@ class PostRunner(ExecutorBase):
     def Run(self):
         self.SetStarted()
 
-        Decommission(self.Log, self.Configuration.PostRunParams).Start()
+        Decommission(self.Log, self, self.Configuration.PostRunParams).Start()
         self.AddMessage('Resources decommisioned', 10)
 
-        RequestResults(self.Log).Start()
+        RequestResults(self.Log, self).Start()
         self.AddMessage('Results received', 30)
-        SaveResults(self.Log).Start()
+        SaveResults(self.Log, self).Start()
         self.AddMessage('Results stored', 60)
-        UpdateExecutionEntry(self.Log).Start()
+        UpdateExecutionEntry(self.Log, self).Start()
         self.AddMessage('Entry updated', 90)
 
         self.SetFinished(percent=100)

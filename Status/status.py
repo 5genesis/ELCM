@@ -1,7 +1,5 @@
 from threading import Lock
-from Helper import Serialize
-from os.path import exists, dirname
-from os import makedirs
+from Helper import Serialize, IO
 
 
 def synchronized(lock):
@@ -29,8 +27,7 @@ class Status:
     def Initialize(cls):
         path = Serialize.Path('persistence')
 
-        if not exists(path):
-            makedirs(dirname(path), exist_ok=True)
+        if not IO.EnsureFolder(path):
             Serialize.Save(cls._persistence_yml, path)
 
         data = Serialize.Load(path)

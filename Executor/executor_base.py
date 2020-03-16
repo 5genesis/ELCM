@@ -1,5 +1,5 @@
 from Helper import Child, Level, Config
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from Data import ExperimentDescriptor
 from Composer import PlatformConfiguration
 from datetime import datetime
@@ -25,6 +25,7 @@ class ExecutorBase(Child):
         self.Created = now
         self.Started = None
         self.Finished = None
+        self.GeneratedFiles: List[str] = []
         self.Status = Status.Init
         self.Messages = []
         self.PerCent = 0
@@ -83,6 +84,7 @@ class ExecutorBase(Child):
             'Finished': Serialize.DateToString(self.Finished),
             'HasStarted': self.hasStarted,
             'HasFinished': self.hasFinished,
+            'GeneratedFiles': self.GeneratedFiles,
             'Status': self.Status.name,
             'Log': self.LogFile,
             'Messages': self.Messages,
@@ -110,8 +112,10 @@ class ExecutorBase(Child):
         else:
             from .post_runner import PostRunner
             res = PostRunner(params)
-        res.Id, res.Name, res.LogFile, res.Tag, res.hasStarted, res.hasFinished, res.Messages, res.PerCent = \
-            Serialize.Unroll(data, 'Id', 'Name', 'Log', 'Tag', 'HasStarted', 'HasFinished', 'Messages', 'PerCent')
+
+        res.Id, res.Name, res.LogFile, res.Tag = Serialize.Unroll(data, 'Id', 'Name', 'Log', 'Tag')
+        res.hasStarted, res.hasFinished = Serialize.Unroll(data, 'HasStarted', 'HasFinished')
+        res.Messages, res.PerCent, res.GeneratedFiles = Serialize.Unroll(data, 'Messages', 'PerCent', "GeneratedFiles")
         res.Created = Serialize.StringToDate(data['Created'])
         res.Started = Serialize.StringToDate(data['Started'])
         res.Finished = Serialize.StringToDate(data['Finished'])

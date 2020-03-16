@@ -29,8 +29,10 @@ def index():
     config = Config()
     configLog = LogInfo.FromTuple(config.Validation)
     facilityLog = LogInfo.FromTuple(Facility.Validation)
+    resources = Facility.Resources()
     return render_template('index.html', executionId=Status.PeekNextId(),
-                           executions=ExecutionQueue.Retrieve(), configLog=configLog, facilityLog=facilityLog)
+                           executions=ExecutionQueue.Retrieve(), resources=resources,
+                           configLog=configLog, facilityLog=facilityLog)
 
 
 @app.route("/log")

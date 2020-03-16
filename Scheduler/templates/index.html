@@ -1,6 +1,13 @@
 {% extends 'base.html' %}
 {% import '_logView.html' as logView %}
 
+{% macro resourceIcon(resource, color, prefix) %}
+    <span title="{{ resource.Name }}" style="color: {{ color }}; display: none" id="{{ prefix }}_{{ resource.Id }}">
+        <i class="fa {{ resource.Icon }}"></i>
+    </span>
+{% endmacro %}
+
+
 {% block app_content %}
     <h3>Running Experiments:</h3>
     {% if executions|count == 0 %}
@@ -15,6 +22,27 @@
     <p style="text-align:right; font-size: x-small">Next execution id: {{ executionId }}</p>
     <p id="hiddenNextId" style="display: none">{{ executionId }}</p>
     <hr>
+    <div class="container">
+        <div class="row"><div class="col">
+            <h3>Resources</h3>
+        </div></div>
+        <div class="row">
+            <div class="col-sm-6" style="background: #ffc1c0; min-height: 75px">
+                <h1 style="text-align: center">
+                {% for resource in resources.values() | sort(attribute='Name') %}
+                    {{ resourceIcon(resource, "darkred", "busy") }}
+                {% endfor %}
+                </h1>
+            </div>
+            <div class="col-sm-6" style="background: #c4ffc2; min-height: 75px">
+                <h1 style="text-align: center">
+                {% for resource in resources.values() | sort(attribute='Name') %}
+                    {{ resourceIcon(resource, "darkgreen", "idle") }}
+                {% endfor %}
+                </h1>
+            </div>
+        </div>
+    </div>
     <div class="container">
         <div class="row"><div class="col">
             <h3>Diagnostics</h3>
@@ -64,17 +92,41 @@
             if (element.text() !== message){ element.text(message); }
         }
 
-        function checkNewExecutions(){
-            let current = $('#hiddenNextId').text();
+        function checkNextId(){
+            let currentId = $('#hiddenNextId').text();
             $.get("{{ url_for('execution.nextExecutionId') }}")
                 .done(function (response){
-                   if (response['NextId'].toString() !== current){
+                   if (response['NextId'].toString() !== currentId){
                        location.reload();
                    }
                 });
+            $.get("{{ url_for('facility.resourceStatus') }}")
+                .done(function (response){
+                    response["Idle"].forEach(function (resource){
+                        $("#idle_" + resource).show();
+                        $("#busy_" + resource).hide();
+                    });
+                    response["Busy"].forEach(function (resource){
+                        $("#idle_" + resource).hide();
+                        $("#busy_" + resource).show();
+                    });
+                });
         }
 
-        setInterval(checkNewExecutions, 5000)
+        function checkResources(){
+            $.get("{{ url_for('facility.resourceStatus') }}")
+                .done(function (response){
+                    response["Idle"].forEach(function (resource){
+                        $("#idle_" + resource).show(); $("#busy_" + resource).hide();
+                    });
+                    response["Busy"].forEach(function (resource){
+                        $("#idle_" + resource).hide(); $("#busy_" + resource).show();
+                    });
+                });
+        }
+
+        setInterval(checkNextId, 5000);
+        setInterval(checkResources, 1000);
     </script>
 
     {% for execution in executions %}
