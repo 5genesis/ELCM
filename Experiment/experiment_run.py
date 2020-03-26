@@ -2,7 +2,7 @@ from Executor import PreRunner, Executor, PostRunner, ExecutorBase
 from Data import ExperimentDescriptor
 from typing import Dict, Optional
 from enum import Enum, unique
-from datetime import datetime
+from datetime import datetime, timezone
 from tempfile import TemporaryDirectory
 from Helper import Config, Serialize, Log
 from Interfaces import DispatcherApi
@@ -31,7 +31,7 @@ class ExperimentRun:
         self._coarseStatus = CoarseStatus.Init
         self._dashboardUrl = None
         self.Cancelled = False
-        self.Created = datetime.utcnow()
+        self.Created = datetime.now(timezone.utc)
 
         if ExperimentRun.dispatcher is None or ExperimentRun.grafana is None:
             from Helper import DashboardGenerator  # Delayed to avoid cyclic imports
