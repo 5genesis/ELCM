@@ -43,6 +43,7 @@ class Child:
             try:
                 self.Run()
             except Exception as e:
+                self.hasFailed = True
                 self.Log(Level.ERROR, f'Exception while running ({self.name}): {e}]')
                 trace = Log.GetTraceback()
                 for line in trace:
