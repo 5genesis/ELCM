@@ -164,6 +164,10 @@ class Facility:
         return cls.testCases.get(id, [])
 
     @classmethod
+    def GetMonroeActions(cls) -> List[ActionInformation]:
+        return cls.testCases.get("MONROE_Base", [])
+
+    @classmethod
     def GetTestCaseDashboards(cls, id: str) -> List[DashboardPanel]:
         return cls.dashboards.get(id, [])
 

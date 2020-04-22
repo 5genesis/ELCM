@@ -1,0 +1,9 @@
+MONROE_Base:
+    - Order: 5
+      Task: Run.TapExecute
+      Config:
+        TestPlan: <<Replace with the location of your MONROE_Base testplan>>
+        Externals:
+          Execution ID: "@{ExecutionId}"
+          Application: "@{Application}"
+          Parameters: "@{JSONParameters}"
