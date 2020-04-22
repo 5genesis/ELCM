@@ -2,7 +2,8 @@ MONROE_Base:
     - Order: 5
       Task: Run.TapExecute
       Config:
-        TestPlan: <<Replace with the location of your MONROE_Base testplan>>
+                  # MONROE_Base.TapPlan (located on the root folder of the ELCM) can be used as example.
+        TestPlan: <<Replace with the location of your MONROE_Base testplan.>>
         Externals:
           Execution ID: "@{ExecutionId}"
           Application: "@{Application}"
