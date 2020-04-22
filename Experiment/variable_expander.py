@@ -3,6 +3,7 @@ from .experiment_run import ExperimentRun
 from Executor import ExecutorBase
 from re import finditer
 from Helper import Config
+from json import dumps
 
 
 class Expander:
@@ -34,16 +35,18 @@ class Expander:
             "@{TempFolder}": context.TempFolder,
             "@{ExecutionId}": context.Id,
             "@{SliceId}": context.Params.get("SliceId", "None"),
+            "@{Application}": context.Descriptor.Application,
+            "@{JSONParameters}": dumps(context.Descriptor.Parameters, indent=None),
             # Configuration values
             "@{TapFolder}": config.Tap.Folder,
-            "@{TapResults}": config.Tap.Results
+            "@{TapResults}": config.Tap.Results,
         }
 
         expanded = item
         for key, value in replacements.items():
             expanded = expanded.replace(key, str(value))
 
-        # Expand custom values published by Run.Publish
+        # Expand custom values published by Run.Publish and parameters
         for match in [m for m in finditer(r'@\[(.*?)]', item)]:
             all = match.group()
             capture = match.groups()[0]
@@ -52,7 +55,19 @@ class Expander:
             else:
                 key = capture
                 default = '<<UNDEFINED>>'
-            value = context.params.get(key, default)
+
+            collection = None
+            group = None
+            if '.' in key:
+                group, key = key.split('.')
+                if group == "Params":
+                    collection = context.Descriptor.Parameters
+                elif group == "Publish":
+                    collection = context.params
+            else:
+                collection = context.params
+
+            value = collection.get(key, default) if collection is not None else f'<<UNKNOWN GROUP {group}>>'
             expanded = expanded.replace(all, str(value))
 
         return expanded
