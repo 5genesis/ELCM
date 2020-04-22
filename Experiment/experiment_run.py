@@ -42,20 +42,16 @@ class ExperimentRun:
                                                        config.Grafana.ReportGenerator)
 
     def __str__(self):
-        return f'[ID: {self.Id} (Exp. ID {self.ExperimentId}: {self.ExperimentName})]'
+        return f'[ID: {self.Id} ({self.ExperimentIdentifier})]'
 
     @property
     def GeneratedFiles(self):
-        return filter(None,
+        return list(filter(None,
                       [self.PreRunner.LogFile, self.Executor.LogFile, self.PostRunner.LogFile,
-                       *self.PreRunner.GeneratedFiles, *self.Executor.GeneratedFiles, *self.PostRunner.GeneratedFiles])
+                       *self.PreRunner.GeneratedFiles, *self.Executor.GeneratedFiles, *self.PostRunner.GeneratedFiles]))
 
     @property
-    def ExperimentId(self):
-        return self.Descriptor.Id if self.Descriptor is not None else None
-
-    @property
-    def ExperimentName(self):
+    def ExperimentIdentifier(self):
         return self.Descriptor.Identifier if self.Descriptor is not None else None
 
     @property
@@ -200,7 +196,6 @@ class ExperimentRun:
             'Created': Serialize.DateToString(self.Created),
             'CoarseStatus': self.CoarseStatus.name,
             'Cancelled': self.Cancelled,
-            'ExperimentId': self.ExperimentId
         }
         return data
 

@@ -8,7 +8,6 @@ class Tombstone:
         path = Serialize.Path('Execution', id)
         data = Serialize.Load(path)
         self.Id, self.Cancelled, status = Serialize.Unroll(data, 'Id', 'Cancelled', 'CoarseStatus')
-        self.ExperimentId = data.get('ExperimentId', -1)
         self.Params = {'Id': self.Id, 'Deserialized': True}
         self.CoarseStatus = CoarseStatus[status]
         self.PreRunner = Executor.Load('PreRunner', str(self.Id))
