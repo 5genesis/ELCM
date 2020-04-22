@@ -17,8 +17,7 @@ def start():
         params = {'Descriptor': descriptor}
         executionId = ExecutionQueue.Create(params).Id
         success = True
-        message = f'Created execution {executionId} for experiment {descriptor.Name} ' \
-            f'(Id:{descriptor.Id}, User:{descriptor.User.Name})'
+        message = f'Created execution {executionId}'
     return jsonify({
         'ExecutionId': executionId,
         'Success': success,

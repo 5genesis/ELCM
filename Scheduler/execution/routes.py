@@ -85,7 +85,7 @@ def results(executionId: int):
     execution = executionOrTombstone(executionId)
     if execution is not None:
         folder = abspath(Config().ResultsFolder)
-        filename = f"{executionId}-Exp_{execution.ExperimentId}.zip"
+        filename = f"{executionId}.zip"
         if isfile(join(folder, filename)):
             return send_from_directory(folder, filename, as_attachment=True)
         else:

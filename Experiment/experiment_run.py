@@ -46,9 +46,9 @@ class ExperimentRun:
 
     @property
     def GeneratedFiles(self):
-        return [
-            self.PreRunner.LogFile, self.Executor.LogFile, self.PostRunner.LogFile,
-            *self.PreRunner.GeneratedFiles, *self.Executor.GeneratedFiles, *self.PostRunner.GeneratedFiles]
+        return filter(None,
+                      [self.PreRunner.LogFile, self.Executor.LogFile, self.PostRunner.LogFile,
+                       *self.PreRunner.GeneratedFiles, *self.Executor.GeneratedFiles, *self.PostRunner.GeneratedFiles])
 
     @property
     def ExperimentId(self):
@@ -56,7 +56,7 @@ class ExperimentRun:
 
     @property
     def ExperimentName(self):
-        return self.Descriptor.Name if self.Descriptor is not None else None
+        return self.Descriptor.Identifier if self.Descriptor is not None else None
 
     @property
     def CoarseStatus(self):
@@ -177,7 +177,7 @@ class ExperimentRun:
             Log.I(f"Experiment generated files: {self.GeneratedFiles}")
             folder = abspath(Config().ResultsFolder)
             IO.EnsureFolder(folder)
-            path = join(folder, f"{self.Id}-Exp_{self.ExperimentId}.zip")
+            path = join(folder, f"{self.Id}.zip")
             Compress.Zip(self.GeneratedFiles, path, flat=True)
         except Exception as e:
             Log.E(f"Exception while compressing experiment files ({self.Id}): {e}")

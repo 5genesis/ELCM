@@ -9,33 +9,22 @@ class Instantiate(Task):
         self.tempFolder = tempFolder
 
     def Run(self):
-        hasNsd = self.params['HasNsd']
-        experimentId = self.params['ExperimentId']
-        sliceId = None
+        networkServices = self.params['NetworkServices']
+        sliceIds = []
 
-        if hasNsd:
-            self.Log(Level.INFO, f"Downloading NSD file for experiment {experimentId}")
-            nsdContent = self.getNsdContent(experimentId)
-            self.Log(Level.INFO, 'Contents received. Requesting resources to MANO layer')
-
-            try:
-                sliceId = Management.SliceManager().Create(nsdContent)
-                self.Log(Level.INFO, f'Slice instantiated, id: {sliceId}.')
-            except Exception as e:
-                raise Exception(f'Exception while creating slice: {e}') from e
+        if len(networkServices) != 0:
+            self.Log(Level.INFO, f"Experiment contains NSD IDs: {networkServices}")
+            for ns in networkServices:
+                self.Log(Level.INFO, f"Requesting instantiation of NSD: {ns}")
+                try:
+                    # sliceId = Management.SliceManager().Create(nsdContent)
+                    sliceId = "placeholder"  # TODO
+                    self.Log(Level.INFO, f'Network service instantiated with ID: {sliceId}')
+                    sliceIds.append(sliceId)
+                except Exception as e:
+                    raise Exception(f'Exception while creating slice: {e}') from e
         else:
-            self.Log(Level.INFO, 'Instantiation not required, no NSD defined.')
+            self.Log(Level.INFO, 'Instantiation not required, no NSD IDs defined.')
 
         self.Log(Level.INFO, 'Instantiation completed')
-        self.params["SliceId"] = sliceId
-
-    def getNsdContent(self, experimentId):
-        try:
-            config = Config().Dispatcher
-            portal = PortalApi(config.Host, config.Port)
-            nsdFile = portal.DownloadNsd(experimentId, self.tempFolder)
-            with open(nsdFile, 'r', encoding='utf-8') as file:
-                nsdContent = file.read()
-            return nsdContent
-        except Exception as e:
-            raise Exception(f'Exception while downloading NDS file: {e}') from e
+        self.params["SliceIds"] = sliceIds

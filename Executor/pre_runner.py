@@ -26,8 +26,8 @@ class PreRunner(ExecutorBase):
         self.AddMessage('Execution registered', 50)
 
         result = Instantiate(self.Log, self.TempFolder, self, self.Configuration.PreRunParams).Start()
-        self.Configuration.PostRunParams["SliceId"] = result["SliceId"]
-        self.params["SliceId"] = result["SliceId"]  # TODO: Improve inter-executor communication
+        self.Configuration.PostRunParams["SliceIds"] = result["SliceIds"]
+        self.params["SliceIds"] = result["SliceIds"]  # TODO: Improve inter-executor communication
 
         self.AddMessage('Instantiation completed', 80)
         self.SetFinished(percent=100)
