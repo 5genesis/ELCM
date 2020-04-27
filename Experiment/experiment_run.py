@@ -180,6 +180,11 @@ class ExperimentRun:
 
         # Try to create the dashboard even in case of error, there might be results to display
         try:
+            Log.D(f"Automatically generating panels from log (AutoGraph) {self.Id}")
+            from Helper import AutoGraph
+            generated = AutoGraph.GeneratePanels(self.Configuration.DashboardPanels, self.Executor.RetrieveLogInfo())
+            self.Configuration.DashboardPanels.extend(generated)
+
             Log.D(f"Trying to generate dashboard for execution {self.Id}")
             self.Configuration.ExpandDashboardPanels(self)
             url = ExperimentRun.grafana.Create(self)
