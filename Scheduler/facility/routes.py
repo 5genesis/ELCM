@@ -11,3 +11,22 @@ def resourceStatus():
     idleIds = [res.Id for res in idle]
 
     return jsonify({'Busy': busyIds, 'Idle': idleIds})
+
+
+@bp.route('/ues')
+def facilityUes():
+    return jsonify({
+        'UEs': sorted(list(Facility.ues.keys()))
+    })
+
+
+@bp.route('/testcases')
+def facilityTestCases():
+    res = []
+    testcases = sorted(list(Facility.testCases.keys()))
+    for testcase in testcases:
+        data = Facility.GetTestCaseExtra(testcase)
+        data['Name'] = testcase
+        res.append(data)
+
+    return jsonify({'TestCases': res})

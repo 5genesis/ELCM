@@ -188,8 +188,8 @@ class Facility:
         return cls.dashboards.get(id, [])
 
     @classmethod
-    def GetTestCaseExtra(cls, id: str) -> List[DashboardPanel]:
-        return cls.extra.get(id, [])
+    def GetTestCaseExtra(cls, id: str) -> Dict[str, object]:
+        return cls.extra.get(id, {})
 
     @classmethod
     def BusyResources(cls) -> List[Resource]:
