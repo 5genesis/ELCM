@@ -8,3 +8,5 @@ MONROE_Base:
           Execution ID: "@{ExecutionId}"
           Application: "@{Application}"
           Parameters: "@{JSONParameters}"
+Standard: False
+DashBoard: {}
