@@ -14,6 +14,7 @@ class Facility:
 
     ues: Dict[str, List[ActionInformation]] = {}
     testCases: Dict[str, List[ActionInformation]] = {}
+    extra: Dict[str, Dict[str, object]] = {}
     dashboards: Dict[str, List[ActionInformation]] = {}
     resources: Dict[str, Resource] = {}
 
@@ -86,19 +87,32 @@ class Facility:
                 data = _loadFile(path)
 
                 keys = list(data.keys())
-                dashboard = data.get('Dashboard', None)
+                dashboard = data.pop('Dashboard', None)
+                standard = data.pop('Standard', None)
+                custom = data.pop('Custom', None)
 
-                if dashboard is not None:
-                    keys.remove('Dashboard')
-                else:
+                if dashboard is None:
                     cls.Validation.append((Level.WARNING, f'Dashboard not defined. Keys: {list(keys)}'))
+
+                if standard is None:
+                    standard = (custom is None)
+                    cls.Validation.append((Level.WARNING,
+                                           f'Standard not defined, assuming {standard}. Keys: {list(keys)}'))
 
                 if len(keys) > 1:
                     cls.Validation.append((Level.ERROR, f'Multiple TestCases defined on a single file: {list(keys)}'))
                 for key in keys:
                     testCases[key] = _get_ActionList(data[key])
+
+                    extra[key] = {
+                        'Standard': standard,
+                        'PublicCustom': (custom is not None and len(custom) == 0),
+                        'PrivateCustom': custom if custom is not None else []
+                    }
+
                     if dashboard is not None:
                         dashboards[key] = _get_PanelList(dashboard)
+
             except Exception as e:
                 cls.Validation.append((Level.ERROR, f'Exception loading TestCase file {path}: {e}'))
 
@@ -131,6 +145,7 @@ class Facility:
         testCases = {}
         ues = {}
         dashboards = {}
+        extra = {}
 
         if len(cls.BusyResources()) != 0:
             resources = cls.resources
@@ -152,6 +167,7 @@ class Facility:
 
         cls.ues = ues
         cls.testCases = testCases
+        cls.extra = extra
         cls.dashboards = dashboards
         cls.resources = resources
 
@@ -170,6 +186,10 @@ class Facility:
     @classmethod
     def GetTestCaseDashboards(cls, id: str) -> List[DashboardPanel]:
         return cls.dashboards.get(id, [])
+
+    @classmethod
+    def GetTestCaseExtra(cls, id: str) -> List[DashboardPanel]:
+        return cls.extra.get(id, [])
 
     @classmethod
     def BusyResources(cls) -> List[Resource]:
