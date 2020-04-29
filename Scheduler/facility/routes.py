@@ -1,6 +1,7 @@
 from Scheduler.facility import bp
 from Facility import Facility
 from flask import jsonify
+from typing import Dict
 
 
 @bp.route('/resource_status')
@@ -26,7 +27,14 @@ def facilityTestCases():
     testcases = sorted(list(Facility.testCases.keys()))
     for testcase in testcases:
         data = Facility.GetTestCaseExtra(testcase)
+        parametersDict: Dict[str, Dict[str, str]] = data.pop('Parameters', {})
+        parameters = []
         data['Name'] = testcase
+        for key in sorted(parametersDict.keys()):
+            info = parametersDict[key]
+            info['Name'] = key
+            parameters.append(info)
+        data['Parameters'] = parameters
         res.append(data)
 
     return jsonify({'TestCases': res})

@@ -90,6 +90,7 @@ class Facility:
                 dashboard = data.pop('Dashboard', None)
                 standard = data.pop('Standard', None)
                 custom = data.pop('Custom', None)
+                parameters = data.pop('Parameters', {})
 
                 if dashboard is None:
                     cls.Validation.append((Level.WARNING, f'Dashboard not defined. Keys: {list(keys)}'))
@@ -107,7 +108,8 @@ class Facility:
                     extra[key] = {
                         'Standard': standard,
                         'PublicCustom': (custom is not None and len(custom) == 0),
-                        'PrivateCustom': custom if custom is not None else []
+                        'PrivateCustom': custom if custom is not None else [],
+                        'Parameters': parameters
                     }
 
                     if dashboard is not None:
