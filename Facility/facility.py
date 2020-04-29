@@ -86,19 +86,20 @@ class Facility:
             try:
                 data = _loadFile(path)
 
-                keys = list(data.keys())
+                allKeys = list(data.keys())
                 dashboard = data.pop('Dashboard', None)
                 standard = data.pop('Standard', None)
                 custom = data.pop('Custom', None)
                 parameters = data.pop('Parameters', {})
 
                 if dashboard is None:
-                    cls.Validation.append((Level.WARNING, f'Dashboard not defined. Keys: {list(keys)}'))
+                    cls.Validation.append((Level.WARNING, f'Dashboard not defined. Keys: {allKeys}'))
 
                 if standard is None:
                     standard = (custom is None)
                     cls.Validation.append((Level.WARNING,
-                                           f'Standard not defined, assuming {standard}. Keys: {list(keys)}'))
+                                           f'Standard not defined, assuming {standard}. Keys: {allKeys}'))
+                keys = list(data.keys())
 
                 if len(keys) > 1:
                     cls.Validation.append((Level.ERROR, f'Multiple TestCases defined on a single file: {list(keys)}'))

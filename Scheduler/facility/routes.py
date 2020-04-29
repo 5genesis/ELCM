@@ -26,15 +26,18 @@ def facilityTestCases():
     res = []
     testcases = sorted(list(Facility.testCases.keys()))
     for testcase in testcases:
-        data = Facility.GetTestCaseExtra(testcase)
-        parametersDict: Dict[str, Dict[str, str]] = data.pop('Parameters', {})
+        if testcase == 'MONROE_Base': continue
+
+        # Work over a copy, otherwise we end up overwriting the Facility data
+        extra = Facility.GetTestCaseExtra(testcase).copy()
+        parametersDict: Dict[str, Dict[str, str]] = extra.pop('Parameters', {})
         parameters = []
-        data['Name'] = testcase
+        extra['Name'] = testcase
         for key in sorted(parametersDict.keys()):
             info = parametersDict[key]
             info['Name'] = key
             parameters.append(info)
-        data['Parameters'] = parameters
-        res.append(data)
+        extra['Parameters'] = parameters
+        res.append(extra)
 
     return jsonify({'TestCases': res})
