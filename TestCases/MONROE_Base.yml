@@ -9,4 +9,4 @@ MONROE_Base:
           Application: "@{Application}"
           Parameters: "@{JSONParameters}"
 Standard: False
-DashBoard: {}
+Dashboard: {}

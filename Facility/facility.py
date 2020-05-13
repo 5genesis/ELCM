@@ -23,6 +23,7 @@ class Facility:
     @classmethod
     def Reload(cls):
         from Helper import IO
+        allParameters: Dict[str, Tuple[str, str]] = {}
 
         def _ensureFolder(path: str):
             if not IO.EnsureFolder(path):
@@ -78,7 +79,8 @@ class Facility:
                     else:
                         panelList.append(parsedPanel)
                 except Exception as e:
-                    cls.Validation.append((Level.ERROR, f"Unable to parse Dashboard Panel (data={panel}), ignored. {e}"))
+                    cls.Validation.append((Level.ERROR,
+                                           f"Unable to parse Dashboard Panel (data={panel}), ignored. {e}"))
             cls.Validation.append((Level.DEBUG, f'Defined {len(panelList)} dashboard panels'))
             return panelList
 
@@ -116,6 +118,17 @@ class Facility:
                     if dashboard is not None:
                         dashboards[key] = _get_PanelList(dashboard)
 
+                for name, info in parameters.items():
+                    type, desc = (info['Type'], info['Description'])
+                    if name not in allParameters.keys():
+                        allParameters[name] = (type, desc)
+                    else:
+                        oldType, oldDesc = allParameters[name]
+                        if type != oldType or desc != oldDesc:
+                            cls.Validation.append(
+                                (Level.WARNING, f"Redefined parameter '{name}' with different settings: "
+                                                f"'{oldType}' - '{type}'; '{oldDesc}' - '{desc}'. "
+                                                f"Cannot guarantee consistency."))
             except Exception as e:
                 cls.Validation.append((Level.ERROR, f'Exception loading TestCase file {path}: {e}'))
 
