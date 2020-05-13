@@ -1,3 +1,9 @@
+**13/05/2020** [Version 2.1.0]
+
+ - Updated experiment descriptor
+ - Implemented MONROE and custom experiments
+ - Added automatic dashboard panel generation
+
 **16/03/2020** [Version 2.0.0]
 
  - Added CompressFiles task

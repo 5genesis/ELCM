@@ -248,6 +248,38 @@ The expected formats on a result name are "`<Result name> [[<Panel type>]]`" and
 
 > Other result listeners will save the results including the panel information in the result name.
 
+### TestCase parameters. Standard and Custom experiment:
+
+In order to control how each TestCase is handled by the 5GENESIS Portal, several keys can be added to the yml description.
+These keys are:
+ - `Standard`: Boolean. Indicates wether or not the TestCase must be selectable from the list of Standard test cases.
+ If not specified, this value defaults to 'False' if the `Custom` key is defined, 'True' otherwise.
+ - `Custom`: List of strings. Indicates that the TestCase is a Custom test case and may accept parameters. If this value
+ is set to an empty list ('[]') the test case is considered public and will appear on the list of Custom experiments for
+ all users of the Portal. If the list contains one or more email addresses, the test case will be visible only to the users
+ with matching emails.
+ - `Parameters`: Dictionary of dictionaries, where each entry is defined as follows:
+ ```yaml
+"<Parameter Name>":
+    Type: "String, used to guide the user as to what is the expected format"
+    Description: "String, textual description of the parameter"
+ ```
+
+Parameters can be used to customize the execution of test cases. For example, a Test Case may be implemented using a TAP test plan,
+that accepts an external parameter called 'Interval'. Using variable expansion the value of this external parameter can be linked
+with the value of an 'Interval' (or a different name) parameter contained in the experiment descriptor. 
+
+It is also possible to define default values during variable expansion, which means that a Test Case can be defined as 'Standard', 
+where it will use the default values for all parameters, and 'Custom', where some of the values can be replaced by the experimenter.
+
+For more information see the 'Variable expansion' section below.
+
+> Parameters with the equal names from different test cases are considered to be **the same**: They will appear only once in the
+Portal when the user selects multiple test cases and will have the same value at run time. For example, if two different test cases
+define an 'Interval' parameter and are both included in the same experiment they will share the same value.
+> - If it's necessary to configure these values separately please use different names.
+> - If a parameter is defined in multiple test cases with different Type or Description a warning will be displayed on the ELCM interface. The information displayed on the Portal will correspond to one (any one) of the definitions.
+
 ### Available Tasks:
 
 The following is a list of the tasks that can be defined as part of a TestCase or UE list of actions, as well as their
@@ -261,8 +293,8 @@ Executes a script or command through the command line. Configuration values:
 #### Run.CompressFiles
 Generates a Zip file that contains all the specified files. Configuration values:
 - `Files`: List of (single) files to add to the Zip file
-- `Folders`: List of folders to search files from. All the files contained within these folders and their sub-folders
-will be added to the Zip file
+- `Folders`: List of folders to search files from. All the files contained within
+these folders and their sub-folders will be added to the Zip file
 - `Output`: Name of the Zip file to generate. 
 
 #### Run.Dummy
@@ -294,7 +326,7 @@ Will produce this message in the log:
 #### Run.SliceCreationTime
 Sends the Slice Creation Time reported by the Slice Manager to InfluxDb. Configuration values:
 - `ExecutionId`: Id of the execution (can be dinamically expanded from `@{ExecutionId}`)
-- `WaitForRunning`: Boolean, wait until the Slice Manager reports that the slice is running, or retrieve results inmediatelly
+- `WaitForRunning`: Boolean, wait until the Slice Manager reports that the slice is running, or retrieve results immediately
 - `Timeout`: 'WaitForRunning' timeout in (aprox) seconds
 - `SliceId`: Slice ID to check (can be dinamically expanded from `@{SliceId}`)
 
