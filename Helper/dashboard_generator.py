@@ -3,7 +3,7 @@ from REST import RestClient
 from Experiment import ExperimentRun
 import json
 from typing import Dict, Tuple, Optional, List
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 
 
 class DashboardGenerator(RestClient):
@@ -61,11 +61,10 @@ class DashboardGenerator(RestClient):
     def generateTime(self, execution: ExperimentRun) -> Dict:
         timeFormat = "%Y-%m-%dT%H:%M:%S.%fZ"
         runner = execution.Executor
+        start = runner.Started - timedelta(minutes=1)
+        end = (runner.Finished if not runner.HasFailed else datetime.now(timezone.utc)) + timedelta(minutes=1)
         return {
-            # Grafana expects to find this values in it's own timezone (currently GMT+2)
-            "from": str((runner.Started - timedelta(hours=0)).strftime(timeFormat)),
-            "to": str((runner.Finished - timedelta(hours=0)).strftime(timeFormat) if not runner.HasFailed
-                      else (datetime.utcnow() - timedelta(hours=2)).strftime(timeFormat)),
+            "from": str(start.strftime(timeFormat)), "to": str(end.strftime(timeFormat))
         }
 
     def generatePanels(self, execution: ExperimentRun) -> List[Dict]:

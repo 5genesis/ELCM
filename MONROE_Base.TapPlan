@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestPlan type="OpenTap.TestPlan" Locked="false">
+  <Steps>
+    <TestStep type="Tap.Plugins._5Genesis.Misc.Steps.SetExecutionMetadataStep" Version="1.0.0" Id="567d5491-5bc0-407b-8a15-f85daf60de31">
+      <Slice></Slice>
+      <Scenario></Scenario>
+      <TestCases></TestCases>
+      <Notes>Test execution</Notes>
+      <ResultListeners>
+        <InfluxDbResultListener type="Tap.Plugins._5Genesis.InfluxDB.ResultListeners.InfluxDbResultListener" Source="OpenTap.ResultSettings">INFLUX</InfluxDbResultListener>
+        <MultipleCsvResultListener type="Tap.Plugins._5Genesis.Misc.ResultListeners.MultipleCsvResultListener" Source="OpenTap.ResultSettings">MultiCSV</MultipleCsvResultListener>
+      </ResultListeners>
+      <ExecutionId external="Execution ID">test1</ExecutionId>
+      <Enabled>true</Enabled>
+      <Name>Set Execution Metadata</Name>
+      <ChildTestSteps />
+      <BreakConditions>Inherit</BreakConditions>
+    </TestStep>
+    <TestStep type="OpenTap.Plugins.BasicSteps.LogStep" Version="9.5.1+dcc0651a" Id="7bfb9cfd-e878-4300-aa0d-8d9129a1c7e2">
+      <LogMessage>Application:</LogMessage>
+      <Severity>Info</Severity>
+      <Enabled>true</Enabled>
+      <Name>Log Output</Name>
+      <ChildTestSteps />
+      <BreakConditions>Inherit</BreakConditions>
+    </TestStep>
+    <TestStep type="OpenTap.Plugins.BasicSteps.LogStep" Version="9.5.1+dcc0651a" Id="3bc67f9f-d754-43d0-a0a8-0b314abbbbc9">
+      <LogMessage external="Application">monroe/ping:virt</LogMessage>
+      <Severity>Info</Severity>
+      <Enabled>true</Enabled>
+      <Name>Log Output</Name>
+      <ChildTestSteps />
+      <BreakConditions>Inherit</BreakConditions>
+    </TestStep>
+    <TestStep type="OpenTap.Plugins.BasicSteps.LogStep" Version="9.5.1+dcc0651a" Id="7a301e17-1596-45d8-a3e8-1974ca3f06ab">
+      <LogMessage>Parameters:</LogMessage>
+      <Severity>Info</Severity>
+      <Enabled>true</Enabled>
+      <Name>Log Output</Name>
+      <ChildTestSteps />
+      <BreakConditions>Inherit</BreakConditions>
+    </TestStep>
+    <TestStep type="OpenTap.Plugins.BasicSteps.LogStep" Version="9.5.1+dcc0651a" Id="2ee8b5b0-e52d-45c1-9e01-cc4548135996">
+      <LogMessage external="Parameters">{"server":"8.8.8.8"}</LogMessage>
+      <Severity>Info</Severity>
+      <Enabled>true</Enabled>
+      <Name>Log Output</Name>
+      <ChildTestSteps />
+      <BreakConditions>Inherit</BreakConditions>
+    </TestStep>
+    <TestStep type="Tap.Plugins._5Genesis.Monroe.Steps.MonroeStartStep" Version="1.0.0" Id="8c5bb159-2de7-4649-b881-b90768133861">
+      <Actions>Deploy, Start</Actions>
+      <Script external="Application">monroe/ping:virt</Script>
+      <Options external="Parameters">{"server":"8.8.8.8"}</Options>
+      <Experiment external="Execution ID">test1</Experiment>
+      <Instrument Source="OpenTap.InstrumentSettings">MONROE</Instrument>
+      <VerdictOnError>
+        <Value>Error</Value>
+        <IsEnabled>false</IsEnabled>
+      </VerdictOnError>
+      <Enabled>true</Enabled>
+      <Name>Start Experiment</Name>
+      <ChildTestSteps />
+      <BreakConditions>Inherit</BreakConditions>
+    </TestStep>
+    <TestStep type="Tap.Plugins._5Genesis.Monroe.Steps.MonroeListStep" Version="1.0.0" Id="a5191b83-636c-4ac5-af72-c115c024fc84">
+      <Instrument Source="OpenTap.InstrumentSettings">MONROE</Instrument>
+      <VerdictOnError>
+        <Value>Error</Value>
+        <IsEnabled>false</IsEnabled>
+      </VerdictOnError>
+      <Enabled>true</Enabled>
+      <Name>List Experiments</Name>
+      <ChildTestSteps />
+      <BreakConditions>Inherit</BreakConditions>
+    </TestStep>
+    <TestStep type="OpenTap.Plugins.BasicSteps.DelayStep" Version="9.5.1+dcc0651a" Id="0fdc331e-3da1-41b8-a4b6-956c4e8bd733">
+      <DelaySecs>10</DelaySecs>
+      <Enabled>true</Enabled>
+      <Name>Delay</Name>
+      <ChildTestSteps />
+      <BreakConditions>Inherit</BreakConditions>
+    </TestStep>
+    <TestStep type="Tap.Plugins._5Genesis.Monroe.Steps.MonroeStopStep" Version="1.0.0" Id="80e52419-567f-4b0e-a064-e72dd03a2425">
+      <Report>true</Report>
+      <Experiment external="Execution ID">test1</Experiment>
+      <Instrument Source="OpenTap.InstrumentSettings">MONROE</Instrument>
+      <VerdictOnError>
+        <Value>Error</Value>
+        <IsEnabled>false</IsEnabled>
+      </VerdictOnError>
+      <Enabled>true</Enabled>
+      <Name>Stop Experiment</Name>
+      <ChildTestSteps />
+      <BreakConditions>Inherit</BreakConditions>
+    </TestStep>
+  </Steps>
+  <Package.Dependencies>
+    <Package Name="5Genesis" Version="1.2.3" />
+    <Package Name="OpenTAP" Version="9.6.4+6f53deb9" />
+  </Package.Dependencies>
+</TestPlan>

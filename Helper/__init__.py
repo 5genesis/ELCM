@@ -9,3 +9,4 @@ from .dashboard_generator import DashboardGenerator
 from .influx import InfluxDb, InfluxPayload, InfluxPoint
 from .compress import Compress
 from .io import IO
+from .autograph import AutoGraph

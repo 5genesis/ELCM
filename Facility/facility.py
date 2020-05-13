@@ -14,6 +14,7 @@ class Facility:
 
     ues: Dict[str, List[ActionInformation]] = {}
     testCases: Dict[str, List[ActionInformation]] = {}
+    extra: Dict[str, Dict[str, object]] = {}
     dashboards: Dict[str, List[ActionInformation]] = {}
     resources: Dict[str, Resource] = {}
 
@@ -22,6 +23,7 @@ class Facility:
     @classmethod
     def Reload(cls):
         from Helper import IO
+        allParameters: Dict[str, Tuple[str, str]] = {}
 
         def _ensureFolder(path: str):
             if not IO.EnsureFolder(path):
@@ -77,7 +79,8 @@ class Facility:
                     else:
                         panelList.append(parsedPanel)
                 except Exception as e:
-                    cls.Validation.append((Level.ERROR, f"Unable to parse Dashboard Panel (data={panel}), ignored. {e}"))
+                    cls.Validation.append((Level.ERROR,
+                                           f"Unable to parse Dashboard Panel (data={panel}), ignored. {e}"))
             cls.Validation.append((Level.DEBUG, f'Defined {len(panelList)} dashboard panels'))
             return panelList
 
@@ -85,20 +88,47 @@ class Facility:
             try:
                 data = _loadFile(path)
 
-                keys = list(data.keys())
-                dashboard = data.get('Dashboard', None)
+                allKeys = list(data.keys())
+                dashboard = data.pop('Dashboard', None)
+                standard = data.pop('Standard', None)
+                custom = data.pop('Custom', None)
+                parameters = data.pop('Parameters', {})
 
-                if dashboard is not None:
-                    keys.remove('Dashboard')
-                else:
-                    cls.Validation.append((Level.WARNING, f'Dashboard not defined. Keys: {list(keys)}'))
+                if dashboard is None:
+                    cls.Validation.append((Level.WARNING, f'Dashboard not defined. Keys: {allKeys}'))
+
+                if standard is None:
+                    standard = (custom is None)
+                    cls.Validation.append((Level.WARNING,
+                                           f'Standard not defined, assuming {standard}. Keys: {allKeys}'))
+                keys = list(data.keys())
 
                 if len(keys) > 1:
                     cls.Validation.append((Level.ERROR, f'Multiple TestCases defined on a single file: {list(keys)}'))
                 for key in keys:
                     testCases[key] = _get_ActionList(data[key])
+
+                    extra[key] = {
+                        'Standard': standard,
+                        'PublicCustom': (custom is not None and len(custom) == 0),
+                        'PrivateCustom': custom if custom is not None else [],
+                        'Parameters': parameters
+                    }
+
                     if dashboard is not None:
                         dashboards[key] = _get_PanelList(dashboard)
+
+                for name, info in parameters.items():
+                    type, desc = (info['Type'], info['Description'])
+                    if name not in allParameters.keys():
+                        allParameters[name] = (type, desc)
+                    else:
+                        oldType, oldDesc = allParameters[name]
+                        if type != oldType or desc != oldDesc:
+                            cls.Validation.append(
+                                (Level.WARNING, f"Redefined parameter '{name}' with different settings: "
+                                                f"'{oldType}' - '{type}'; '{oldDesc}' - '{desc}'. "
+                                                f"Cannot guarantee consistency."))
             except Exception as e:
                 cls.Validation.append((Level.ERROR, f'Exception loading TestCase file {path}: {e}'))
 
@@ -131,6 +161,7 @@ class Facility:
         testCases = {}
         ues = {}
         dashboards = {}
+        extra = {}
 
         if len(cls.BusyResources()) != 0:
             resources = cls.resources
@@ -152,6 +183,7 @@ class Facility:
 
         cls.ues = ues
         cls.testCases = testCases
+        cls.extra = extra
         cls.dashboards = dashboards
         cls.resources = resources
 
@@ -164,8 +196,16 @@ class Facility:
         return cls.testCases.get(id, [])
 
     @classmethod
+    def GetMonroeActions(cls) -> List[ActionInformation]:
+        return cls.testCases.get("MONROE_Base", [])
+
+    @classmethod
     def GetTestCaseDashboards(cls, id: str) -> List[DashboardPanel]:
         return cls.dashboards.get(id, [])
+
+    @classmethod
+    def GetTestCaseExtra(cls, id: str) -> Dict[str, object]:
+        return cls.extra.get(id, {})
 
     @classmethod
     def BusyResources(cls) -> List[Resource]:
@@ -188,7 +228,7 @@ class Facility:
                 Log.I(f"Resource '{resource.Name}'({resource.Id}) locked by {resource.Owner.Id}")
             else:
                 Log.E(f"Unable to lock resource '{resource.Name}'({resource.Id}) for run {owner.Id}, "
-                      f"locked by '{resource.Owner.ExperimentName}'({resource.Owner.Id})")
+                      f"locked by '{resource.Owner.ExperimentIdentifier}'({resource.Owner.Id})")
         else:
             Log.E(f"Resource id {id} not found")
 
@@ -198,7 +238,7 @@ class Facility:
         if resource is not None:
             if resource.Locked:
                 Log.I(f"Releasing '{resource.Name}'({resource.Id}) "
-                      f"(locked by '{resource.Owner.ExperimentName}'({resource.Owner.Id})))")
+                      f"(locked by '{resource.Owner.ExperimentIdentifier}'({resource.Owner.Id})))")
                 resource.Owner = None
             else:
                 Log.W(f"Tried to release resource {id} while idle")

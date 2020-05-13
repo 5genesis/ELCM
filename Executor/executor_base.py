@@ -2,7 +2,7 @@ from Helper import Child, Level, Config
 from typing import Dict, Optional, List
 from Data import ExperimentDescriptor
 from Composer import PlatformConfiguration
-from datetime import datetime
+from datetime import datetime, timezone
 from Helper import Serialize
 from .status import Status
 from tempfile import TemporaryDirectory
@@ -17,7 +17,7 @@ class ExecutorBase(Child):
             config = Config()
             self.dispatcher = DispatcherApi(config.Dispatcher.Host, config.Dispatcher.Port)
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         super().__init__(f"{name}{now.strftime('%y%m%d%H%M%S%f')}", tempFolder)
         self.Tag = name
         self.params = params
@@ -65,11 +65,11 @@ class ExecutorBase(Child):
 
     def SetStarted(self):
         self.LogAndMessage(Level.INFO, "Started")
-        self.Started = datetime.utcnow()
+        self.Started = datetime.now(timezone.utc)
         self.Status = Status.Running
 
     def SetFinished(self, status=Status.Finished, percent: int = None):
-        self.Finished = datetime.utcnow()
+        self.Finished = datetime.now(timezone.utc)
         if self.Status.value < Status.Cancelled.value:
             self.Status = status
         self.LogAndMessage(Level.INFO, f"Finished (status: {self.Status.name})", percent)

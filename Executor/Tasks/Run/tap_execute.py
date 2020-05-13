@@ -1,7 +1,7 @@
 from Task import Task
 from Helper import Tap, Config, Level
 from os.path import exists, join
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class TapExecute(Task):
@@ -29,7 +29,7 @@ class TapExecute(Task):
                     self.Log(Level.DEBUG, f"Searching on path {path}")
                     try:
                         files = IO.GetAllFiles(path)
-                        time = datetime.utcnow().strftime("%y%m%d%H%M%S")
+                        time = datetime.now(timezone.utc).strftime("%y%m%d%H%M%S")
                         output = join(self.parent.TempFolder, f"Results{time}.zip")
                         if len(files) != 0:
                             Compress.Zip(files, output)

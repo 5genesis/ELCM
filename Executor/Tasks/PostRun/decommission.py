@@ -9,17 +9,17 @@ class Decommission(Task):
 
     def Run(self):
         self.Log(Level.INFO, 'Decommision started')
-        hasNsd = self.params['HasNsd']
-        sliceId = self.params.get('SliceId', None)
-
-        if hasNsd:
-            if sliceId is not None and sliceId != "None":
-                self.Log(Level.INFO, f"Deleting slice {sliceId}")
-                response = Management.SliceManager().Delete(sliceId)
-                self.Log(Level.DEBUG, f"  Response: '{response}'")
-            else:
-                self.Log(Level.WARNING, 'Slice identifier is None.')
+        networkServices = self.params['NetworkServices']
+        if len(networkServices) != 0:
+            sliceIds = self.params['SliceIds']
+            self.Log(Level.INFO, f"Experiment has instantiated slices: {sliceIds}")
+            for slice in sliceIds:
+                self.Log(Level.INFO, f"Requesting decommision of slice: {slice}")
+                try:
+                    # TODO
+                    self.Log(Level.INFO, f'Slice decommisioned')
+                except Exception as e:
+                    raise Exception(f'Exception while decommisioning slice: {e}') from e
         else:
-            self.Log(Level.INFO, 'Slice not instantiated.')
-
+            self.Log(Level.INFO, 'Decommision not required, no NSD IDs defined.')
         self.Log(Level.INFO, 'Decommision completed')

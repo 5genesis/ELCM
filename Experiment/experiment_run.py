@@ -2,7 +2,7 @@ from Executor import PreRunner, Executor, PostRunner, ExecutorBase
 from Data import ExperimentDescriptor
 from typing import Dict, Optional
 from enum import Enum, unique
-from datetime import datetime
+from datetime import datetime, timezone
 from tempfile import TemporaryDirectory
 from Helper import Config, Serialize, Log
 from Interfaces import DispatcherApi
@@ -31,7 +31,7 @@ class ExperimentRun:
         self._coarseStatus = CoarseStatus.Init
         self._dashboardUrl = None
         self.Cancelled = False
-        self.Created = datetime.utcnow()
+        self.Created = datetime.now(timezone.utc)
 
         if ExperimentRun.dispatcher is None or ExperimentRun.grafana is None:
             from Helper import DashboardGenerator  # Delayed to avoid cyclic imports
@@ -42,21 +42,17 @@ class ExperimentRun:
                                                        config.Grafana.ReportGenerator)
 
     def __str__(self):
-        return f'[ID: {self.Id} (Exp. ID {self.ExperimentId}: {self.ExperimentName})]'
+        return f'[ID: {self.Id} ({self.ExperimentIdentifier})]'
 
     @property
     def GeneratedFiles(self):
-        return [
-            self.PreRunner.LogFile, self.Executor.LogFile, self.PostRunner.LogFile,
-            *self.PreRunner.GeneratedFiles, *self.Executor.GeneratedFiles, *self.PostRunner.GeneratedFiles]
+        return list(filter(None,
+                      [self.PreRunner.LogFile, self.Executor.LogFile, self.PostRunner.LogFile,
+                       *self.PreRunner.GeneratedFiles, *self.Executor.GeneratedFiles, *self.PostRunner.GeneratedFiles]))
 
     @property
-    def ExperimentId(self):
-        return self.Descriptor.Id if self.Descriptor is not None else None
-
-    @property
-    def ExperimentName(self):
-        return self.Descriptor.Name if self.Descriptor is not None else None
+    def ExperimentIdentifier(self):
+        return self.Descriptor.Identifier if self.Descriptor is not None else None
 
     @property
     def CoarseStatus(self):
@@ -177,13 +173,18 @@ class ExperimentRun:
             Log.I(f"Experiment generated files: {self.GeneratedFiles}")
             folder = abspath(Config().ResultsFolder)
             IO.EnsureFolder(folder)
-            path = join(folder, f"{self.Id}-Exp_{self.ExperimentId}.zip")
+            path = join(folder, f"{self.Id}.zip")
             Compress.Zip(self.GeneratedFiles, path, flat=True)
         except Exception as e:
             Log.E(f"Exception while compressing experiment files ({self.Id}): {e}")
 
         # Try to create the dashboard even in case of error, there might be results to display
         try:
+            Log.D(f"Automatically generating panels from log (AutoGraph) {self.Id}")
+            from Helper import AutoGraph
+            generated = AutoGraph.GeneratePanels(self.Configuration.DashboardPanels, self.Executor.RetrieveLogInfo())
+            self.Configuration.DashboardPanels.extend(generated)
+
             Log.D(f"Trying to generate dashboard for execution {self.Id}")
             self.Configuration.ExpandDashboardPanels(self)
             url = ExperimentRun.grafana.Create(self)
@@ -200,7 +201,6 @@ class ExperimentRun:
             'Created': Serialize.DateToString(self.Created),
             'CoarseStatus': self.CoarseStatus.name,
             'Cancelled': self.Cancelled,
-            'ExperimentId': self.ExperimentId
         }
         return data
 

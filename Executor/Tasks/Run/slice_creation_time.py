@@ -2,7 +2,7 @@ from Task import Task
 from Interfaces import Management
 from Helper import Level
 from time import sleep
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class SliceCreationTime(Task):
@@ -34,7 +34,7 @@ class SliceCreationTime(Task):
 
         payload = InfluxPayload("Slice Creation Time")
         payload.Tags = {'ExecutionId': str(executionId)}
-        point = InfluxPoint(datetime.utcnow())
+        point = InfluxPoint(datetime.now(timezone.utc))
 
         for key in ["Slice_Deployment_Time", "Placement_Time", "Provisioning_Time"]:
             value = times.get(key, "N/A")

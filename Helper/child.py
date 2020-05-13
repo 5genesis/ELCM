@@ -42,14 +42,14 @@ class Child:
             self.hasStarted = True
             try:
                 self.Run()
-                self.hasFinished = True
             except Exception as e:
+                self.hasFailed = True
                 self.Log(Level.ERROR, f'Exception while running ({self.name}): {e}]')
                 trace = Log.GetTraceback()
                 for line in trace:
                     self.Log(Level.DEBUG, line.strip())
-                self.hasFailed = True
             finally:
+                self.hasFinished = True
                 Log.CloseLogFile(self.name)
 
         if self.tempFolderIsExternal:

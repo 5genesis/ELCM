@@ -1,5 +1,5 @@
 from Facility import Facility, ActionInformation, DashboardPanel
-from Data import ExperimentDescriptor
+from Data import ExperimentDescriptor, ExperimentType
 from .platform_configuration import PlatformConfiguration, TaskDefinition
 from importlib import import_module
 from Helper import Log
@@ -16,19 +16,23 @@ class Composer:
             cls.facility = Facility()
 
         configuration = PlatformConfiguration()
-        configuration.RunParams['Report'] = {'ExperimentName': descriptor.Name}
+        configuration.RunParams['Report'] = {'ExperimentName': descriptor.Identifier}
 
-        instantiation = {'HasNsd': descriptor.HasNsd, 'ExperimentId': descriptor.Id}
+        instantiation = {'NetworkServices': descriptor.NetworkServices}
         configuration.PreRunParams.update(instantiation)
         configuration.PostRunParams.update(instantiation)
 
         actions: List[ActionInformation] = []
         panels: List[DashboardPanel] = []
-        for ue in descriptor.UEs.keys():
-            actions.extend(cls.facility.GetUEActions(ue))
-        for testcase in descriptor.TestCases:
-            actions.extend(cls.facility.GetTestCaseActions(testcase))
-            panels.extend(cls.facility.GetTestCaseDashboards(testcase))
+
+        if descriptor.Type == ExperimentType.MONROE:
+            actions.extend(cls.facility.GetMonroeActions())
+        else:
+            for ue in descriptor.UEs:
+                actions.extend(cls.facility.GetUEActions(ue))
+            for testcase in descriptor.TestCases:
+                actions.extend(cls.facility.GetTestCaseActions(testcase))
+                panels.extend(cls.facility.GetTestCaseDashboards(testcase))
 
         actions.sort(key=lambda action: action.Order)  # Sort by Order
         requirements = set()
