@@ -3,6 +3,7 @@ from typing import Dict, Optional
 
 class Resource:
     def __init__(self, data: Dict):
+        from Experiment import ExperimentRun
         self.Id = data["Id"]
         self.Name = data["Name"]
         self.Icon = data.get("Icon", "fa-cash-register")

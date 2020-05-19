@@ -4,11 +4,19 @@ from Interfaces import Management
 
 
 class CheckAvailable(Task):
-    def __init__(self, logMethod, id, requirements, parent):
-        super().__init__("Check Availability", parent, {'Id': id, 'Available': False, 'Requirements': requirements}, logMethod, None)
+    def __init__(self, logMethod, id, requirements, networkServices, parent):
+        super().__init__("Check Availability", parent, {'Id': id, 'Available': False, 'Requirements': requirements,
+                          'NetworkServices': networkServices}, logMethod, None)
 
     def Run(self):
         self.Log(Level.INFO, 'Requesting availability')
+        localRequirements = self.params["Requirements"]
+        networkServices = self.params["NetworkServices"]
+
+        self.Log(Level.DEBUG, f'Local Requirements: {localRequirements}')
+        if len(networkServices) != 0:
+            self.Log(Level.DEBUG, f'NS Requirements: {networkServices}')
+
         self.Log(Level.WARNING, f'-> {self.params["Requirements"]}')
         id = self.params['Id']
         available = Management.HasResources(id)

@@ -15,7 +15,8 @@ class PreRunner(ExecutorBase):
         self.AddMessage("Configuration completed", 30)
         available = False
         while not available:
-            result = CheckAvailable(self.Log, self.Id, self.Configuration.Requirements, self).Start()
+            result = CheckAvailable(self.Log, self.Id, self.Configuration.Requirements,
+                                    self.Configuration.NetworkServices, self).Start()
             available = result['Available']
             if not available:
                 self.AddMessage('Not available')
@@ -25,9 +26,7 @@ class PreRunner(ExecutorBase):
         AddExecutionEntry(self, self.Log).Start()
         self.AddMessage('Execution registered', 50)
 
-        result = Instantiate(self.Log, self.TempFolder, self, self.Configuration.PreRunParams).Start()
-        self.Configuration.PostRunParams["SliceIds"] = result["SliceIds"]
-        self.params["SliceIds"] = result["SliceIds"]  # TODO: Improve inter-executor communication
+        Instantiate(self.Log, self.TempFolder, self, self.Configuration.NetworkServices).Start()
 
         self.AddMessage('Instantiation completed', 80)
         self.SetFinished(percent=100)

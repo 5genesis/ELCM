@@ -1,5 +1,5 @@
 from Facility import Facility, ActionInformation, DashboardPanel
-from Data import ExperimentDescriptor, ExperimentType
+from Data import ExperimentDescriptor, ExperimentType, NsInfo
 from .platform_configuration import PlatformConfiguration, TaskDefinition
 from importlib import import_module
 from Helper import Log
@@ -18,9 +18,8 @@ class Composer:
         configuration = PlatformConfiguration()
         configuration.RunParams['Report'] = {'ExperimentName': descriptor.Identifier}
 
-        instantiation = {'NetworkServices': descriptor.NetworkServices}
-        configuration.PreRunParams.update(instantiation)
-        configuration.PostRunParams.update(instantiation)
+        for ns in descriptor.NetworkServices:
+            configuration.NetworkServices.append(NsInfo(ns))
 
         actions: List[ActionInformation] = []
         panels: List[DashboardPanel] = []
