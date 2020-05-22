@@ -5,7 +5,7 @@ from time import sleep
 from datetime import datetime
 
 
-class SliceCreationTime(Task):
+class SingleSliceCreationTime(Task):
     def __init__(self, logMethod, params):
         super().__init__("Slice Creation Time Measurement", params, logMethod, None)
 
