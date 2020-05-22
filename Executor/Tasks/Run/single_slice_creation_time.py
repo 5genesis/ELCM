@@ -7,7 +7,7 @@ from datetime import datetime
 
 class SingleSliceCreationTime(Task):
     def __init__(self, logMethod, params):
-        super().__init__("Slice Creation Time Measurement", params, logMethod, None)
+        super().__init__("Single Slice Creation Time Measurement", params, logMethod, None)
 
     def Run(self):
         executionId = self.params['ExecutionId']
@@ -32,7 +32,7 @@ class SingleSliceCreationTime(Task):
         self.Log(Level.INFO, f"Generating results payload")
         from Helper import InfluxDb, InfluxPayload, InfluxPoint  # Delayed to avoid cyclic imports
 
-        payload = InfluxPayload("Slice Creation Time")
+        payload = InfluxPayload("Single Slice Creation Time")
         payload.Tags = {'ExecutionId': str(executionId)}
         point = InfluxPoint(datetime.utcnow())
 
