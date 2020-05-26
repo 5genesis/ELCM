@@ -41,6 +41,7 @@ class SliceCreationTime(Task):
         payload.Tags = {'ExecutionId': str(executionId)}
         sliceManager = Management.SliceManager()
         nestData = json.dumps(nestData)
+        instantiationStarted = False
 
         for iteration in range(iterations):
             self.Log(Level.INFO, f"Instantiating NEST file (iteration {iteration})")
@@ -91,6 +92,25 @@ class SliceCreationTime(Task):
                     payload.Points.append(point)
                     self.Log(Level.DEBUG, f'Payload point: {point}')
                     break
+
+            try:
+                self.Log(Level.INFO, "Deleting slice.")
+                sliceManager.Delete(sliceId)
+                totalWait = 0
+                while True:
+                    sleep(pollTime)
+                    totalWait += pollTime
+                    info = sliceManager.Check(sliceId)
+                    if info is None:
+                        self.Log(Level.INFO, f"Slice correctly deleted.")
+                        break
+                    elif timeout is not None and totalWait >= timeout:
+                        self.Log(Level.WARNING, f"Slice not deleted before configured timeout.")
+                        break
+                    else:
+                        self.Log(Level.DEBUG, f"Waiting for slice deletion.")
+            except Exception as e:
+                self.Log(Level.ERROR, f"Exception while deleting slice: {e}")
 
         if csvFile is not None:
             self.Log(Level.INFO, f"Writing result to CSV file: {csvFile}")  # TODO

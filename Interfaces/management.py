@@ -1,7 +1,7 @@
 from random import randrange
 from REST import RestClient
 from Helper import Config
-from typing import Dict
+from typing import Dict, Optional
 
 
 class Management:
@@ -35,9 +35,9 @@ class SliceManager(RestClient):
         response = self.httpPost(f"{self.api_url}/slice", {"Content-Type": "application/json"}, nsd)
         return response.data.decode('utf-8')
 
-    def Check(self, slice: str) -> Dict:
+    def Check(self, slice: str) -> Optional[Dict]:
         response = self.httpGet(f"{self.api_url}/slice/{slice}", {"Accept": "application/json"})
-        return self.responseToJson(response)
+        return None if response.status == 404 else self.responseToJson(response)
 
     def Time(self, slice: str) -> Dict:
         response = self.httpGet(f"{self.api_url}/slice/{slice}/time", {"Accept": "application/json"})
