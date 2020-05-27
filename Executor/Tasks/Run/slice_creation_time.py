@@ -41,7 +41,6 @@ class SliceCreationTime(Task):
         payload.Tags = {'ExecutionId': str(executionId)}
         sliceManager = Management.SliceManager()
         nestData = json.dumps(nestData)
-        instantiationStarted = False
 
         for iteration in range(iterations):
             self.Log(Level.INFO, f"Instantiating NEST file (iteration {iteration})")

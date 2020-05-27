@@ -253,11 +253,24 @@ Will produce this message in the log:
 `- INFO - 1: Text; 2: 1; 3: <<UNDEFINED>>; 4: NoProblem`
 
 #### Run.SingleSliceCreationTime
-Sends the Slice Creation Time reported by the Slice Manager to InfluxDb. Configuration values:
+Sends the Slice Creation Time reported by the Slice Manager to InfluxDb. This task will not perform any deployment
+ by itself, and will only read the values for an slice deployed during the experiment pre-run stage.
+Configuration values:
 - `ExecutionId`: Id of the execution (can be dinamically expanded from `@{ExecutionId}`)
 - `WaitForRunning`: Boolean, wait until the Slice Manager reports that the slice is running, or retrieve results inmediatelly
 - `Timeout`: 'WaitForRunning' timeout in (aprox) seconds
 - `SliceId`: Slice ID to check (can be dinamically expanded from `@{SliceId}`)
+
+#### Run.SliceCreationTime
+Repeats a cycle of slice creation and deletion for a configured number of times, obtaining the Slice Creation Time on
+each iteration and sending the values to the configured InfluxDb database. This task does not take into account the
+slices deployed during the experiment's pre-run stage (if any). This task uses a local NEST file to describe the
+slice to be deployed. Configuration values:
+- `ExecutionId`: Id of the execution (can be dinamically expanded from `@{ExecutionId}`)
+- `NEST`: Absolute path of the NEST file to use
+- `Iterations`: Number of iterations. Defaults to 25
+- `Timeout`: Timeout in (aprox) seconds to wait until the slice is running or deleted before skipping the iteration.
+If not specified or set to None the task will continue indefinitelly.
 
 #### Run.TapExecute
 Executes a TAP TestPlan, with the possibility of configuring external parameters. Configuration values:
