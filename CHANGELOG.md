@@ -1,3 +1,8 @@
+**27/05/2020** [Version 1.1.2]
+
+ - Added new SliceCreationTime task supporting iterative deployment of slices using a NEST file.
+ - Renamed original SliceCreationTime task to SingleSliceCreationTime.
+
 **21/10/2019** [Version 1.1.1]
 
  - Added support for OpenTAP
