@@ -30,7 +30,16 @@ class Composer:
             for ue in descriptor.UEs:
                 actions.extend(cls.facility.GetUEActions(ue))
             for testcase in descriptor.TestCases:
-                actions.extend(cls.facility.GetTestCaseActions(testcase))
+                testcaseActions = cls.facility.GetTestCaseActions(testcase)
+                if len(testcaseActions) != 0:
+                    actions.extend(testcaseActions)
+                else:
+                    message = ActionInformation()
+                    message.TaskName = "Run.Message"
+                    message.Order = -9999
+                    message.Config = {'Severity': 'ERROR',
+                                      'Message': f'TestCase "{testcase}" did not generate any actions'}
+                    actions.append(message)
                 panels.extend(cls.facility.GetTestCaseDashboards(testcase))
 
         actions.sort(key=lambda action: action.Order)  # Sort by Order

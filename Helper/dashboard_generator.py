@@ -21,7 +21,7 @@ class DashboardGenerator(RestClient):
         if not self.enabled: return None
 
         body = json.dumps(self.generateData(execution))
-        Log.D(f"Grafana dashboard data (exeuction {execution.Id}): {body}")
+        Log.D(f"Grafana dashboard data (execution {execution.Id}): {body}")
         response = self.httpPost(f"{self.api_url}/dashboards/db", self.headers, body)
         if response.status == 200:
             url = self.responseToJson(response)["url"]
