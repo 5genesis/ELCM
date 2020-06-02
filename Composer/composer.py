@@ -1,10 +1,11 @@
 from Facility import Facility, ActionInformation, DashboardPanel
-from Data import ExperimentDescriptor, ExperimentType, NsInfo
+from Data import ExperimentDescriptor, ExperimentType, NsInfo, Metal
 from .platform_configuration import PlatformConfiguration, TaskDefinition
 from importlib import import_module
 from Helper import Log
 from typing import List
 from Executor.Tasks.Run import Message
+from Interfaces import Management
 
 
 class Composer:
@@ -12,17 +13,44 @@ class Composer:
 
     @classmethod
     def Compose(cls, descriptor: ExperimentDescriptor) -> PlatformConfiguration:
+        def _messageAction(severity: str, message: str) -> ActionInformation:
+            message = ActionInformation()
+            message.TaskName = "Run.Message"
+            message.Order = -9999
+            message.Config = {'Severity': severity, 'Message': message}
+            return message
+
+        def _messageTask(severity: str, message: str) -> TaskDefinition:
+            task = TaskDefinition()
+            task.Task = Message
+            task.Params = {'Severity': severity, 'Message': message}
+            return task
+
         if cls.facility is None:
             cls.facility = Facility()
 
         configuration = PlatformConfiguration()
         configuration.RunParams['Report'] = {'ExperimentName': descriptor.Identifier}
 
-        for ns in descriptor.NetworkServices:
-            configuration.NetworkServices.append(NsInfo(ns))
-
         actions: List[ActionInformation] = []
         panels: List[DashboardPanel] = []
+
+        if len(descriptor.NetworkServices) != 0:
+            sliceManager = Management.SliceManager()
+            for ns in descriptor.NetworkServices:
+                nsId, location = ns
+                try:
+                    nsInfo = NsInfo(nsId, location)
+                    flavor = sliceManager.GetNsdInfo(nsId)["flavor"]
+                    nsInfo.Requirements = Metal(cpu=flavor["vcpu-count"],
+                                                ram=flavor["memory-mb"],
+                                                disk=flavor["storage-gb"])
+
+                    configuration.NetworkServices.append(nsInfo)
+                except Exception as e:
+                    actions.append(
+                        _messageAction("ERROR", f"Exception while obtaining information about network service {nsId}"))
+
 
         if descriptor.Type == ExperimentType.MONROE:
             actions.extend(cls.facility.GetMonroeActions())
@@ -34,12 +62,7 @@ class Composer:
                 if len(testcaseActions) != 0:
                     actions.extend(testcaseActions)
                 else:
-                    message = ActionInformation()
-                    message.TaskName = "Run.Message"
-                    message.Order = -9999
-                    message.Config = {'Severity': 'ERROR',
-                                      'Message': f'TestCase "{testcase}" did not generate any actions'}
-                    actions.append(message)
+                    actions.append(_messageAction("ERROR", f'TestCase "{testcase}" did not generate any actions'))
                 panels.extend(cls.facility.GetTestCaseDashboards(testcase))
 
         actions.sort(key=lambda action: action.Order)  # Sort by Order
@@ -48,14 +71,12 @@ class Composer:
         for action in actions:
             requirements.update(action.Requirements)
 
-            taskDefinition = TaskDefinition()
-            taskDefinition.Params = action.Config
             task = cls.getTaskClass(action.TaskName)
             if task is None:
-                taskDefinition.Task = Message
-                taskDefinition.Params['Severity'] = "ERROR"
-                taskDefinition.Params['Message'] = f"Could not find task {action.TaskName}"
+                taskDefinition = _messageTask("ERROR", f"Could not find task {action.TaskName}")
             else:
+                taskDefinition = TaskDefinition()
+                taskDefinition.Params = action.Config
                 taskDefinition.Task = task
             configuration.RunTasks.append(taskDefinition)
 

@@ -19,7 +19,7 @@ class Instantiate(Task):
             for ns in networkServices:
                 self.Log(Level.INFO, f"Requesting instantiation of NSD: {ns.Id}")
                 try:
-                    # sliceId = Management.SliceManager().Create(nsdContent)
+                    # sliceId = Management.SliceManager().CreateSlice(nsdContent)
                     sliceId = "placeholder"  # TODO
                     self.Log(Level.INFO, f'Network service instantiated with ID: {sliceId}')
                     ns.SliceId = sliceId

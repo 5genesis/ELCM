@@ -3,8 +3,8 @@ from .metal_requirements import Metal
 
 
 class NsInfo:
-    def __init__(self, nsId: str):
+    def __init__(self, nsId: str, location: str):
         self.Id = nsId
-        self.Location: Optional[str] = None
+        self.Location = location
         self.SliceId: Optional[str] = None
         self.Requirements = Metal()

@@ -1,7 +1,8 @@
 from random import randrange
 from REST import RestClient
 from Helper import Config
-from typing import Dict
+from typing import Dict, Optional, Tuple
+from Data import Metal
 
 
 class Management:
@@ -31,18 +32,22 @@ class SliceManager(RestClient):
     def __init__(self, host, port):
         super().__init__(host, port, "/api")
 
-    def Create(self, nsd: str) -> str:
+    def CreateSlice(self, nsd: str) -> str:
         response = self.httpPost(f"{self.api_url}/slice", {"Content-Type": "application/json"}, nsd)
         return response.data.decode('utf-8')
 
-    def Check(self, slice: str) -> Dict:
+    def CheckSlice(self, slice: str) -> Dict:
         response = self.httpGet(f"{self.api_url}/slice/{slice}", {"Accept": "application/json"})
         return self.responseToJson(response)
 
-    def Time(self, slice: str) -> Dict:
+    def SliceCreationTime(self, slice: str) -> Dict:
         response = self.httpGet(f"{self.api_url}/slice/{slice}/time", {"Accept": "application/json"})
         return self.responseToJson(response)
 
-    def Delete(self, slice: str) -> str:
+    def DeleteSlice(self, slice: str) -> str:
         response = self.httpDelete(f"{self.api_url}/slice/{slice}")
+        return response.data.decode('utf-8')
+
+    def GetNsdInfo(self, nsd: str) -> Dict:
+        response = self.httpGet(f"{self.api_url}/api/nslist")  # TODO: update with new endpoint
         return response.data.decode('utf-8')

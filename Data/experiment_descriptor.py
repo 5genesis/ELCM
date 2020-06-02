@@ -67,7 +67,7 @@ class ExperimentDescriptor:
         return self._data['Slice']
 
     @property
-    def NetworkServices(self) -> List[str]:
+    def NetworkServices(self) -> List[Tuple[str, str]]:
         return self._data['NSs']
 
     @property
