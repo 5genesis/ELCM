@@ -49,5 +49,5 @@ class SliceManager(RestClient):
         return response.data.decode('utf-8')
 
     def GetNsdInfo(self, nsd: str) -> Dict:
-        response = self.httpGet(f"{self.api_url}/api/nslist")  # TODO: update with new endpoint
-        return response.data.decode('utf-8')
+        response = self.httpGet(f"{self.api_url}/api/nslist?nsd-id={nsd} ")
+        return self.responseToJson(response)

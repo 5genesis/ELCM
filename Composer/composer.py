@@ -51,7 +51,6 @@ class Composer:
                     actions.append(
                         _messageAction("ERROR", f"Exception while obtaining information about network service {nsId}"))
 
-
         if descriptor.Type == ExperimentType.MONROE:
             actions.extend(cls.facility.GetMonroeActions())
         else:
