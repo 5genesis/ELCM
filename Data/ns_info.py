@@ -8,3 +8,6 @@ class NsInfo:
         self.Location = location
         self.SliceId: Optional[str] = None
         self.Requirements = Metal()
+
+    def __repr__(self):
+        return f'NS:{self.Id}@{self.Location} SliceId:{self.SliceId} Req:[{self.Requirements}]'

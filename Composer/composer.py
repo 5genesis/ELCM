@@ -49,7 +49,8 @@ class Composer:
                     configuration.NetworkServices.append(nsInfo)
                 except Exception as e:
                     actions.append(
-                        _messageAction("ERROR", f"Exception while obtaining information about network service {nsId}"))
+                        _messageAction("ERROR",
+                                       f"Exception while obtaining information about network service {nsId}: {e}"))
 
         if descriptor.Type == ExperimentType.MONROE:
             actions.extend(cls.facility.GetMonroeActions())
