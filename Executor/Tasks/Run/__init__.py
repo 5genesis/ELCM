@@ -5,3 +5,4 @@ from .cli_execute import CliExecute
 from .slice_creation_time import SliceCreationTime
 from .publish import Publish
 from .compress_files import CompressFiles
+from .delay import Delay
