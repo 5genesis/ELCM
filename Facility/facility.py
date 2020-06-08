@@ -261,7 +261,7 @@ class Facility:
                 return True
             else:
                 Log.E(f"Unable to lock resource '{resource.Name}'({resource.Id}) for run {owner.Id}, "
-                      f"locked by '{resource.Owner.ExperimentIdentifier}'({resource.Owner.Id})")
+                      f"locked by '{resource.Owner.Id}")
         else:
             Log.E(f"Resource id {id} not found")
         return False
@@ -272,7 +272,7 @@ class Facility:
         if resource is not None:
             if resource.Locked:
                 Log.I(f"Releasing '{resource.Name}'({resource.Id}) "
-                      f"(locked by '{resource.Owner.ExperimentIdentifier}'({resource.Owner.Id})))")
+                      f"(locked by '{resource.Owner.Id}'))")
                 resource.Owner = None
                 return True
             else:

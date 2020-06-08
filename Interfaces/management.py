@@ -16,6 +16,10 @@ class Management:
         return Facility.TryLockResources(localResources, owner)
 
     @classmethod
+    def ReleaseLocalResources(cls, localResources: List[str]):
+        Facility.ReleaseResources(localResources)
+
+    @classmethod
     def SliceManager(cls):
         if cls.sliceManager is None:
             settings = Config().SliceManager
@@ -44,5 +48,22 @@ class SliceManager(RestClient):
         return response.data.decode('utf-8')
 
     def GetNsdInfo(self, nsd: str) -> Dict:
-        response = self.httpGet(f"{self.api_url}/api/nslist?nsd-id={nsd} ")
-        return self.responseToJson(response)
+        # response = self.httpGet(f"{self.api_url}/api/nslist?nsd-id={nsd} ")
+        import json
+        return json.loads("""{
+            "_id": "d475bd25-1c19-4a8a-a017-e85c239f81e3",
+            "flavor": {
+                "instances": 2,
+                "memory-mb": 8192,
+                "storage-gb": 80,
+                "vcpu-count": 4
+            },
+            "nfvo_id": "OSM5",
+            "nsd-id": "f27602a7-173d-4ead-ac7e-79bfbdfdaf44",
+            "nsd-name": "5GCore_GW_nsd",
+            "vnfd_list": [
+                "5GCore_SGW_vnfd",
+                "5GCore_PGW_vnfd"
+            ]
+        }""")
+        # return self.responseToJson(response)

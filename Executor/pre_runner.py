@@ -1,5 +1,5 @@
 from typing import Dict
-from .Tasks.PreRun import CheckAvailable, Instantiate
+from .Tasks.PreRun import CheckResources, Instantiate
 from .executor_base import ExecutorBase
 from tempfile import TemporaryDirectory
 from time import sleep
@@ -15,12 +15,12 @@ class PreRunner(ExecutorBase):
         self.AddMessage("Configuration completed", 30)
         available = False
         while not available:
-            result = CheckAvailable(self.Log, self.Id, self.Configuration.Requirements,
+            result = CheckResources(self.Log, self.Id, self.Configuration.Requirements,
                                     self.Configuration.NetworkServices, self).Start()
             available = result['Available']
             if not available:
                 self.AddMessage('Not available')
-                sleep(1)
+                sleep(10)
 
         Instantiate(self.Log, self.TempFolder, self, self.Configuration.NetworkServices).Start()
         self.AddMessage('Instantiation completed', 80)

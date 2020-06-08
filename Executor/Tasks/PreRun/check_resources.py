@@ -3,13 +3,13 @@ from Helper import Level
 from Interfaces import Management
 
 
-class CheckAvailable(Task):
+class CheckResources(Task):
     def __init__(self, logMethod, id, requirements, networkServices, parent):
-        super().__init__("Check Availability", parent, {'Id': id, 'Available': False, 'Requirements': requirements,
-                          'NetworkServices': networkServices}, logMethod, None)
+        super().__init__("Check Resources", parent, {'Id': id, 'Available': False, 'Requirements': requirements,
+                                                     'NetworkServices': networkServices}, logMethod, None)
 
     def Run(self):
-        self.Log(Level.INFO, 'Requesting availability')
+        self.Log(Level.INFO, 'Trying to lock resources')
         localRequirements = self.params["Requirements"]
         networkServices = self.params["NetworkServices"]
 

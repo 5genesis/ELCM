@@ -1,2 +1,2 @@
-from .check_available import CheckAvailable
+from .check_resources import CheckResources
 from .instantiate import Instantiate
