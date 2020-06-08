@@ -4,10 +4,14 @@ from .action_information import ActionInformation
 from .dashboard_panel import DashboardPanel
 from .resource import Resource
 from Helper import Log, Level
-from typing import Dict, List, Union, Tuple, Callable, Optional
+from typing import Dict, List, Union, Tuple, Callable, Optional, Iterator
+from threading import Lock
+from Utils import synchronized
 
 
 class Facility:
+    lock = Lock()
+
     TESTCASE_FOLDER = abspath('TestCases')
     UE_FOLDER = abspath('UEs')
     RESOURCE_FOLDER = abspath('Resources')
@@ -220,26 +224,59 @@ class Facility:
         return cls.resources
 
     @classmethod
-    def LockResource(cls, id: str, owner: 'ExperimentRun'):
+    @synchronized(lock)
+    def TryLockResources(cls, ids: List[str], owner: 'ExperimentRun') -> bool:
+        resources: Iterator[Resource] = filter(None, [cls.resources.get(id, None) for id in ids])
+        lockedResources: List[str] = []
+        for resource in resources:
+            if resource.Locked: return False
+
+        for id in [resource.Id for resource in resources]:
+            success = cls.LockResource(id, owner)
+            if success:
+                lockedResources.append(id)
+            if not success:
+                cls._releaseResources(lockedResources)
+                return False
+
+        return True
+
+    @classmethod
+    @synchronized(lock)
+    def ReleaseResources(cls, ids: List[str]):
+        cls._releaseResources(ids)
+
+    @classmethod
+    def _releaseResources(cls, ids: List[str]):
+        for resource in ids:
+            cls.ReleaseResource(resource)
+
+    @classmethod
+    def LockResource(cls, id: str, owner: 'ExperimentRun') -> bool:
         resource = cls.resources.get(id, None)
         if resource is not None:
             if not resource.Locked:
                 resource.Owner = owner
                 Log.I(f"Resource '{resource.Name}'({resource.Id}) locked by {resource.Owner.Id}")
+                return True
             else:
                 Log.E(f"Unable to lock resource '{resource.Name}'({resource.Id}) for run {owner.Id}, "
                       f"locked by '{resource.Owner.ExperimentIdentifier}'({resource.Owner.Id})")
         else:
             Log.E(f"Resource id {id} not found")
+        return False
 
     @classmethod
-    def ReleaseResource(cls, id: str):
+    def ReleaseResource(cls, id: str) -> bool:
         resource = cls.resources.get(id, None)
         if resource is not None:
             if resource.Locked:
                 Log.I(f"Releasing '{resource.Name}'({resource.Id}) "
                       f"(locked by '{resource.Owner.ExperimentIdentifier}'({resource.Owner.Id})))")
                 resource.Owner = None
+                return True
             else:
                 Log.W(f"Tried to release resource {id} while idle")
-
+        else:
+            Log.E(f"Resource id {id} not found")
+        return False
