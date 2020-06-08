@@ -4,7 +4,7 @@ from .action_information import ActionInformation
 from .dashboard_panel import DashboardPanel
 from .resource import Resource
 from Helper import Log, Level
-from typing import Dict, List, Union, Tuple, Callable, Optional, Iterator
+from typing import Dict, List, Tuple, Callable, Optional
 from threading import Lock
 from Utils import synchronized
 
@@ -225,8 +225,8 @@ class Facility:
 
     @classmethod
     @synchronized(lock)
-    def TryLockResources(cls, ids: List[str], owner: 'ExperimentRun') -> bool:
-        resources: Iterator[Resource] = filter(None, [cls.resources.get(id, None) for id in ids])
+    def TryLockResources(cls, ids: List[str], owner: 'ExecutorBase') -> bool:
+        resources: List[Resource] = list(filter(None, [cls.resources.get(id, None) for id in ids]))
         lockedResources: List[str] = []
         for resource in resources:
             if resource.Locked: return False
@@ -252,7 +252,7 @@ class Facility:
             cls.ReleaseResource(resource)
 
     @classmethod
-    def LockResource(cls, id: str, owner: 'ExperimentRun') -> bool:
+    def LockResource(cls, id: str, owner: 'ExecutorBase') -> bool:
         resource = cls.resources.get(id, None)
         if resource is not None:
             if not resource.Locked:

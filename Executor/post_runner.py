@@ -1,5 +1,5 @@
 from typing import Dict
-from .Tasks.PostRun import RequestResults, SaveResults, UpdateExecutionEntry, Decommission
+from .Tasks.PostRun import Decommission
 from .executor_base import ExecutorBase
 from tempfile import TemporaryDirectory
 
@@ -13,12 +13,5 @@ class PostRunner(ExecutorBase):
 
         Decommission(self.Log, self, self.Configuration.NetworkServices).Start()
         self.AddMessage('Resources decommisioned', 10)
-
-        RequestResults(self.Log, self).Start()
-        self.AddMessage('Results received', 30)
-        SaveResults(self.Log, self).Start()
-        self.AddMessage('Results stored', 60)
-        UpdateExecutionEntry(self.Log, self).Start()
-        self.AddMessage('Entry updated', 90)
 
         self.SetFinished(percent=100)

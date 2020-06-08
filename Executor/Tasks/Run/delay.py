@@ -5,7 +5,7 @@ from time import sleep
 
 class Delay(Task):
     def __init__(self, logMethod, parent, params):
-        super().__init__("Message", parent, params, logMethod, None)
+        super().__init__("Delay", parent, params, logMethod, None)
 
     def Run(self):
         value = self.params.get('Time', 60)

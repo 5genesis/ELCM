@@ -1,0 +1,1 @@
+from .synchronized_decorator import synchronized

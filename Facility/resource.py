@@ -7,7 +7,7 @@ class Resource:
         self.Id = data["Id"]
         self.Name = data["Name"]
         self.Icon = data.get("Icon", "fa-cash-register")
-        self.Owner: Optional["ExperimentRun"] = None
+        self.Owner: Optional[ExperimentRun] = None
 
     @property
     def Locked(self):

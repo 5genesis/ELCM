@@ -1,24 +1,19 @@
 from random import randrange
 from REST import RestClient
 from Helper import Config
-from typing import Dict, Optional, Tuple
-from Data import Metal
+from typing import Dict, Optional, Tuple, List
+from Data import Metal, NsInfo
+from Facility import Facility
 
 
 class Management:
-    registry = {}
     sliceManager = None
 
     @classmethod
-    def HasResources(cls, executorId):
-        if executorId not in cls.registry.keys():
-            cls.registry[executorId] = randrange(0, 3)
-        if cls.registry[executorId] == 0:
-            cls.registry.pop(executorId)
-            return True
-        else:
-            cls.registry[executorId] -= 1
-            return False
+    def HasResources(cls, owner: 'ExecutorBase', localResources: List[str], networkServices: List[NsInfo]):
+        # TODO: handle NS first
+
+        return Facility.TryLockResources(localResources, owner)
 
     @classmethod
     def SliceManager(cls):
