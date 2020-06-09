@@ -14,7 +14,7 @@ class PostRunner(ExecutorBase):
         Decommission(self.Log, self, self.Configuration.NetworkServices).Start()
         self.AddMessage('Network services decommisioned', 50)
 
-        ReleaseResources(self.Log, self.Id, self.Configuration.Requirements, self).Start()
+        ReleaseResources(self.Log, self.ExecutionId, self.Configuration.Requirements, self).Start()
         self.AddMessage('Released resources', 90)
 
         self.SetFinished(percent=100)

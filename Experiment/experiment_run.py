@@ -22,7 +22,7 @@ class ExperimentRun:
     def __init__(self, id: int, params: Dict):
         self.Id = id
         self.Params = params
-        self.Params['Id'] = self.Id
+        self.Params['ExecutionId'] = self.Id
         self.Params['Configuration'] = Composer.Compose(self.Descriptor)
         self.TempFolder = TemporaryDirectory(dir=Config().TempFolder)
         self.PreRunner = PreRunner(self.Params, tempFolder=self.TempFolder)
@@ -43,6 +43,10 @@ class ExperimentRun:
 
     def __str__(self):
         return f'[ID: {self.Id} ({self.ExperimentIdentifier})]'
+
+    @property
+    def ExecutionId(self):
+        return self.Id
 
     @property
     def GeneratedFiles(self):

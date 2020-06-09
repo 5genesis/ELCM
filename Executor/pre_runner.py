@@ -15,7 +15,7 @@ class PreRunner(ExecutorBase):
         self.AddMessage("Configuration completed", 30)
         available = False
         while not available:
-            result = CheckResources(self.Log, self.Id, self.Configuration.Requirements,
+            result = CheckResources(self.Log, self.ExecutionId, self.Configuration.Requirements,
                                     self.Configuration.NetworkServices, self).Start()
             available = result['Available']
             if not available:

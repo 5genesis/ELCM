@@ -21,7 +21,7 @@ class ExecutorBase(Child):
         super().__init__(f"{name}{now.strftime('%y%m%d%H%M%S%f')}", tempFolder)
         self.Tag = name
         self.params = params
-        self.Id = params['Id']  # ExecutionId
+        self.ExecutionId: int = params['ExecutionId']
         self.Created = now
         self.Started = None
         self.Finished = None
@@ -53,7 +53,7 @@ class ExecutorBase(Child):
     def AddMessage(self, msg: str, percent: int = None):
         if percent is not None: self.PerCent = percent
         self.Messages.append(f'[{self.PerCent}%] {msg}')
-        self.dispatcher.UpdateExecutionData(self.Id, percent=self.PerCent, message=msg)
+        self.dispatcher.UpdateExecutionData(self.ExecutionId, percent=self.PerCent, message=msg)
 
     @property
     def LastMessage(self):
@@ -76,7 +76,7 @@ class ExecutorBase(Child):
 
     def Serialize(self) -> Dict:
         data = {
-            'Id': self.Id,
+            'ExecutionId': self.ExecutionId,
             'Name': self.name,
             'Tag': self.Tag,
             'Created': Serialize.DateToString(self.Created),
@@ -94,7 +94,7 @@ class ExecutorBase(Child):
 
     def Save(self):
         data = self.Serialize()
-        path = Serialize.Path(self.Tag, str(self.Id))
+        path = Serialize.Path(self.Tag, str(self.ExecutionId))
         Serialize.Save(data, path)
 
     @classmethod
@@ -102,7 +102,7 @@ class ExecutorBase(Child):
         path = Serialize.Path(tag, id)
         data = Serialize.Load(path)
         tag = data['Tag']
-        params = {'Id': int(id), 'Deserialized': True}
+        params = {'ExecutionId': int(id), 'Deserialized': True}
         if tag == 'PreRunner':
             from .pre_runner import PreRunner
             res = PreRunner(params)
@@ -113,7 +113,8 @@ class ExecutorBase(Child):
             from .post_runner import PostRunner
             res = PostRunner(params)
 
-        res.Id, res.Name, res.LogFile, res.Tag = Serialize.Unroll(data, 'Id', 'Name', 'Log', 'Tag')
+        res.ExecutionId = data.get('ExecutionId', data['Id'])  # For compatibility with older serialization
+        res.Name, res.LogFile, res.Tag = Serialize.Unroll(data, 'Name', 'Log', 'Tag')
         res.hasStarted, res.hasFinished = Serialize.Unroll(data, 'HasStarted', 'HasFinished')
         res.Messages, res.PerCent, res.GeneratedFiles = Serialize.Unroll(data, 'Messages', 'PerCent', "GeneratedFiles")
         res.Created = Serialize.StringToDate(data['Created'])

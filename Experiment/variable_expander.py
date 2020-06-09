@@ -33,7 +33,7 @@ class Expander:
         replacements = {
             # Dynamic values
             "@{TempFolder}": context.TempFolder,
-            "@{ExecutionId}": context.Id,
+            "@{ExecutionId}": context.ExecutionId,
             "@{SliceId}": context.Params.get("SliceId", "None"),
             "@{Application}": context.Descriptor.Application,
             "@{JSONParameters}": dumps(context.Descriptor.Parameters, indent=None),

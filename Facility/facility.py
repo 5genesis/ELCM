@@ -227,18 +227,18 @@ class Facility:
     @classmethod
     @synchronized(lock)
     def TryLockResources(cls, ids: List[str], owner: 'ExecutorBase') -> bool:
-        executor = owner.Id
+        executor = owner.ExecutionId
         resources: List[Resource] = list(filter(None, [cls.resources.get(id, None) for id in ids]))
         resourceIds = [resource.Id for resource in resources]
         lockedResources: List[str] = []
 
-        if owner.Id not in cls.requesters.keys():
+        if owner.ExecutionId not in cls.requesters.keys():
             cls.requesters[executor] = resourceIds
 
         # Check if some of the required resources are already locked
         for resource in resources:
             if resource.Locked:
-                Log.D(f"Resources denied to {executor}: {resource.Id} already locked by {resource.Owner.Id}")
+                Log.D(f"Resources denied to {executor}: {resource.Id} already locked by {resource.Owner.ExecutionId}")
                 return False
 
         # Check if some earlier experiment is requesting the same resources
@@ -264,7 +264,7 @@ class Facility:
     @classmethod
     @synchronized(lock)
     def ReleaseResources(cls, ids: List[str], owner: 'ExecutorBase'):
-        _ = cls.requesters.pop(owner.Id, None)
+        _ = cls.requesters.pop(owner.ExecutionId, None)
         cls._releaseResources(ids)
 
     @classmethod
@@ -278,11 +278,11 @@ class Facility:
         if resource is not None:
             if not resource.Locked:
                 resource.Owner = owner
-                Log.I(f"Resource '{resource.Name}'({resource.Id}) locked by {resource.Owner.Id}")
+                Log.I(f"Resource '{resource.Name}'({resource.Id}) locked by {resource.Owner.ExecutionId}")
                 return True
             else:
-                Log.E(f"Unable to lock resource '{resource.Name}'({resource.Id}) for run {owner.Id}, "
-                      f"locked by '{resource.Owner.Id}")
+                Log.E(f"Unable to lock resource '{resource.Name}'({resource.Id}) for run {owner.ExecutionId}, "
+                      f"locked by '{resource.Owner.ExecutionId}")
         else:
             Log.E(f"Resource id {id} not found")
         return False
@@ -293,7 +293,7 @@ class Facility:
         if resource is not None:
             if resource.Locked:
                 Log.I(f"Releasing '{resource.Name}'({resource.Id}) "
-                      f"(locked by '{resource.Owner.Id}'))")
+                      f"(locked by '{resource.Owner.ExecutionId}'))")
                 resource.Owner = None
                 return True
             else:
