@@ -16,8 +16,8 @@ class Management:
         return Facility.TryLockResources(localResources, owner)
 
     @classmethod
-    def ReleaseLocalResources(cls, localResources: List[str]):
-        Facility.ReleaseResources(localResources)
+    def ReleaseLocalResources(cls, owner: 'ExecutorBase', localResources: List[str]):
+        Facility.ReleaseResources(localResources, owner)
 
     @classmethod
     def SliceManager(cls):

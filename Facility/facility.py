@@ -11,6 +11,7 @@ from Utils import synchronized
 
 class Facility:
     lock = Lock()
+    requesters: Dict[str, List[str]] = {}
 
     TESTCASE_FOLDER = abspath('TestCases')
     UE_FOLDER = abspath('UEs')
@@ -226,16 +227,35 @@ class Facility:
     @classmethod
     @synchronized(lock)
     def TryLockResources(cls, ids: List[str], owner: 'ExecutorBase') -> bool:
+        executor = owner.Id
         resources: List[Resource] = list(filter(None, [cls.resources.get(id, None) for id in ids]))
+        resourceIds = [resource.Id for resource in resources]
         lockedResources: List[str] = []
-        for resource in resources:
-            if resource.Locked: return False
 
-        for id in [resource.Id for resource in resources]:
+        if owner.Id not in cls.requesters.keys():
+            cls.requesters[executor] = resourceIds
+
+        # Check if some of the required resources are already locked
+        for resource in resources:
+            if resource.Locked:
+                Log.D(f"Resources denied to {executor}: {resource.Id} already locked by {resource.Owner.Id}")
+                return False
+
+        # Check if some earlier experiment is requesting the same resources
+        for key, values in cls.requesters.items():
+            if key < executor:  # Check only older executors
+                intersect = list(set(values) & set(resourceIds))
+                if len(intersect) != 0:
+                    Log.D(f"Resources denied to {executor} due to conflict with {key} ({intersect})")
+                    return False
+
+        # Try to lock all the required resources
+        for id in resourceIds:
             success = cls.LockResource(id, owner)
             if success:
                 lockedResources.append(id)
             if not success:
+                Log.W(f"Could not lock resource '{id}'. Rolling back.")
                 cls._releaseResources(lockedResources)
                 return False
 
@@ -243,7 +263,8 @@ class Facility:
 
     @classmethod
     @synchronized(lock)
-    def ReleaseResources(cls, ids: List[str]):
+    def ReleaseResources(cls, ids: List[str], owner: 'ExecutorBase'):
+        _ = cls.requesters.pop(owner.Id, None)
         cls._releaseResources(ids)
 
     @classmethod

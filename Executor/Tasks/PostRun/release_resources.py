@@ -13,4 +13,4 @@ class ReleaseResources(Task):
         localRequirements = self.params["Requirements"]
 
         self.Log(Level.DEBUG, f'Local Requirements: {localRequirements}')
-        Management.ReleaseLocalResources(localRequirements)
+        Management.ReleaseLocalResources(self.parent, localRequirements)

@@ -21,7 +21,7 @@ class ExecutorBase(Child):
         super().__init__(f"{name}{now.strftime('%y%m%d%H%M%S%f')}", tempFolder)
         self.Tag = name
         self.params = params
-        self.Id = params['Id']
+        self.Id = params['Id']  # ExecutionId
         self.Created = now
         self.Started = None
         self.Finished = None

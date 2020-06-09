@@ -48,7 +48,7 @@ class ExecutionQueue:
     def UpdateAll(cls):
         executions = cls.Retrieve()
         Log.D(f"UpdateAll: {(', '.join(str(e) for e in executions))}")
-        for execution in executions:
+        for execution in reversed(executions):  # Reversed to give priority to older executions (for resources)
             Log.D(f"Update Execution: {execution.Id}")
             if execution.Active:
                 pre = execution.CoarseStatus
