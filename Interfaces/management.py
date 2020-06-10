@@ -2,7 +2,7 @@ from random import randrange
 from REST import RestClient
 from Helper import Config
 from typing import Dict, Optional, Tuple, List
-from Data import Metal, NsInfo
+from Data import Metal, MetalUsage, NsInfo
 from Facility import Facility
 
 
@@ -32,23 +32,23 @@ class SliceManager(RestClient):
         super().__init__(host, port, "/api")
 
     def CreateSlice(self, nsd: str) -> str:
-        response = self.httpPost(f"{self.api_url}/slice", {"Content-Type": "application/json"}, nsd)
+        response = self.HttpPost(f"{self.api_url}/slice", {"Content-Type": "application/json"}, nsd)
         return response.data.decode('utf-8')
 
     def CheckSlice(self, slice: str) -> Dict:
-        response = self.httpGet(f"{self.api_url}/slice/{slice}", {"Accept": "application/json"})
-        return self.responseToJson(response)
+        response = self.HttpGet(f"{self.api_url}/slice/{slice}", {"Accept": "application/json"})
+        return self.ResponseToJson(response)
 
     def SliceCreationTime(self, slice: str) -> Dict:
-        response = self.httpGet(f"{self.api_url}/slice/{slice}/time", {"Accept": "application/json"})
-        return self.responseToJson(response)
+        response = self.HttpGet(f"{self.api_url}/slice/{slice}/time", {"Accept": "application/json"})
+        return self.ResponseToJson(response)
 
     def DeleteSlice(self, slice: str) -> str:
-        response = self.httpDelete(f"{self.api_url}/slice/{slice}")
+        response = self.HttpDelete(f"{self.api_url}/slice/{slice}")
         return response.data.decode('utf-8')
 
     def GetNsdInfo(self, nsd: str) -> Dict:
-        # response = self.httpGet(f"{self.api_url}/api/nslist?nsd-id={nsd} ")
+        # response = self.HttpGet(f"{self.api_url}/api/nslist?nsd-id={nsd} ")
         import json
         return json.loads("""{
             "_id": "d475bd25-1c19-4a8a-a017-e85c239f81e3",
@@ -66,4 +66,4 @@ class SliceManager(RestClient):
                 "5GCore_PGW_vnfd"
             ]
         }""")
-        # return self.responseToJson(response)
+        # return self.ResponseToJson(response)

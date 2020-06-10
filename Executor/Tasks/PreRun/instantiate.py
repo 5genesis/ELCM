@@ -2,7 +2,6 @@ from Task import Task
 from Helper import Level, Config
 from Data import NsInfo
 from typing import List
-from Interfaces import Management, PortalApi
 
 
 class Instantiate(Task):

@@ -6,16 +6,16 @@ from datetime import datetime, timezone
 from Helper import Serialize
 from .status import Status
 from tempfile import TemporaryDirectory
-from Interfaces import DispatcherApi
+from Interfaces import PortalApi
 
 
 class ExecutorBase(Child):
-    dispatcher: DispatcherApi = None
+    portal: PortalApi = None
 
     def __init__(self, params: Dict, name: str, tempFolder: TemporaryDirectory = None):
-        if self.dispatcher is None:
+        if self.portal is None:
             config = Config()
-            self.dispatcher = DispatcherApi(config.Dispatcher.Host, config.Dispatcher.Port)
+            self.portal = PortalApi(config.Dispatcher.Host, config.Dispatcher.Port)
 
         now = datetime.now(timezone.utc)
         super().__init__(f"{name}{now.strftime('%y%m%d%H%M%S%f')}", tempFolder)

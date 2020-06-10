@@ -5,7 +5,7 @@ from enum import Enum, unique
 from datetime import datetime, timezone
 from tempfile import TemporaryDirectory
 from Helper import Config, Serialize, Log
-from Interfaces import DispatcherApi
+from Interfaces import PortalApi
 from Composer import Composer, PlatformConfiguration
 from os.path import join, abspath
 
@@ -16,7 +16,7 @@ class CoarseStatus(Enum):
 
 
 class ExperimentRun:
-    dispatcher: DispatcherApi = None
+    portal: PortalApi = None
     grafana = None
 
     def __init__(self, id: int, params: Dict):
@@ -36,7 +36,7 @@ class ExperimentRun:
         if ExperimentRun.dispatcher is None or ExperimentRun.grafana is None:
             from Helper import DashboardGenerator  # Delayed to avoid cyclic imports
             config = Config()
-            ExperimentRun.dispatcher = DispatcherApi(config.Dispatcher.Host, config.Dispatcher.Port)
+            ExperimentRun.dispatcher = PortalApi(config.Dispatcher.Host, config.Dispatcher.Port)
             ExperimentRun.grafana = DashboardGenerator(config.Grafana.Enabled, config.Grafana.Host,
                                                        config.Grafana.Port, config.Grafana.Bearer,
                                                        config.Grafana.ReportGenerator)
@@ -66,7 +66,7 @@ class ExperimentRun:
     def CoarseStatus(self, value: CoarseStatus):
         if value != self._coarseStatus:
             self._coarseStatus = value
-            ExperimentRun.dispatcher.UpdateExecutionData(self.Id, status=value.name)
+            ExperimentRun.portal.UpdateExecutionData(self.Id, status=value.name)
 
     @property
     def DashboardUrl(self):
@@ -76,7 +76,7 @@ class ExperimentRun:
     def DashboardUrl(self, value: str):
         if value != self._dashboardUrl:
             self._dashboardUrl = value
-            ExperimentRun.dispatcher.UpdateExecutionData(self.Id, dashboardUrl=value)
+            ExperimentRun.portal.UpdateExecutionData(self.Id, dashboardUrl=value)
 
     @property
     def Status(self) -> str:

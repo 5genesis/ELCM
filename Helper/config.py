@@ -152,6 +152,11 @@ class Dispatcher(restApi):
         super().__init__(data, 'Dispatcher', {})
 
 
+class Portal(restApi):
+    def __init__(self, data: Dict):
+        super().__init__(data, 'Portal', {})
+
+
 class SliceManager(restApi):
     def __init__(self, data: Dict):
         super().__init__(data, 'SliceManager', {})
@@ -273,6 +278,10 @@ class Config:
     @property
     def Dispatcher(self):
         return Dispatcher(Config.data.get('Dispatcher', {}))
+
+    @property
+    def Portal(self):
+        return Dispatcher(Config.data.get('Portal', {}))
 
     @property
     def TempFolder(self):

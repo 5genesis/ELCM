@@ -7,6 +7,9 @@ Logging:
 Dispatcher:
   Host: '127.0.0.1'
   Port: 5001
+Portal:
+  Host: '127.0.0.1'
+  Port: 5000
 SliceManager:
   Host: '192.168.32.136'
   Port: 8000
