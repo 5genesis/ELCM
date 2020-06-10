@@ -33,10 +33,10 @@ class ExperimentRun:
         self.Cancelled = False
         self.Created = datetime.now(timezone.utc)
 
-        if ExperimentRun.dispatcher is None or ExperimentRun.grafana is None:
+        if ExperimentRun.portal is None or ExperimentRun.grafana is None:
             from Helper import DashboardGenerator  # Delayed to avoid cyclic imports
             config = Config()
-            ExperimentRun.dispatcher = PortalApi(config.Dispatcher.Host, config.Dispatcher.Port)
+            ExperimentRun.portal = PortalApi(config.Dispatcher.Host, config.Dispatcher.Port)
             ExperimentRun.grafana = DashboardGenerator(config.Grafana.Enabled, config.Grafana.Host,
                                                        config.Grafana.Port, config.Grafana.Bearer,
                                                        config.Grafana.ReportGenerator)
@@ -51,8 +51,9 @@ class ExperimentRun:
     @property
     def GeneratedFiles(self):
         return list(filter(None,
-                      [self.PreRunner.LogFile, self.Executor.LogFile, self.PostRunner.LogFile,
-                       *self.PreRunner.GeneratedFiles, *self.Executor.GeneratedFiles, *self.PostRunner.GeneratedFiles]))
+                           [self.PreRunner.LogFile, self.Executor.LogFile, self.PostRunner.LogFile,
+                            *self.PreRunner.GeneratedFiles, *self.Executor.GeneratedFiles,
+                            *self.PostRunner.GeneratedFiles]))
 
     @property
     def ExperimentIdentifier(self):
@@ -189,10 +190,13 @@ class ExperimentRun:
             generated = AutoGraph.GeneratePanels(self.Configuration.DashboardPanels, self.Executor.RetrieveLogInfo())
             self.Configuration.DashboardPanels.extend(generated)
 
-            Log.D(f"Trying to generate dashboard for execution {self.Id}")
-            self.Configuration.ExpandDashboardPanels(self)
-            url = ExperimentRun.grafana.Create(self)
-            self.DashboardUrl = url
+            if self.Executor.Started is not None:
+                Log.D(f"Trying to generate dashboard for execution {self.Id}")
+                self.Configuration.ExpandDashboardPanels(self)
+                url = ExperimentRun.grafana.Create(self)
+                self.DashboardUrl = url
+            else:
+                Log.D(f"Execution {self.Id} aborted during Pre-Run, skipping dashboard generation")
         except Exception as e:
             Log.E(f"Exception while handling execution end ({self.Id}): {e}")
         finally:

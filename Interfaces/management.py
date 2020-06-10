@@ -1,6 +1,6 @@
 from random import randrange
 from REST import RestClient
-from Helper import Config
+from Helper import Config, Log
 from typing import Dict, Optional, Tuple, List
 from Data import Metal, MetalUsage, NsInfo
 from Facility import Facility
@@ -10,8 +10,13 @@ class Management:
     sliceManager = None
 
     @classmethod
-    def HasResources(cls, owner: 'ExecutorBase', localResources: List[str], networkServices: List[NsInfo]):
-        # TODO: handle NS first
+    def HasResources(cls, owner: 'ExecutorBase', localResources: List[str], networkServices: List[NsInfo]) -> bool:
+        if len(networkServices) != 0:
+            try:
+                vimResources = cls.SliceManager().GetVimResources()
+            except Exception as e:
+                Log.E(f"Exception while retrieving VIM resources: {e}")
+                return False
 
         return Facility.TryLockResources(localResources, owner)
 
@@ -46,6 +51,25 @@ class SliceManager(RestClient):
     def DeleteSlice(self, slice: str) -> str:
         response = self.HttpDelete(f"{self.api_url}/slice/{slice}")
         return response.data.decode('utf-8')
+
+    def GetVimResources(self) -> Dict[str, MetalUsage]:
+        response = self.HttpGet(f"{self.api_url}/api/resources")
+        status = self.ResponseStatusCode(response)
+        res = {}
+        if status == 200:
+            data = self.ResponseToJson(response)
+            try:
+                for vim in data["VIMs"]:
+                    name = vim["name"]
+                    total = vim["max_resources"]
+                    current = vim["available_resources"]
+                    metal = MetalUsage(cpu=current['CPUs'], ram=current['RAM'], disk=current['Disk'],
+                                       totalCpu=total['CPUs'], totalRam=total['RAM'], totalDisk=total['Disk'])
+                    res[name] = metal
+            except Exception as e:
+                Log.E(f"Exception while retrieving VIM resources: {e}")
+                Log.D(f"Payload: {data}")
+        return res
 
     def GetNsdInfo(self, nsd: str) -> Dict:
         # response = self.HttpGet(f"{self.api_url}/api/nslist?nsd-id={nsd} ")

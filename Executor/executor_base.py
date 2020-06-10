@@ -53,7 +53,7 @@ class ExecutorBase(Child):
     def AddMessage(self, msg: str, percent: int = None):
         if percent is not None: self.PerCent = percent
         self.Messages.append(f'[{self.PerCent}%] {msg}')
-        self.dispatcher.UpdateExecutionData(self.ExecutionId, percent=self.PerCent, message=msg)
+        self.portal.UpdateExecutionData(self.ExecutionId, percent=self.PerCent, message=msg)
 
     @property
     def LastMessage(self):
