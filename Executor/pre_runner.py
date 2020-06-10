@@ -3,6 +3,7 @@ from .Tasks.PreRun import CheckResources, Instantiate
 from .executor_base import ExecutorBase
 from tempfile import TemporaryDirectory
 from time import sleep
+from Helper import Level
 
 
 class PreRunner(ExecutorBase):
@@ -18,6 +19,12 @@ class PreRunner(ExecutorBase):
             result = CheckResources(self.Log, self.ExecutionId, self.Configuration.Requirements,
                                     self.Configuration.NetworkServices, self).Start()
             available = result['Available']
+            feasible = result['Feasible']
+            if not feasible:
+                self.AddMessage('Instantiation impossible. Aborting')
+                self.Log(Level.CRITICAL,
+                         'Unable to continue. Not enough total resources on VIMs for network services deployment')
+                raise RuntimeError("Not enough VIM resources for experiment.")
             if not available:
                 self.AddMessage('Not available')
                 sleep(10)

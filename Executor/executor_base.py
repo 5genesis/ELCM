@@ -113,7 +113,7 @@ class ExecutorBase(Child):
             from .post_runner import PostRunner
             res = PostRunner(params)
 
-        res.ExecutionId = data.get('ExecutionId', data['Id'])  # For compatibility with older serialization
+        res.ExecutionId = data.get('ExecutionId', data.get('Id'))  # For compatibility with older serialization
         res.Name, res.LogFile, res.Tag = Serialize.Unroll(data, 'Name', 'Log', 'Tag')
         res.hasStarted, res.hasFinished = Serialize.Unroll(data, 'HasStarted', 'HasFinished')
         res.Messages, res.PerCent, res.GeneratedFiles = Serialize.Unroll(data, 'Messages', 'PerCent', "GeneratedFiles")
