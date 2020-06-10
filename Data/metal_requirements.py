@@ -4,8 +4,11 @@ class Metal:
         self.Ram = ram
         self.Disk = disk
 
-    def __str__(self):
+    def __repr__(self):
         return f"C:{self.Cpu} R:{self.Ram} S:{self.Disk}"
+
+    def __add__(self, other):
+        return Metal(self.Cpu+other.Cpu, self.Ram+other.Ram, self.Disk+other.Disk)
 
 
 class MetalUsage(Metal):

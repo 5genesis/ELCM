@@ -10,15 +10,43 @@ class Management:
     sliceManager = None
 
     @classmethod
-    def HasResources(cls, owner: 'ExecutorBase', localResources: List[str], networkServices: List[NsInfo]) -> bool:
+    def HasResources(cls, owner: 'ExecutorBase',
+                     localResources: List[str], networkServices: List[NsInfo]) -> Tuple[bool, bool]:
+        """Returns [<available>, <feasible>].
+            - Available indicates that the required local resources are locked and can be used, and there are
+            enough on all VIMs to fit the network services.
+            - A feasible value of False indicates that the network services can never fit on the VIMs due to
+            their total resoutces.
+            """
+
         if len(networkServices) != 0:
             try:
                 vimResources = cls.SliceManager().GetVimResources()
             except Exception as e:
                 Log.E(f"Exception while retrieving VIM resources: {e}")
-                return False
+                return False, True
 
-        return Facility.TryLockResources(localResources, owner)
+            totalRequired: Dict[str, Metal] = {}
+            for ns in networkServices:
+                vim = ns.Location
+                if vim not in totalRequired.keys():
+                    totalRequired[vim] = Metal(0, 0, 0)
+                totalRequired[vim] += ns.Requirements
+            Log.D(f"Total requirements from each VIM: {totalRequired}")
+
+            for vim, required in totalRequired.items():
+                if vim not in vimResources.keys():
+                    Log.E(f"Unknown VIM {vim}. Execution unfeasible.")
+                    return False, False
+                current = vimResources[vim]
+                if (required.Cpu > current.TotalCpu or
+                        required.Ram > current.TotalRam or required.Disk > current.TotalDisk):
+                    Log.E(f"Insufficient resources on {vim}. Execution unfeasible ({required} > {current})")
+                    return False, False
+                if required.Cpu > current.Cpu or required.Ram > current.Ram or required.Disk > current.Disk:
+                    return False, True  # Execution possible, but not enough resources at the moment
+
+        return Facility.TryLockResources(localResources, owner), True
 
     @classmethod
     def ReleaseLocalResources(cls, owner: 'ExecutorBase', localResources: List[str]):
