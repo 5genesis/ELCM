@@ -97,25 +97,20 @@ class SliceManager(RestClient):
             except Exception as e:
                 Log.E(f"Exception while retrieving VIM resources: {e}")
                 Log.D(f"Payload: {data}")
-        return res
+        return {'Edge': MetalUsage(4, 4, 8192, 8192, 80, 80)}
 
-    def GetNsdInfo(self, nsd: str) -> Dict:
-        # response = self.HttpGet(f"{self.api_url}/api/nslist?nsd-id={nsd} ")
-        import json
-        return json.loads("""{
-            "_id": "d475bd25-1c19-4a8a-a017-e85c239f81e3",
-            "flavor": {
-                "instances": 2,
-                "memory-mb": 8192,
-                "storage-gb": 80,
-                "vcpu-count": 4
-            },
-            "nfvo_id": "OSM5",
-            "nsd-id": "f27602a7-173d-4ead-ac7e-79bfbdfdaf44",
-            "nsd-name": "5GCore_GW_nsd",
-            "vnfd_list": [
-                "5GCore_SGW_vnfd",
-                "5GCore_PGW_vnfd"
-            ]
-        }""")
-        # return self.ResponseToJson(response)
+    def GetNsdInfo(self, nsd: str = None) -> Dict:
+        url = f"{self.api_url}/api/nslist" + "" if nsd is None else f"?nsd-id={nsd}"
+        response = self.HttpGet(url)
+        return self.ResponseToJson(response)
+
+    def GetNsdRequirements(self, nsd: str) -> Optional[Metal]:
+        try:
+            data = self.GetNsdInfo(nsd)
+            if isinstance(data, list):
+                data = data[0]
+            flavor = data["flavor"]
+            return Metal(cpu=flavor["vcpu-count"], ram=flavor["memory-mb"], disk=flavor["storage-gb"])
+        except Exception as e:
+            Log.E(f"Exception while retrieving NSD information: {e}")
+            return None

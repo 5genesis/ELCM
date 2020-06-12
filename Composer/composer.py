@@ -41,11 +41,10 @@ class Composer:
                 nsId, location = ns
                 try:
                     nsInfo = NsInfo(nsId, location)
-                    flavor = sliceManager.GetNsdInfo(nsId)["flavor"]
-                    nsInfo.Requirements = Metal(cpu=flavor["vcpu-count"],
-                                                ram=flavor["memory-mb"],
-                                                disk=flavor["storage-gb"])
-
+                    requirements = sliceManager.GetNsdRequirements(nsId)
+                    if requirements is None:
+                        raise RuntimeError("Could not retrieve NSD information")
+                    nsInfo.Requirements = requirements
                     configuration.NetworkServices.append(nsInfo)
                 except Exception as e:
                     actions.append(
