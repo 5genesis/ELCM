@@ -114,6 +114,10 @@ class ExperimentRun:
         return self.Params.get('Descriptor', None)
 
     @property
+    def JsonDescriptor(self) -> Dict:
+        return self.Descriptor.Json
+
+    @property
     def Configuration(self) -> Optional[PlatformConfiguration]:
         return self.Params.get('Configuration', None)
 
@@ -209,6 +213,7 @@ class ExperimentRun:
             'Created': Serialize.DateToString(self.Created),
             'CoarseStatus': self.CoarseStatus.name,
             'Cancelled': self.Cancelled,
+            'JsonDescriptor': self.Descriptor
         }
         return data
 

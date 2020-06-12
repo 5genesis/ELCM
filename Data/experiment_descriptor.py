@@ -51,6 +51,10 @@ class ExperimentDescriptor:
         return Serialize.CheckKeys(data, *keys)
 
     @property
+    def Json(self) -> Dict:
+        return self._data
+
+    @property
     def Version(self) -> str:
         return self._data['Version']
 
