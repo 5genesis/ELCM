@@ -4,10 +4,15 @@ from .action_information import ActionInformation
 from .dashboard_panel import DashboardPanel
 from .resource import Resource
 from Helper import Log, Level
-from typing import Dict, List, Union, Tuple, Callable, Optional
+from typing import Dict, List, Tuple, Callable, Optional
+from threading import Lock
+from Utils import synchronized
 
 
 class Facility:
+    lock = Lock()
+    requesters: Dict[str, List[str]] = {}
+
     TESTCASE_FOLDER = abspath('TestCases')
     UE_FOLDER = abspath('UEs')
     RESOURCE_FOLDER = abspath('Resources')
@@ -220,26 +225,79 @@ class Facility:
         return cls.resources
 
     @classmethod
-    def LockResource(cls, id: str, owner: 'ExperimentRun'):
+    @synchronized(lock)
+    def TryLockResources(cls, ids: List[str], owner: 'ExecutorBase') -> bool:
+        executor = owner.ExecutionId
+        resources: List[Resource] = list(filter(None, [cls.resources.get(id, None) for id in ids]))
+        resourceIds = [resource.Id for resource in resources]
+        lockedResources: List[str] = []
+
+        if owner.ExecutionId not in cls.requesters.keys():
+            cls.requesters[executor] = resourceIds
+
+        # Check if some of the required resources are already locked
+        for resource in resources:
+            if resource.Locked:
+                Log.D(f"Resources denied to {executor}: {resource.Id} already locked by {resource.Owner.ExecutionId}")
+                return False
+
+        # Check if some earlier experiment is requesting the same resources
+        for key, values in cls.requesters.items():
+            if key < executor:  # Check only older executors
+                intersect = list(set(values) & set(resourceIds))
+                if len(intersect) != 0:
+                    Log.D(f"Resources denied to {executor} due to conflict with {key} ({intersect})")
+                    return False
+
+        # Try to lock all the required resources
+        for id in resourceIds:
+            success = cls.LockResource(id, owner)
+            if success:
+                lockedResources.append(id)
+            if not success:
+                Log.W(f"Could not lock resource '{id}'. Rolling back.")
+                cls._releaseResources(lockedResources)
+                return False
+
+        return True
+
+    @classmethod
+    @synchronized(lock)
+    def ReleaseResources(cls, ids: List[str], owner: 'ExecutorBase'):
+        _ = cls.requesters.pop(owner.ExecutionId, None)
+        cls._releaseResources(ids)
+
+    @classmethod
+    def _releaseResources(cls, ids: List[str]):
+        for resource in ids:
+            cls.ReleaseResource(resource)
+
+    @classmethod
+    def LockResource(cls, id: str, owner: 'ExecutorBase') -> bool:
         resource = cls.resources.get(id, None)
         if resource is not None:
             if not resource.Locked:
                 resource.Owner = owner
-                Log.I(f"Resource '{resource.Name}'({resource.Id}) locked by {resource.Owner.Id}")
+                Log.I(f"Resource '{resource.Name}'({resource.Id}) locked by {resource.Owner.ExecutionId}")
+                return True
             else:
-                Log.E(f"Unable to lock resource '{resource.Name}'({resource.Id}) for run {owner.Id}, "
-                      f"locked by '{resource.Owner.ExperimentIdentifier}'({resource.Owner.Id})")
+                Log.E(f"Unable to lock resource '{resource.Name}'({resource.Id}) for run {owner.ExecutionId}, "
+                      f"locked by '{resource.Owner.ExecutionId}")
         else:
             Log.E(f"Resource id {id} not found")
+        return False
 
     @classmethod
-    def ReleaseResource(cls, id: str):
+    def ReleaseResource(cls, id: str) -> bool:
         resource = cls.resources.get(id, None)
         if resource is not None:
             if resource.Locked:
                 Log.I(f"Releasing '{resource.Name}'({resource.Id}) "
-                      f"(locked by '{resource.Owner.ExperimentIdentifier}'({resource.Owner.Id})))")
+                      f"(locked by '{resource.Owner.ExecutionId}'))")
                 resource.Owner = None
+                return True
             else:
                 Log.W(f"Tried to release resource {id} while idle")
-
+        else:
+            Log.E(f"Resource id {id} not found")
+        return False

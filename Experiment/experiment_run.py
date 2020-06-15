@@ -5,7 +5,7 @@ from enum import Enum, unique
 from datetime import datetime, timezone
 from tempfile import TemporaryDirectory
 from Helper import Config, Serialize, Log
-from Interfaces import DispatcherApi
+from Interfaces import PortalApi
 from Composer import Composer, PlatformConfiguration
 from os.path import join, abspath
 
@@ -16,13 +16,13 @@ class CoarseStatus(Enum):
 
 
 class ExperimentRun:
-    dispatcher: DispatcherApi = None
+    portal: PortalApi = None
     grafana = None
 
     def __init__(self, id: int, params: Dict):
         self.Id = id
         self.Params = params
-        self.Params['Id'] = self.Id
+        self.Params['ExecutionId'] = self.Id
         self.Params['Configuration'] = Composer.Compose(self.Descriptor)
         self.TempFolder = TemporaryDirectory(dir=Config().TempFolder)
         self.PreRunner = PreRunner(self.Params, tempFolder=self.TempFolder)
@@ -33,10 +33,10 @@ class ExperimentRun:
         self.Cancelled = False
         self.Created = datetime.now(timezone.utc)
 
-        if ExperimentRun.dispatcher is None or ExperimentRun.grafana is None:
+        if ExperimentRun.portal is None or ExperimentRun.grafana is None:
             from Helper import DashboardGenerator  # Delayed to avoid cyclic imports
             config = Config()
-            ExperimentRun.dispatcher = DispatcherApi(config.Dispatcher.Host, config.Dispatcher.Port)
+            ExperimentRun.portal = PortalApi(config.Dispatcher.Host, config.Dispatcher.Port)
             ExperimentRun.grafana = DashboardGenerator(config.Grafana.Enabled, config.Grafana.Host,
                                                        config.Grafana.Port, config.Grafana.Bearer,
                                                        config.Grafana.ReportGenerator)
@@ -45,10 +45,15 @@ class ExperimentRun:
         return f'[ID: {self.Id} ({self.ExperimentIdentifier})]'
 
     @property
+    def ExecutionId(self):
+        return self.Id
+
+    @property
     def GeneratedFiles(self):
         return list(filter(None,
-                      [self.PreRunner.LogFile, self.Executor.LogFile, self.PostRunner.LogFile,
-                       *self.PreRunner.GeneratedFiles, *self.Executor.GeneratedFiles, *self.PostRunner.GeneratedFiles]))
+                           [self.PreRunner.LogFile, self.Executor.LogFile, self.PostRunner.LogFile,
+                            *self.PreRunner.GeneratedFiles, *self.Executor.GeneratedFiles,
+                            *self.PostRunner.GeneratedFiles]))
 
     @property
     def ExperimentIdentifier(self):
@@ -62,7 +67,7 @@ class ExperimentRun:
     def CoarseStatus(self, value: CoarseStatus):
         if value != self._coarseStatus:
             self._coarseStatus = value
-            ExperimentRun.dispatcher.UpdateExecutionData(self.Id, status=value.name)
+            ExperimentRun.portal.UpdateExecutionData(self.Id, status=value.name)
 
     @property
     def DashboardUrl(self):
@@ -72,7 +77,7 @@ class ExperimentRun:
     def DashboardUrl(self, value: str):
         if value != self._dashboardUrl:
             self._dashboardUrl = value
-            ExperimentRun.dispatcher.UpdateExecutionData(self.Id, dashboardUrl=value)
+            ExperimentRun.portal.UpdateExecutionData(self.Id, dashboardUrl=value)
 
     @property
     def Status(self) -> str:
@@ -107,6 +112,10 @@ class ExperimentRun:
     @property
     def Descriptor(self) -> Optional[ExperimentDescriptor]:
         return self.Params.get('Descriptor', None)
+
+    @property
+    def JsonDescriptor(self) -> Dict:
+        return self.Descriptor.Json
 
     @property
     def Configuration(self) -> Optional[PlatformConfiguration]:
@@ -185,10 +194,13 @@ class ExperimentRun:
             generated = AutoGraph.GeneratePanels(self.Configuration.DashboardPanels, self.Executor.RetrieveLogInfo())
             self.Configuration.DashboardPanels.extend(generated)
 
-            Log.D(f"Trying to generate dashboard for execution {self.Id}")
-            self.Configuration.ExpandDashboardPanels(self)
-            url = ExperimentRun.grafana.Create(self)
-            self.DashboardUrl = url
+            if self.Executor.Started is not None:
+                Log.D(f"Trying to generate dashboard for execution {self.Id}")
+                self.Configuration.ExpandDashboardPanels(self)
+                url = ExperimentRun.grafana.Create(self)
+                self.DashboardUrl = url
+            else:
+                Log.D(f"Execution {self.Id} aborted during Pre-Run, skipping dashboard generation")
         except Exception as e:
             Log.E(f"Exception while handling execution end ({self.Id}): {e}")
         finally:
@@ -201,6 +213,7 @@ class ExperimentRun:
             'Created': Serialize.DateToString(self.Created),
             'CoarseStatus': self.CoarseStatus.name,
             'Cancelled': self.Cancelled,
+            'JsonDescriptor': self.Descriptor
         }
         return data
 

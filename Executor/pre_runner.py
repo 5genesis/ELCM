@@ -1,8 +1,9 @@
 from typing import Dict
-from .Tasks.PreRun import CheckAvailable, AddExecutionEntry, Instantiate
+from .Tasks.PreRun import CheckResources, Instantiate
 from .executor_base import ExecutorBase
 from tempfile import TemporaryDirectory
 from time import sleep
+from Helper import Level
 
 
 class PreRunner(ExecutorBase):
@@ -15,19 +16,20 @@ class PreRunner(ExecutorBase):
         self.AddMessage("Configuration completed", 30)
         available = False
         while not available:
-            result = CheckAvailable(self.Log, self.Id, self.Configuration.Requirements, self).Start()
+            result = CheckResources(self.Log, self.ExecutionId, self.Configuration.Requirements,
+                                    self.Configuration.NetworkServices, self).Start()
             available = result['Available']
+            feasible = result['Feasible']
+            if not feasible:
+                self.AddMessage('Instantiation impossible. Aborting')
+                self.Log(Level.CRITICAL,
+                         'Unable to continue. Not enough total resources on VIMs for network services deployment')
+                raise RuntimeError("Not enough VIM resources for experiment.")
             if not available:
                 self.AddMessage('Not available')
-                sleep(1)
+                sleep(10)
 
-        self.AddMessage('Resources granted', 50)
-        AddExecutionEntry(self, self.Log).Start()
-        self.AddMessage('Execution registered', 50)
-
-        result = Instantiate(self.Log, self.TempFolder, self, self.Configuration.PreRunParams).Start()
-        self.Configuration.PostRunParams["SliceIds"] = result["SliceIds"]
-        self.params["SliceIds"] = result["SliceIds"]  # TODO: Improve inter-executor communication
-
+        Instantiate(self.Log, self.TempFolder, self, self.Configuration.NetworkServices).Start()
         self.AddMessage('Instantiation completed', 80)
+
         self.SetFinished(percent=100)

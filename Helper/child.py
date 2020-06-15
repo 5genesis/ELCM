@@ -44,7 +44,7 @@ class Child:
                 self.Run()
             except Exception as e:
                 self.hasFailed = True
-                self.Log(Level.ERROR, f'Exception while running ({self.name}): {e}]')
+                self.Log(Level.ERROR, f'[Exception while running ({self.name}): {e}]')
                 trace = Log.GetTraceback()
                 for line in trace:
                     self.Log(Level.DEBUG, line.strip())

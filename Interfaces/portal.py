@@ -1,20 +1,33 @@
 from REST import RestClient
-from typing import Optional
-from Helper import Log
+import json
+from threading import Thread
+from typing import Optional, Union
 
 
 class PortalApi(RestClient):
     def __init__(self, host, port):
-        super().__init__(host, port, '')
+        super().__init__(host, port, '/api')
 
-    def DownloadNsd(self, experimentId: int, outputFolder: str) -> Optional[str]:
-        url = f"{self.api_url}/experiment/{experimentId}/nsdFile"
-        try:
-            file = self.DownloadFile(url, outputFolder)
-        except KeyError:
-            Log.D(f"Experiment Id {experimentId} does not have NSD file")
-            return None
-        except Exception as e:
-            Log.E(f"Exception while retrieving NSD file (Experiment {experimentId}): {e}")
-            return None
-        return file
+    def UpdateExecutionData(self, executionId: int,
+                            status: Optional[str] = None, dashboardUrl: Optional[str] = None,
+                            percent: Optional[int] = None, message: Optional[str] = None):
+
+        Thread(target=self.updateAsync,
+               args=(executionId, status, dashboardUrl, percent, message)).start()
+
+    def updateAsync(self, executionId: int,
+                    status: Optional[str], dashboardUrl: Optional[str],
+                    percent: Optional[int], message: Optional[str]):
+
+        def _maybeAdd(key: str, value: Union[str, int]):
+            if value is not None: payload[key] = value
+
+        url = f'{self.api_url}/execution/{executionId}'
+        payload = {}
+
+        _maybeAdd('Status', status)
+        _maybeAdd('Dashboard', dashboardUrl)
+        _maybeAdd('PerCent', percent)
+        _maybeAdd('Message', message)
+
+        self.HttpPatch(url, {'Content-Type': 'application/json'}, json.dumps(payload))

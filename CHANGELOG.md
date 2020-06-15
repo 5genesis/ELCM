@@ -1,3 +1,10 @@
+**15/06/2020** [Version 2.2.0]
+
+ - 'Delay' task
+ - Local resources handling
+ - Network service resources handling
+ - Experiment descriptor retrieval endpoint
+
 **13/05/2020** [Version 2.1.0]
 
  - Updated experiment descriptor

@@ -51,6 +51,10 @@ class ExperimentDescriptor:
         return Serialize.CheckKeys(data, *keys)
 
     @property
+    def Json(self) -> Dict:
+        return self._data
+
+    @property
     def Version(self) -> str:
         return self._data['Version']
 
@@ -67,7 +71,7 @@ class ExperimentDescriptor:
         return self._data['Slice']
 
     @property
-    def NetworkServices(self) -> List[str]:
+    def NetworkServices(self) -> List[Tuple[str, str]]:
         return self._data['NSs']
 
     @property

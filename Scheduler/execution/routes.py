@@ -94,6 +94,16 @@ def results(executionId: int):
         return f"Execution {executionId} not found", 404
 
 
+@bp.route('<int:executionId>/descriptor')
+def descriptor(executionId: int):
+    execution = executionOrTombstone(executionId)
+
+    if execution is not None:
+        return jsonify(execution.JsonDescriptor)
+    else:
+        return f"Execution {executionId} not found", 404
+
+
 @bp.route('nextExecutionId')
 def nextExecutionId():
     return jsonify({'NextId': Status.PeekNextId()})

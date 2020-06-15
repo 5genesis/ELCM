@@ -1,22 +1,29 @@
-import json
 import re
-from os.path import realpath, join
-from time import time
+import json
+from typing import Dict
 from urllib3 import connection_from_url
+from requests import post
+from os.path import realpath, join
 
 
 class RestClient:
     HEADERS = {'Accept-Language': 'en-US;q=0.5,en;q=0.3'}
     RETRIES = 10
-    FILENAME_PATTERN = re.compile(r".*filename=(.*)")
+    FILENAME_PATTERN = re.compile(r".*filename=\"(.*)\"")
 
-    def __init__(self, api_host, api_port, suffix):
-        self.api_url = f'http://{api_host}:{api_port}{suffix}'
-        self.pool = connection_from_url(self.api_url, maxsize=1, headers=self.HEADERS)
+    def __init__(self, api_host, api_port, suffix, https=False, insecure=False):
+        self.api_url = f'http{"s" if https else ""}://{api_host}:{api_port}{suffix}'
+
+        kw = {'maxsize': 1, 'headers': self.HEADERS}
+        if https and insecure:
+           kw['cert_reqs'] = 'CERT_NONE'
+
+        self.pool = connection_from_url(self.api_url, **kw)
+        self.insecure = insecure
 
     def DownloadFile(self, url, output_folder):
-        response = self.httpGet(url)
-        filename = f'{time()}_{self.getFilename(response.headers["Content-Disposition"])}'
+        response = self.HttpGet(url)
+        filename = self.GetFilename(response.headers["Content-Disposition"])
         output_file = realpath(join(output_folder, filename))
 
         with open(output_file, 'wb+') as out:
@@ -25,32 +32,59 @@ class RestClient:
         response.release_conn()
         return output_file
 
-    def getFilename(self, content_disposition):
+    def GetFilename(self, content_disposition):
         result = self.FILENAME_PATTERN.match(content_disposition)
         if result is not None:
-            filename = result.group(1)
-            if filename.startswith("\"") and filename.endswith("\""):
-                filename = filename[1:-1]
-            return filename
+            return result.group(1)
         return "unknown_filename"
 
-    def httpGet(self, url, extra_headers = None):
+    def HttpGet(self, url, extra_headers=None):
         extra_headers = {} if extra_headers is None else extra_headers
-        return self.pool.request('GET', url, headers=extra_headers, retries=self.RETRIES)
+        return self.pool.request('GET',
+                                 url,
+                                 headers=extra_headers,
+                                 retries=self.RETRIES)
 
-    def httpPost(self, url, extra_headers=None, body=''):
+    def HttpPost(self, url, extra_headers=None, body='', files=None):
         extra_headers = {} if extra_headers is None else extra_headers
-        return self.pool.request('POST', url, body=body,
-                                 headers={**self.HEADERS, **extra_headers}, retries=self.RETRIES)
+        if files is None:
+            return self.pool.request('POST',
+                                     url,
+                                     body=body,
+                                     headers={**self.HEADERS, **extra_headers},
+                                     retries=self.RETRIES)
+        else:
+            url = f"{self.api_url}{url}"
+            return post(url, data=body, headers={**self.HEADERS, **extra_headers},
+                        files=files, verify=not self.insecure)
 
-    def httpPatch(self, url, extra_headers=None, body=''):
+    def HttpPatch(self, url, extra_headers=None, body=''):
         extra_headers = {} if extra_headers is None else extra_headers
-        return self.pool.request('PATCH', url, body=body,
-                                 headers={**self.HEADERS, **extra_headers}, retries=self.RETRIES)
+        return self.pool.request('PATCH',
+                                 url,
+                                 body=body,
+                                 headers={**self.HEADERS, **extra_headers},
+                                 retries=self.RETRIES)
 
-    def httpDelete(self, url):
-        return self.pool.request('DELETE', url, retries=self.RETRIES)
+    def HttpDelete(self, url, extra_headers=None):
+        extra_headers = {} if extra_headers is None else extra_headers
+        return self.pool.request('DELETE', url, headers={**self.HEADERS, **extra_headers}, retries=self.RETRIES)
 
     @staticmethod
-    def responseToJson(response):
-        return json.loads(response.data.decode('utf-8'))
+    def ResponseStatusCode(response) -> int:
+        try:
+            return response.status
+        except AttributeError:
+            return response.status_code
+
+    @staticmethod
+    def ResponseToJson(response) -> Dict:
+        try:
+            raw = response.data if hasattr(response, 'data') else response.content
+        except Exception as e:
+            raise RuntimeError("Could not extract raw data from response")
+
+        try:
+            return json.loads(raw.decode('utf-8'))
+        except Exception as e:
+            raise RuntimeError(f'JSON parse exception: {e}. data={response.data}')

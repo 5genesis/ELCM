@@ -151,6 +151,7 @@ every UE to the Tasks list. The following is an example of a yaml file that conf
 TestUE:
     - Order: 1
       Task: Run.Dummy
+      Requirements: [UE1]
       Config:
         Message: This is a dummy entity initialization
     - Order: 10
@@ -160,9 +161,10 @@ TestUE:
 ```` 
 
 The name of the UE will be extracted from the initial key on the dictionary (not the name of the file). This key contains
-a list of every action to perform, described by the relative `Order` in which to run, the `Task` to perform (which 
-correspond to the different Tasks defined in the `Executor.Tasks` package) and a `Config` dictionary, which is 
-different for every task.
+a list of every action to perform, described by the relative `Order` in which to run, the `Task` to perform (which
+correspond to the different Tasks defined in the `Executor.Tasks` package) and `Config` dictionary, which is different
+for every task and optionally a list of `Requirements`. These requirements corresponds to the resources defined for the
+facility. (See "Facility resources" below).
 
 > More information about the composition process can be found in section 3.2 of Deliverable D3.15, please note that
 > this example uses the old `facility.yml` file, but the behavior is the same.
@@ -216,6 +218,22 @@ that corresponds to the TestCase. The following values can be set for each panel
 - [Mandatory] `Gauge`: True to display as a gauge, false to display as numeric value
 - [Optional]  `MaxValue`: Max expected value of the gauge, 100 if not set
 - [Optional]  `MinValue`: Min expected value of the gauge, 0 if not set
+
+### Facility resources
+
+It is possible to define a set of available local resources. These resources can be specified as requirements for the
+execution of each kind of task inside a test case.
+
+Resources are defined by including a YAML file in the `Resources`. The contents of these files are as follows:
+- `Id`: Resource ID. This Id must be unique to the facility and will be used to identify the resource on the test cases.
+- `Name`: Name of the resource (visible on the ELCM dashboard).
+- `Icon`: Resource icon (visible on the ELCM dashboard). Uses Font Awesome (only free icons)
+[(Available icons)](https://fontawesome.com/icons?d=gallery&m=free), defaults to `fa-cash-register`.
+
+Required resources are configured per task. When an experiment execution is received, the ELCM will generate a list of
+all the required resources. When an experiment starts, all these resources will be *locked* and the execution of other
+experiments with common requirements will be blocked until the running experiment finishes and their resources are
+released.
 
 ### Dashboard auto-generation (Autograph)
 
@@ -296,6 +314,10 @@ Generates a Zip file that contains all the specified files. Configuration values
 - `Folders`: List of folders to search files from. All the files contained within
 these folders and their sub-folders will be added to the Zip file
 - `Output`: Name of the Zip file to generate. 
+
+#### Run.Delay
+Adds a configurable time wait to an experiment execution. Has a single configuration value:
+- `Time`: Time to wait in seconds.
 
 #### Run.Dummy
 Dummy action, will only display the values on the `Config` dictionary on the log

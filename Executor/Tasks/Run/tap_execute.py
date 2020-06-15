@@ -24,7 +24,7 @@ class TapExecute(Task):
 
             if gatherResults:
                 self.Log(Level.INFO, "Collecting generated CSV files...")
-                path = join(config.Results, str(self.parent.Id))
+                path = join(config.Results, str(self.parent.ExecutionId))
                 if exists(path):
                     self.Log(Level.DEBUG, f"Searching on path {path}")
                     try:

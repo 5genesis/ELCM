@@ -1,5 +1,6 @@
 from typing import Dict, List, ClassVar
 from Facility import DashboardPanel
+from Data import NsInfo
 
 
 class TaskDefinition:
@@ -16,6 +17,7 @@ class PlatformConfiguration:
         self.RunTasks: List[TaskDefinition] = []
         self.DashboardPanels: List[DashboardPanel] = []
         self.Requirements: List[str] = []
+        self.NetworkServices: List[NsInfo] = []
 
     def ExpandDashboardPanels(self, experimentRun):
         from Experiment import Expander
