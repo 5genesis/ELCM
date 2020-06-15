@@ -68,9 +68,9 @@ class SliceManager(RestClient):
         response = self.HttpPost(f"{self.api_url}/slice", {"Content-Type": "application/json"}, nsd)
         return response.data.decode('utf-8')
 
-    def CheckSlice(self, slice: str) -> Dict:
+    def CheckSlice(self, slice: str) -> Optional[Dict]:
         response = self.HttpGet(f"{self.api_url}/slice/{slice}", {"Accept": "application/json"})
-        return self.ResponseToJson(response)
+        return None if self.ResponseStatusCode(response) == 404 else self.ResponseToJson(response)
 
     def SliceCreationTime(self, slice: str) -> Dict:
         response = self.HttpGet(f"{self.api_url}/slice/{slice}/time", {"Accept": "application/json"})
