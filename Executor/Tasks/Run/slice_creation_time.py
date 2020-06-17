@@ -3,6 +3,7 @@ from Interfaces import Management
 from Helper import Level
 from time import sleep
 from datetime import datetime, timezone
+from os.path import join
 import json
 
 
@@ -10,14 +11,14 @@ class SliceCreationTime(Task):
     """Based on slice_creation_time: https://github.com/medianetlab/katana-slice_manager
     (https://github.com/medianetlab/katana-slice_manager/blob/master/slice_creation_time/sct/sct)"""
 
-    def __init__(self, logMethod, params):
-        super().__init__("Slice Creation Time Measurement", params, logMethod, None)
+    def __init__(self, logMethod, parent, params):
+        super().__init__("Slice Creation Time Measurement", parent, params, logMethod, None)
 
     def Run(self):
         executionId = self.params.get('ExecutionId', None)
         nestFile = self.params.get("NEST", None)
         iterations = self.params.get("Iterations", 25)
-        csvFile = self.params.get("CSV", None)  # TODO: Handle CSVs using added functionality in Rel B
+        csvFile = self.params.get("CSV", None)
         timeout = self.params.get("Timeout", None)
         pollTime = 5
 
@@ -45,7 +46,7 @@ class SliceCreationTime(Task):
         for iteration in range(iterations):
             self.Log(Level.INFO, f"Instantiating NEST file (iteration {iteration})")
             try:
-                sliceId = sliceManager.Create(nestData)
+                sliceId = sliceManager.CreateSlice(nestData)
             except Exception as e:
                 self.Log(Level.ERROR, f"Exception on instantiation, skipping iteration: {e}")
                 sleep(pollTime)
@@ -59,7 +60,7 @@ class SliceCreationTime(Task):
                 sliceInfo = {}
                 status = '<SliceManager check error>'
                 try:
-                    sliceInfo = sliceManager.Check(sliceId)
+                    sliceInfo = sliceManager.CheckSlice(sliceId)
                     status = sliceInfo['status']
                     self.Log(Level.DEBUG, f"Status: {status}")
                 except Exception as e:
@@ -94,12 +95,12 @@ class SliceCreationTime(Task):
 
             try:
                 self.Log(Level.INFO, "Deleting slice.")
-                sliceManager.Delete(sliceId)
+                sliceManager.DeleteSlice(sliceId)
                 totalWait = 0
                 while True:
                     sleep(pollTime)
                     totalWait += pollTime
-                    info = sliceManager.Check(sliceId)
+                    info = sliceManager.CheckSlice(sliceId)
                     if info is None:
                         self.Log(Level.INFO, f"Slice correctly deleted.")
                         break
@@ -111,9 +112,19 @@ class SliceCreationTime(Task):
             except Exception as e:
                 self.Log(Level.ERROR, f"Exception while deleting slice: {e}")
 
-        if csvFile is not None:
-            self.Log(Level.INFO, f"Writing result to CSV file: {csvFile}")  # TODO
-
         self.Log(Level.DEBUG, f"Payload: {payload}")
         self.Log(Level.INFO, f"Sending results to InfluxDb")
-        InfluxDb.Send(payload)
+        try:
+            InfluxDb.Send(payload)
+        except Exception as e:
+            self.Log(Level.ERROR, f"Exception while sending payload: {e}")
+            if csvFile is None:
+                self.Log(Level.INFO, "Forcing creation of CSV file")
+                csvFile = join(self.parent.TempFolder, f"SliceCreationTime.csv")
+
+        if csvFile is not None:
+            self.Log(Level.INFO, f"Writing result to CSV file: {csvFile}")
+            InfluxDb.PayloadToCsv(payload, csvFile)
+            self.parent.GeneratedFiles.append(csvFile)
+
+

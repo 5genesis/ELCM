@@ -2,6 +2,8 @@ from influxdb import InfluxDBClient
 from .config import Config
 from typing import Dict, List
 from datetime import datetime
+from csv import DictWriter
+from os.path import abspath
 import re
 
 
@@ -67,4 +69,22 @@ class InfluxDb:
 
         payload.Tags.update(cls.baseTags)
         cls.client.write_points(payload.Serialized)
+
+    @classmethod
+    def PayloadToCsv(cls, payload: InfluxPayload, outputFile: str):
+        allKeys = {'Timestamp'}
+        for point in payload.Points:
+            allKeys.update(point.Fields.keys())
+        allKeys = sorted(list(allKeys))
+        allKeys.extend(sorted(payload.Tags.keys()))
+
+        # https://stackoverflow.com/a/3348664 (newline)
+        with open(abspath(outputFile), 'w', encoding='utf-8', newline='') as output:
+            csv = DictWriter(output, fieldnames=allKeys, restval='')
+            csv.writeheader()
+            for point in payload.Points:
+                data = {'Timestamp': point.Time}
+                data.update(point.Fields)
+                data.update(payload.Tags)
+                csv.writerow(data)
 
