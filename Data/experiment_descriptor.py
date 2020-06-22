@@ -63,7 +63,7 @@ class ExperimentDescriptor:
         return self._data['TestCases']
 
     @property
-    def UEs(self) -> Dict[str, Dict]:
+    def UEs(self) -> List[str]:
         return self._data['UEs']
 
     @property
@@ -80,7 +80,7 @@ class ExperimentDescriptor:
 
     @property
     def Scenario(self) -> str:
-        return self._data['ExclusiveExecution']
+        return self._data['Scenario']
 
     @property
     def Automated(self) -> bool:
