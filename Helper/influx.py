@@ -1,8 +1,8 @@
 from influxdb import InfluxDBClient
 from .config import Config
-from typing import Dict, List
-from datetime import datetime
-from csv import DictWriter
+from typing import Dict, List, Union
+from datetime import datetime, timezone
+from csv import DictWriter, DictReader, Sniffer
 from os.path import abspath
 import re
 
@@ -63,6 +63,12 @@ class InfluxDb:
         }
 
     @classmethod
+    def BaseTags(cls) -> Dict[str, object]:
+        if cls.client is None:
+            cls.initialize()
+        return cls.baseTags
+
+    @classmethod
     def Send(cls, payload: InfluxPayload):
         if cls.client is None:
             cls.initialize()
@@ -72,7 +78,7 @@ class InfluxDb:
 
     @classmethod
     def PayloadToCsv(cls, payload: InfluxPayload, outputFile: str):
-        allKeys = {'Timestamp'}
+        allKeys = {'Datetime', 'Timestamp'}
         for point in payload.Points:
             allKeys.update(point.Fields.keys())
         allKeys = sorted(list(allKeys))
@@ -83,8 +89,55 @@ class InfluxDb:
             csv = DictWriter(output, fieldnames=allKeys, restval='')
             csv.writeheader()
             for point in payload.Points:
-                data = {'Timestamp': point.Time}
+                data = {'Datetime': point.Time, 'Timestamp': point.Time.timestamp()}
                 data.update(point.Fields)
                 data.update(payload.Tags)
                 csv.writerow(data)
 
+    @classmethod
+    def CsvToPayload(cls, measurement: str, csvFile: str, delimiter: str, timestampKey: str,
+                     tryConvert: bool = True, keysToRemove: List[str] = None) -> InfluxPayload:
+        def _convert(value: str) -> Union[int, float, bool, str]:
+            try: return int(value)
+            except ValueError: pass
+
+            try: return float(value)
+            except ValueError: pass
+
+            return {'true': True, 'false': False}.get(value.lower(), value)
+
+        keysToRemove = [] if keysToRemove is None else keysToRemove
+
+        if cls.client is None:
+            cls.initialize()
+
+        with open(csvFile, 'r', encoding='utf-8', newline='') as file:
+            sniffer = Sniffer()
+            if not sniffer.has_header(file.read(1024)):
+                raise RuntimeError("CSV file does not seem to contain a header")
+            file.seek(0)
+            dialect = sniffer.sniff(file.read(1024), delimiters=delimiter)
+            file.seek(0)
+
+            header = file.readline()
+            keys = [k.strip() for k in header.split(delimiter)]
+
+            if timestampKey not in keys:
+                raise RuntimeError(f"CSV file does not seem to contain timestamp ('{timestampKey}') values. "
+                                   f"Keys in file: {keys}")
+
+            csv = DictReader(file, fieldnames=keys, restval=None, dialect=dialect)
+            payload = InfluxPayload(measurement)
+
+            for row in csv:
+                timestamp = datetime.fromtimestamp(float(row.pop(timestampKey)), tz=timezone.utc)
+                point = InfluxPoint(timestamp)
+                for key, value in row.items():
+                    if key in keysToRemove:
+                        continue
+                    if tryConvert:
+                        value = _convert(value)
+                    point.Fields[key] = value
+                payload.Points.append(point)
+
+            return payload

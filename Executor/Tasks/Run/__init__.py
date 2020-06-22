@@ -7,3 +7,4 @@ from .single_slice_creation_time import SingleSliceCreationTime
 from .publish import Publish
 from .compress_files import CompressFiles
 from .delay import Delay
+from .csvToInflux import CsvToInflux
