@@ -68,9 +68,9 @@ class SliceManager(RestClient):
         response = self.HttpPost(f"{self.api_url}/slice", {"Content-Type": "application/json"}, nsd)
         return response.data.decode('utf-8')
 
-    def CheckSlice(self, slice: str) -> Dict:
+    def CheckSlice(self, slice: str) -> Optional[Dict]:
         response = self.HttpGet(f"{self.api_url}/slice/{slice}", {"Accept": "application/json"})
-        return self.ResponseToJson(response)
+        return None if self.ResponseStatusCode(response) == 404 else self.ResponseToJson(response)
 
     def SliceCreationTime(self, slice: str) -> Dict:
         response = self.HttpGet(f"{self.api_url}/slice/{slice}/time", {"Accept": "application/json"})
@@ -81,7 +81,7 @@ class SliceManager(RestClient):
         return response.data.decode('utf-8')
 
     def GetVimResources(self) -> Dict[str, MetalUsage]:
-        response = self.HttpGet(f"{self.api_url}/api/resources")
+        response = self.HttpGet(f"{self.api_url}/resources")
         status = self.ResponseStatusCode(response)
         res = {}
         if status == 200:
@@ -100,8 +100,8 @@ class SliceManager(RestClient):
         return {'Edge': MetalUsage(4, 4, 8192, 8192, 80, 80)}
 
     def GetNsdInfo(self, nsd: str = None) -> Dict:
-        url = f"{self.api_url}/api/nslist" + "" if nsd is None else f"?nsd-id={nsd}"
-        response = self.HttpGet(url)
+        url = f"{self.api_url}/nslist{('' if nsd is None else f'?nsd-id={nsd}')}"
+        response = self.HttpGet(url, {"Accept": "application/json"})
         return self.ResponseToJson(response)
 
     def GetNsdRequirements(self, nsd: str) -> Optional[Metal]:

@@ -14,11 +14,11 @@ class Composer:
     @classmethod
     def Compose(cls, descriptor: ExperimentDescriptor) -> PlatformConfiguration:
         def _messageAction(severity: str, message: str) -> ActionInformation:
-            message = ActionInformation()
-            message.TaskName = "Run.Message"
-            message.Order = -9999
-            message.Config = {'Severity': severity, 'Message': message}
-            return message
+            action = ActionInformation()
+            action.TaskName = "Run.Message"
+            action.Order = -9999
+            action.Config = {'Severity': severity, 'Message': message}
+            return action
 
         def _messageTask(severity: str, message: str) -> TaskDefinition:
             task = TaskDefinition()
