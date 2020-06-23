@@ -1,7 +1,8 @@
-**xx/yy/2020** [Version 2.3.0]
+**23/06/2020** [Version 2.3.0]
 
- - Added new SliceCreationTime task supporting iterative deployment of slices using a NEST file.
+ - Added SliceCreationTime task supporting iterative deployment of slices using a NEST file.
  - Renamed original SliceCreationTime task to SingleSliceCreationTime.
+ - Added CsvToInflux task.
 
 **15/06/2020** [Version 2.2.0]
 

@@ -316,6 +316,18 @@ Generates a Zip file that contains all the specified files. Configuration values
 these folders and their sub-folders will be added to the Zip file
 - `Output`: Name of the Zip file to generate. 
 
+#### Run.CsvToInflux
+Uploads the contents of a CSV file to InfluxDb. The file must contain a header row that specifies the names of each
+column, and must contain a column that specifies the timestamp value of the row as a POSIX timestamp (seconds from the
+epoch as float, and UTC timezone). Configuration values:
+- `ExecutionId`: Id of the execution (can be dinamically expanded from `@{ExecutionId}`)
+- `CSV`: Path of the CSV file to upload
+- `Measurement`: Measurement (table) where the results will be saved
+- `Delimiter`: CSV separator, defaults to `','`.
+- `Timestamp`: Name of the column that contains the row timestamp, defaults to `"Timestamp"`.
+- `Convert`: If True, try to convert the values to a suitable format (int, float, bool, str). Only 'True' and 'False'
+with any capitalization are converted to bool. If False, send all values as string. Defaults to True.
+
 #### Run.Delay
 Adds a configurable time wait to an experiment execution. Has a single configuration value:
 - `Time`: Time to wait in seconds.
@@ -365,6 +377,9 @@ slice to be deployed. Configuration values:
 - `Iterations`: Number of iterations. Defaults to 25
 - `Timeout`: Timeout in (aprox) seconds to wait until the slice is running or deleted before skipping the iteration.
 If not specified or set to None the task will continue indefinitelly.
+- `CSV`: If set, save the generated results to a CSV file in the specified path. In case of error while sending the
+results to InfluxDb a CSV file will be forcibly created on `"@{TempFolder}/SliceCreationTime.csv"` (only if not set,
+otherwise the file will be created as configured).
 
 #### Run.TapExecute
 Executes a TAP TestPlan, with the possibility of configuring external parameters. Configuration values:
