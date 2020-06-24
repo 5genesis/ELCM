@@ -12,12 +12,13 @@ class CheckResources(Task):
         self.Log(Level.INFO, 'Trying to lock resources')
         localRequirements = self.params["Requirements"]
         networkServices = self.params["NetworkServices"]
+        exclusive = self.parent.Descriptor.Exclusive
 
         self.Log(Level.DEBUG, f'Local Requirements: {localRequirements}')
         if len(networkServices) != 0:
             self.Log(Level.DEBUG, f'NS Requirements: {networkServices}')
 
-        available, feasible = Management.HasResources(self.parent, localRequirements, networkServices)
+        available, feasible = Management.HasResources(self.parent, localRequirements, networkServices, exclusive)
         self.params['Available'] = available
         self.params['Feasible'] = feasible
         self.Log(Level.INFO, f'Resources {"not" if not available else ""} available')

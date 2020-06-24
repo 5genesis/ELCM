@@ -1,4 +1,3 @@
-from random import randrange
 from REST import RestClient
 from Helper import Config, Log
 from typing import Dict, Optional, Tuple, List
@@ -10,8 +9,8 @@ class Management:
     sliceManager = None
 
     @classmethod
-    def HasResources(cls, owner: 'ExecutorBase',
-                     localResources: List[str], networkServices: List[NsInfo]) -> Tuple[bool, bool]:
+    def HasResources(cls, owner: 'ExecutorBase', localResources: List[str],
+                     networkServices: List[NsInfo], exclusive: bool) -> Tuple[bool, bool]:
         """Returns [<available>, <feasible>].
             - Available indicates that the required local resources are locked and can be used, and there are
             enough on all VIMs to fit the network services.
@@ -46,7 +45,7 @@ class Management:
                 if required.Cpu > current.Cpu or required.Ram > current.Ram or required.Disk > current.Disk:
                     return False, True  # Execution possible, but not enough resources at the moment
 
-        return Facility.TryLockResources(localResources, owner), True
+        return Facility.TryLockResources(localResources, owner, exclusive), True
 
     @classmethod
     def ReleaseLocalResources(cls, owner: 'ExecutorBase', localResources: List[str]):
