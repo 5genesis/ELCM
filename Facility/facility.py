@@ -12,6 +12,8 @@ from Utils import synchronized
 class Facility:
     lock = Lock()
     requesters: Dict[str, List[str]] = {}
+    activeExperiments = 0
+    activeExclusive: Optional[int] = None
 
     TESTCASE_FOLDER = abspath('TestCases')
     UE_FOLDER = abspath('UEs')
@@ -226,7 +228,7 @@ class Facility:
 
     @classmethod
     @synchronized(lock)
-    def TryLockResources(cls, ids: List[str], owner: 'ExecutorBase') -> bool:
+    def TryLockResources(cls, ids: List[str], owner: 'ExecutorBase', exclusive: bool) -> bool:
         executor = owner.ExecutionId
         resources: List[Resource] = list(filter(None, [cls.resources.get(id, None) for id in ids]))
         resourceIds = [resource.Id for resource in resources]
@@ -234,6 +236,16 @@ class Facility:
 
         if owner.ExecutionId not in cls.requesters.keys():
             cls.requesters[executor] = resourceIds
+
+        # For exclusive experiments check if something else is running
+        if exclusive and cls.activeExperiments != 0:
+            Log.D(f"Resources denied to {executor}: Requests exclusive execution ({cls.activeExperiments} active)")
+            return False
+
+        # For non exclusive experiments check if an exclusive experiment is running
+        if not exclusive and cls.activeExclusive is not None:
+            Log.D(f"Resources denied to {executor}: Exclusive execution {cls.activeExclusive} in progress")
+            return False
 
         # Check if some of the required resources are already locked
         for resource in resources:
@@ -259,13 +271,22 @@ class Facility:
                 cls._releaseResources(lockedResources)
                 return False
 
+        if exclusive:
+            cls.activeExclusive = owner.ExecutionId
+        cls.activeExperiments += 1
+
         return True
 
     @classmethod
     @synchronized(lock)
     def ReleaseResources(cls, ids: List[str], owner: 'ExecutorBase'):
-        _ = cls.requesters.pop(owner.ExecutionId, None)
+        execution = owner.ExecutionId
+        _ = cls.requesters.pop(execution, None)
         cls._releaseResources(ids)
+
+        if execution == cls.activeExclusive:
+            cls.activeExclusive = None
+        cls.activeExperiments -= 1
 
     @classmethod
     def _releaseResources(cls, ids: List[str]):

@@ -1,3 +1,7 @@
+**26/06/2020** [Version 2.3.1]
+
+ - Exclusive execution and non-automated experiments
+
 **23/06/2020** [Version 2.3.0]
 
  - Added SliceCreationTime task supporting iterative deployment of slices using a NEST file.

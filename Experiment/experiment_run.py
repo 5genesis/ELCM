@@ -213,7 +213,7 @@ class ExperimentRun:
             'Created': Serialize.DateToString(self.Created),
             'CoarseStatus': self.CoarseStatus.name,
             'Cancelled': self.Cancelled,
-            'JsonDescriptor': self.Descriptor
+            'JsonDescriptor': self.Descriptor.Json
         }
         return data
 

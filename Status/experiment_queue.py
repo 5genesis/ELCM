@@ -50,11 +50,14 @@ class ExecutionQueue:
         Log.D(f"UpdateAll: {(', '.join(str(e) for e in executions))}")
         for execution in reversed(executions):  # Reversed to give priority to older executions (for resources)
             Log.D(f"Update Execution: {execution.Id}")
-            if execution.Active:
-                pre = execution.CoarseStatus
-                Log.I(f'Advancing Execution {execution.Id}')
-                execution.Advance()
-                Log.D(f'{execution.Id}: {pre.name} -> {execution.CoarseStatus.name}')
-            else:
-                Log.I(f'Removing Execution {execution.Id} from queue (status: {execution.CoarseStatus.name})')
-                cls.Delete(execution.Id)
+            try:
+                if execution.Active:
+                    pre = execution.CoarseStatus
+                    Log.I(f'Advancing Execution {execution.Id}')
+                    execution.Advance()
+                    Log.D(f'{execution.Id}: {pre.name} -> {execution.CoarseStatus.name}')
+                else:
+                    Log.I(f'Removing Execution {execution.Id} from queue (status: {execution.CoarseStatus.name})')
+                    cls.Delete(execution.Id)
+            except Exception as e:
+                Log.C(f"Exeption while updating execution {execution.Id}: {e}")

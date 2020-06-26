@@ -54,15 +54,21 @@ class Composer:
         if descriptor.Type == ExperimentType.MONROE:
             actions.extend(cls.facility.GetMonroeActions())
         else:
-            for ue in descriptor.UEs:
-                actions.extend(cls.facility.GetUEActions(ue))
-            for testcase in descriptor.TestCases:
-                testcaseActions = cls.facility.GetTestCaseActions(testcase)
-                if len(testcaseActions) != 0:
-                    actions.extend(testcaseActions)
-                else:
-                    actions.append(_messageAction("ERROR", f'TestCase "{testcase}" did not generate any actions'))
-                panels.extend(cls.facility.GetTestCaseDashboards(testcase))
+            if descriptor.Automated:
+                for ue in descriptor.UEs:
+                    actions.extend(cls.facility.GetUEActions(ue))
+                for testcase in descriptor.TestCases:
+                    testcaseActions = cls.facility.GetTestCaseActions(testcase)
+                    if len(testcaseActions) != 0:
+                        actions.extend(testcaseActions)
+                    else:
+                        actions.append(_messageAction("ERROR", f'TestCase "{testcase}" did not generate any actions'))
+                    panels.extend(cls.facility.GetTestCaseDashboards(testcase))
+            else:
+                delay = ActionInformation()
+                delay.TaskName = "Run.Delay"
+                delay.Config = {'Time': descriptor.Duration*60}
+                actions.append(delay)
 
         actions.sort(key=lambda action: action.Order)  # Sort by Order
         requirements = set()
