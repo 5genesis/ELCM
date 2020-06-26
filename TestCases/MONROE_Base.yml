@@ -8,5 +8,6 @@ MONROE_Base:
           Execution ID: "@{ExecutionId}"
           Application: "@{Application}"
           Parameters: "@{JSONParameters}"
+          WaitTime: "@{ReservationTimeSeconds}"
 Standard: False
 Dashboard: {}

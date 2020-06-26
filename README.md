@@ -405,6 +405,8 @@ valid YAML format). Available values are:
 - `@{TempFolder}`: Temporal folder exclusive to the current executor, it's deleted when the experiment finishes.
 - `@{Application}`: The `Application` field from the Experiment Descriptor
 - `@{JSONParameters}`: The `Parameters` dictionary from the Experiment Descriptor, in JSON format (a single line string)
+- `@{ReservationTime}`: The `ReservationTime` field of the Experiment Descriptor (minutes), or 0 if not defined
+- `@{ReservationTimeSeconds}`: Same as above, but converted to seconds.
 - `@{TapFolder}`: Folder where the (Open)TAP executable is located (as configured in `config.yml`)
 - `@{TapResults}`: Folder where the (Open)TAP results are saved (as configured in `config.yml`)
 

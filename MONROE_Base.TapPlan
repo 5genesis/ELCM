@@ -16,7 +16,7 @@
       <ChildTestSteps />
       <BreakConditions>Inherit</BreakConditions>
     </TestStep>
-    <TestStep type="OpenTap.Plugins.BasicSteps.LogStep" Version="9.5.1+dcc0651a" Id="7bfb9cfd-e878-4300-aa0d-8d9129a1c7e2">
+    <TestStep type="OpenTap.Plugins.BasicSteps.LogStep" Version="9.7.0+c65b0c5a" Id="7bfb9cfd-e878-4300-aa0d-8d9129a1c7e2">
       <LogMessage>Application:</LogMessage>
       <Severity>Info</Severity>
       <Enabled>true</Enabled>
@@ -24,7 +24,7 @@
       <ChildTestSteps />
       <BreakConditions>Inherit</BreakConditions>
     </TestStep>
-    <TestStep type="OpenTap.Plugins.BasicSteps.LogStep" Version="9.5.1+dcc0651a" Id="3bc67f9f-d754-43d0-a0a8-0b314abbbbc9">
+    <TestStep type="OpenTap.Plugins.BasicSteps.LogStep" Version="9.7.0+c65b0c5a" Id="3bc67f9f-d754-43d0-a0a8-0b314abbbbc9">
       <LogMessage external="Application">monroe/ping:virt</LogMessage>
       <Severity>Info</Severity>
       <Enabled>true</Enabled>
@@ -32,7 +32,7 @@
       <ChildTestSteps />
       <BreakConditions>Inherit</BreakConditions>
     </TestStep>
-    <TestStep type="OpenTap.Plugins.BasicSteps.LogStep" Version="9.5.1+dcc0651a" Id="7a301e17-1596-45d8-a3e8-1974ca3f06ab">
+    <TestStep type="OpenTap.Plugins.BasicSteps.LogStep" Version="9.7.0+c65b0c5a" Id="7a301e17-1596-45d8-a3e8-1974ca3f06ab">
       <LogMessage>Parameters:</LogMessage>
       <Severity>Info</Severity>
       <Enabled>true</Enabled>
@@ -40,7 +40,7 @@
       <ChildTestSteps />
       <BreakConditions>Inherit</BreakConditions>
     </TestStep>
-    <TestStep type="OpenTap.Plugins.BasicSteps.LogStep" Version="9.5.1+dcc0651a" Id="2ee8b5b0-e52d-45c1-9e01-cc4548135996">
+    <TestStep type="OpenTap.Plugins.BasicSteps.LogStep" Version="9.7.0+c65b0c5a" Id="2ee8b5b0-e52d-45c1-9e01-cc4548135996">
       <LogMessage external="Parameters">{"server":"8.8.8.8"}</LogMessage>
       <Severity>Info</Severity>
       <Enabled>true</Enabled>
@@ -74,8 +74,8 @@
       <ChildTestSteps />
       <BreakConditions>Inherit</BreakConditions>
     </TestStep>
-    <TestStep type="OpenTap.Plugins.BasicSteps.DelayStep" Version="9.5.1+dcc0651a" Id="0fdc331e-3da1-41b8-a4b6-956c4e8bd733">
-      <DelaySecs>10</DelaySecs>
+    <TestStep type="OpenTap.Plugins.BasicSteps.DelayStep" Version="9.7.0+c65b0c5a" Id="0fdc331e-3da1-41b8-a4b6-956c4e8bd733">
+      <DelaySecs external="WaitTime">10</DelaySecs>
       <Enabled>true</Enabled>
       <Name>Delay</Name>
       <ChildTestSteps />
@@ -97,6 +97,6 @@
   </Steps>
   <Package.Dependencies>
     <Package Name="5Genesis" Version="1.2.3" />
-    <Package Name="OpenTAP" Version="9.6.4+6f53deb9" />
+    <Package Name="OpenTAP" Version="9.7.0+c65b0c5a" />
   </Package.Dependencies>
 </TestPlan>

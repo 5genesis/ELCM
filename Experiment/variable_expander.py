@@ -30,6 +30,7 @@ class Expander:
 
     @classmethod
     def expand(cls, item: str, context: Union[ExecutorBase, ExperimentRun], config: Config) -> str:
+        duration = context.Descriptor.Duration or 0
         replacements = {
             # Dynamic values
             "@{TempFolder}": context.TempFolder,
@@ -37,6 +38,8 @@ class Expander:
             "@{SliceId}": context.Params.get("SliceId", "None"),
             "@{Application}": context.Descriptor.Application,
             "@{JSONParameters}": dumps(context.Descriptor.Parameters, indent=None),
+            "@{ReservationTime}": duration,
+            "@{ReservationTimeSeconds}": duration * 60,
             # Configuration values
             "@{TapFolder}": config.Tap.Folder,
             "@{TapResults}": config.Tap.Results,
