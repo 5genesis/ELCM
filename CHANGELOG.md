@@ -1,6 +1,8 @@
 **26/06/2020** [Version 2.3.1]
 
  - Exclusive execution and non-automated experiments
+ - Added configurable duration on MONROE experiments
+ - New ReservationTime variables
 
 **23/06/2020** [Version 2.3.0]
 
