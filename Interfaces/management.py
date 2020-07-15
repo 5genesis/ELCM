@@ -113,3 +113,11 @@ class SliceManager(RestClient):
         except Exception as e:
             Log.E(f"Exception while retrieving NSD information: {e}")
             return None
+
+    def GetBaseSliceDescriptors(self) -> List[str]:
+        url = f"{self.api_url}/base_slice_des"
+        response = self.HttpGet(url, {"Accept": "application/json"})
+        data: List[Dict] = self.ResponseToJson(response)
+        return [desc['Slice_des_ID'] for desc in data]
+
+

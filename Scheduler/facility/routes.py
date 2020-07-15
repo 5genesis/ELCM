@@ -1,5 +1,6 @@
 from Scheduler.facility import bp
 from Facility import Facility
+from Interfaces import Management
 from flask import jsonify
 from typing import Dict
 
@@ -41,3 +42,9 @@ def facilityTestCases():
         res.append(extra)
 
     return jsonify({'TestCases': res})
+
+
+@bp.route('/baseSliceDescriptors')
+def baseSliceDescriptors():
+    sliceManager = Management.SliceManager()
+    return jsonify(sliceManager.GetBaseSliceDescriptors())
