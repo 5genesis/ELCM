@@ -3,7 +3,7 @@ from Data import ExperimentDescriptor, ExperimentType, NsInfo, Metal
 from .platform_configuration import PlatformConfiguration, TaskDefinition
 from importlib import import_module
 from Helper import Log
-from typing import List
+from typing import List, Dict
 from Executor.Tasks.Run import Message
 from Interfaces import Management
 
@@ -50,6 +50,9 @@ class Composer:
                     actions.append(
                         _messageAction("ERROR",
                                        f"Exception while obtaining information about network service {nsId}: {e}"))
+
+        if len(configuration.NetworkServices) != 0:  # At least one NSD info was successfully retrieved
+            configuration.Nest = cls.composeNest(descriptor.Slice, descriptor.Scenario, configuration.NetworkServices)
 
         if descriptor.Type == ExperimentType.MONROE:
             actions.extend(cls.facility.GetMonroeActions())
@@ -99,3 +102,26 @@ class Composer:
         except (ModuleNotFoundError, AttributeError, ValueError):
             Log.E(f'Task "{taskName}" not found')
             return None
+
+    @classmethod
+    def composeNest(cls, baseSlice: str, scenario: str, nss: List[NsInfo]) -> Dict:
+        # TODO: Handle scenario
+        nsList = []
+        for ns in nss:
+            nsList.append({
+                "nsd-id": ns.Id,
+                "placement": ns.Location,
+            })
+
+        return {
+            "base_slice_descriptor": {
+                "base_slice_des_id": baseSlice
+            },
+            "service_descriptor": {
+                "ns_list": nsList
+            }
+        }
+
+
+
+

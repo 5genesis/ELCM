@@ -1,4 +1,4 @@
-from typing import Dict, List, ClassVar
+from typing import Dict, List, ClassVar, Dict
 from Facility import DashboardPanel
 from Data import NsInfo
 
@@ -18,6 +18,7 @@ class PlatformConfiguration:
         self.DashboardPanels: List[DashboardPanel] = []
         self.Requirements: List[str] = []
         self.NetworkServices: List[NsInfo] = []
+        self.Nest: Optional[Dict] = None
 
     def ExpandDashboardPanels(self, experimentRun):
         from Experiment import Expander

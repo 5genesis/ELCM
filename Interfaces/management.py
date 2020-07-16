@@ -107,9 +107,14 @@ class SliceManager(RestClient):
         try:
             data = self.GetNsdInfo(nsd)
             if isinstance(data, list):
-                data = data[0]
-            flavor = data["flavor"]
-            return Metal(cpu=flavor["vcpu-count"], ram=flavor["memory-mb"], disk=flavor["storage-gb"])
+                if len(data) != 0:
+                    data = data[0]
+                else: raise RuntimeError("Received an empty list")
+            try:
+                flavor = data["flavor"]
+                return Metal(cpu=flavor["vcpu-count"], ram=flavor["memory-mb"], disk=flavor["storage-gb"])
+            except KeyError as k:
+                raise RuntimeError(f"'{k}' key not present in data")
         except Exception as e:
             Log.E(f"Exception while retrieving NSD information: {e}")
             return None
