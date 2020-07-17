@@ -48,3 +48,8 @@ def facilityTestCases():
 def baseSliceDescriptors():
     sliceManager = Management.SliceManager()
     return jsonify(sliceManager.GetBaseSliceDescriptors())
+
+
+@bp.route('/scenarios')
+def scenarios():
+    return jsonify({"Scenarios": list(Facility.scenarios.keys())})

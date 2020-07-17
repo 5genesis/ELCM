@@ -18,12 +18,14 @@ class Facility:
     TESTCASE_FOLDER = abspath('TestCases')
     UE_FOLDER = abspath('UEs')
     RESOURCE_FOLDER = abspath('Resources')
+    SCENARIO_FOLDER = abspath('Scenarios')
 
     ues: Dict[str, List[ActionInformation]] = {}
     testCases: Dict[str, List[ActionInformation]] = {}
     extra: Dict[str, Dict[str, object]] = {}
     dashboards: Dict[str, List[ActionInformation]] = {}
     resources: Dict[str, Resource] = {}
+    scenarios: Dict[str, Dict] = {}
 
     Validation: List[Tuple[Level, str]] = []
 
@@ -146,6 +148,8 @@ class Facility:
                 if len(keys) > 1:
                     cls.Validation.append((Level.WARNING, f'Multiple UEs defined on a single file: {list(keys)}'))
                 for key in keys:
+                    if key in ues.keys():
+                        cls.Validation.append((Level.WARNING, f'Redefining UE {key}'))
                     actions = _get_ActionList(data[key])
                     ues[key] = actions
             except Exception as e:
@@ -155,20 +159,36 @@ class Facility:
             try:
                 data = _loadFile(path)
                 resource = Resource(data)
+                if resource.Id in resources.keys():
+                    cls.Validation.append((Level.WARNING, f'Redefining Resource {resource.Id}'))
                 resources[resource.Id] = resource
+            except Exception as e:
+                cls.Validation.append((Level.ERROR, f'Exception loading Resource file {path}: {e}'))
+
+        def _scenarioLoader(path: str):
+            try:
+                data = _loadFile(path)
+                if len(data.keys()) > 1:
+                    cls.Validation.append((Level.WARNING, f'Multiple Scenarios defined on a single file: {list(keys)}'))
+                for key, value in data.items():
+                    if key in scenarios.keys():
+                        cls.Validation.append((Level.WARNING, f'Redefining Scenario {key}'))
+                    scenarios[key] = value
+                    cls.Validation.append((Level.DEBUG, f'{key}: {value}'))
             except Exception as e:
                 cls.Validation.append((Level.ERROR, f'Exception loading Resource file {path}: {e}'))
 
         cls.Validation.clear()
 
-        _ensureFolder(cls.TESTCASE_FOLDER)
-        _ensureFolder(cls.UE_FOLDER)
-        _ensureFolder(cls.RESOURCE_FOLDER)
+        # Generate all folders
+        for folder in [cls.TESTCASE_FOLDER, cls.UE_FOLDER, cls.RESOURCE_FOLDER, cls.SCENARIO_FOLDER]:
+            _ensureFolder(folder)
 
         testCases = {}
         ues = {}
         dashboards = {}
         extra = {}
+        scenarios = {}
 
         if len(cls.BusyResources()) != 0:
             resources = cls.resources
@@ -179,9 +199,11 @@ class Facility:
 
         _loadFolder(cls.TESTCASE_FOLDER, "TestCase", _testcaseLoader)
         _loadFolder(cls.UE_FOLDER, "UE", _ueLoader)
+        _loadFolder(cls.SCENARIO_FOLDER, "Scenario", _scenarioLoader)
 
         for collection, name in [(testCases, "TestCases"), (ues, "UEs"),
-                                 (dashboards, "DashBoards"), (resources, "Resources")]:
+                                 (dashboards, "DashBoards"), (resources, "Resources"),
+                                 (scenarios, "Scenarios")]:
             keys = collection.keys()
             if len(keys) == 0:
                 cls.Validation.append((Level.WARNING, f'No {name} defined on the facility.'))
@@ -193,6 +215,7 @@ class Facility:
         cls.extra = extra
         cls.dashboards = dashboards
         cls.resources = resources
+        cls.scenarios = scenarios
 
     @classmethod
     def GetUEActions(cls, id: str) -> List[ActionInformation]:
@@ -225,6 +248,10 @@ class Facility:
     @classmethod
     def Resources(cls):
         return cls.resources
+
+    @classmethod
+    def Scenarios(cls):
+        return cls.scenarios
 
     @classmethod
     @synchronized(lock)
