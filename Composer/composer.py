@@ -36,30 +36,31 @@ class Composer:
         panels: List[DashboardPanel] = []
         errored = False
 
-        if len(descriptor.NetworkServices) != 0:
-            sliceManager = Management.SliceManager()
-            for ns in descriptor.NetworkServices:
-                nsId, location = ns
-                try:
-                    nsInfo = NsInfo(nsId, location)
-                    requirements = sliceManager.GetNsdRequirements(nsId)
-                    if requirements is None:
-                        raise RuntimeError("Could not retrieve NSD information")
-                    nsInfo.Requirements = requirements
-                    configuration.NetworkServices.append(nsInfo)
-                except Exception as e:
-                    errored = True
-                    actions.append(
-                        _messageAction("ERROR",
-                                       f"Exception while obtaining information about network service {nsId}: {e}"))
+        if descriptor.Slice is not None:
+            if len(descriptor.NetworkServices) != 0:
+                sliceManager = Management.SliceManager()
+                for ns in descriptor.NetworkServices:
+                    nsId, location = ns
+                    try:
+                        nsInfo = NsInfo(nsId, location)
+                        requirements = sliceManager.GetNsdRequirements(nsId)
+                        if requirements is None:
+                            raise RuntimeError("Could not retrieve NSD information")
+                        nsInfo.Requirements = requirements
+                        configuration.NetworkServices.append(nsInfo)
+                    except Exception as e:
+                        errored = True
+                        actions.append(
+                            _messageAction("ERROR",
+                                           f"Exception while obtaining information about network service {nsId}: {e}"))
 
-        if not errored:
-            nest, error = cls.composeNest(descriptor.Slice, descriptor.Scenario, configuration.NetworkServices)
-            if error is None:
-                configuration.Nest = nest
-            else:
-                errored = True
-                actions.append(_messageAction("ERROR", f'Error while generating NEST data for experiment: {error}'))
+            if not errored:
+                nest, error = cls.composeNest(descriptor.Slice, descriptor.Scenario, configuration.NetworkServices)
+                if error is None:
+                    configuration.Nest = nest
+                else:
+                    errored = True
+                    actions.append(_messageAction("ERROR", f'Error while generating NEST data for experiment: {error}'))
 
         if not errored:
             if descriptor.Type == ExperimentType.MONROE:
@@ -116,6 +117,9 @@ class Composer:
     def composeNest(cls, baseSlice: str, scenario: str, nss: List[NsInfo]) -> Tuple[Dict, Optional[str]]:
         """Returns the NEST as Dict (possibly empty) and a string indicating the error (None in case of success)"""
         try:
+            if baseSlice is None:
+                raise RuntimeError("Cannot create NEST without a base slice value")
+
             nsList = []
             for ns in nss:
                 nsList.append({
@@ -123,12 +127,15 @@ class Composer:
                     "placement": ns.Location,
                 })
 
-            scenarioData = Facility.Scenarios().get(scenario, None)
-            if scenarioData is None:
-                raise RuntimeError("Unrecognized scenario '{scenario}'")
-
             sliceDescriptor = {"base_slice_des_id": baseSlice}
-            sliceDescriptor.update(scenarioData)
+
+            if scenario is not None:
+                scenarioData = Facility.Scenarios().get(scenario, None)
+                if scenarioData is None:
+                    raise RuntimeError(f"Unrecognized scenario '{scenario}'")
+                sliceDescriptor.update(scenarioData)
+            else:
+                raise RuntimeError("Cannot create NEST without an scenario value")
 
             nest = {"base_slice_descriptor": sliceDescriptor}
             if len(nsList) != 0:
