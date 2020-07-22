@@ -46,7 +46,10 @@ class SliceCreationTime(Task):
         for iteration in range(iterations):
             self.Log(Level.INFO, f"Instantiating NEST file (iteration {iteration})")
             try:
-                sliceId = sliceManager.CreateSlice(nestData)
+                response, success = sliceManager.CreateSlice(nestData)
+                if not success:
+                    raise RuntimeError(response)
+                sliceId = response
             except Exception as e:
                 self.Log(Level.ERROR, f"Exception on instantiation, skipping iteration: {e}")
                 sleep(pollTime)
