@@ -236,6 +236,40 @@ all the required resources. When an experiment starts, all these resources will 
 experiments with common requirements will be blocked until the running experiment finishes and their resources are
 released.
 
+### Scenarios and Network Slice deployment
+
+A scenario is a collection of configuration values that are used to further customize the behavior of a deployed
+slice. These values are defined as YAML files contained in the `Scenarios` folder, where each file contains a
+dictionary with a single key (that defines the name of the Scenario). The value for this key is a second
+dictionary that contains the collection of values that are to be customized by the Scenario.
+
+When the ELCM requests the deployment of a Network Slice it will create a NEST description. The NEST created by the
+ELCM has 3 main parts:
+ - A reference to a base slice descriptor, that must be available in the Katana Slice Manager.
+ - A collection of values that are to be overridden from the base slice descriptor, taken from the selected Scenario.
+ - A possibly empty list of references to Network Services that are to be included as part of the Network Slice.
+
+A generated NEST has the following format:
+````json5
+{
+  "base_slice_descriptor": {
+    "base_slice_des_id": "<Base Slice Descriptor reference>"
+    // Values from the selected Scenario are included here
+  },
+  "service_descriptor": {
+    "ns_list": [
+      {
+        "nsd-id": "<Network Service ID>",
+        "placement": "<Network Service Location>",
+      } //, [...]
+    ]  
+  }
+} 
+````
+
+For more information about Network Slice deployment refer to the
+[Katana Slice Manager documentation](https://github.com/medianetlab/katana-slice_manager/tree/master/katana-schemas)
+
 ### Dashboard auto-generation (Autograph)
 
 The ELCM is able to generate additional panels if certain values appear on the names of the generated TAP results. For
