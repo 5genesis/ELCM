@@ -29,7 +29,8 @@ class PreRunner(ExecutorBase):
                 self.AddMessage('Not available')
                 sleep(10)
 
-        Instantiate(self.Log, self.TempFolder, self, self.Configuration.NetworkServices).Start()
+        Instantiate(self.Log, self.TempFolder, self,
+                    self.Configuration.NetworkServices, self.Configuration.Nest).Start()
         self.AddMessage('Instantiation completed', 80)
 
         self.SetFinished(percent=100)

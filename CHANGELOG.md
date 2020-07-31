@@ -1,6 +1,14 @@
+**31/07/2020** [Version 2.3.2]
+
+ - Added Base Slice Descriptor and Scenario handling
+ - Added NEST composition
+ - Updated Network Slice creation and decommission
+
 **26/06/2020** [Version 2.3.1]
 
  - Exclusive execution and non-automated experiments
+ - Added configurable duration on MONROE experiments
+ - New ReservationTime variables
 
 **23/06/2020** [Version 2.3.0]
 

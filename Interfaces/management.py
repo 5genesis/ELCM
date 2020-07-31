@@ -63,9 +63,13 @@ class SliceManager(RestClient):
     def __init__(self, host, port):
         super().__init__(host, port, "/api")
 
-    def CreateSlice(self, nsd: str) -> str:
+    def CreateSlice(self, nsd: str) -> Tuple[str, bool]:
         response = self.HttpPost(f"{self.api_url}/slice", {"Content-Type": "application/json"}, nsd)
-        return response.data.decode('utf-8')
+        status = self.ResponseStatusCode(response)
+        if status in [201, 400]:  # Responses with textual information
+            return response.data.decode('utf-8'), (status == 201)
+        else:
+            return f"Unable to create slice: Status {status} ({response.reason})", False
 
     def CheckSlice(self, slice: str) -> Optional[Dict]:
         response = self.HttpGet(f"{self.api_url}/slice/{slice}", {"Accept": "application/json"})
@@ -75,9 +79,13 @@ class SliceManager(RestClient):
         response = self.HttpGet(f"{self.api_url}/slice/{slice}/time", {"Accept": "application/json"})
         return self.ResponseToJson(response)
 
-    def DeleteSlice(self, slice: str) -> str:
+    def DeleteSlice(self, slice: str) -> Tuple[str, bool]:
         response = self.HttpDelete(f"{self.api_url}/slice/{slice}")
-        return response.data.decode('utf-8')
+        status = self.ResponseStatusCode(response)
+        if status == 200:
+            return response.data.decode('utf-8'), True
+        else:
+            return f"Unable to delete slice: Status {status} ({response.reason})", False
 
     def GetVimResources(self) -> Dict[str, MetalUsage]:
         response = self.HttpGet(f"{self.api_url}/resources")
@@ -107,9 +115,22 @@ class SliceManager(RestClient):
         try:
             data = self.GetNsdInfo(nsd)
             if isinstance(data, list):
-                data = data[0]
-            flavor = data["flavor"]
-            return Metal(cpu=flavor["vcpu-count"], ram=flavor["memory-mb"], disk=flavor["storage-gb"])
+                if len(data) != 0:
+                    data = data[0]
+                else: raise RuntimeError("Received an empty list")
+            try:
+                flavor = data["flavor"]
+                return Metal(cpu=flavor["vcpu-count"], ram=flavor["memory-mb"], disk=flavor["storage-gb"])
+            except KeyError as k:
+                raise RuntimeError(f"'{k}' key not present in data")
         except Exception as e:
             Log.E(f"Exception while retrieving NSD information: {e}")
             return None
+
+    def GetBaseSliceDescriptors(self) -> List[str]:
+        url = f"{self.api_url}/base_slice_des"
+        response = self.HttpGet(url, {"Accept": "application/json"})
+        data: List[Dict] = self.ResponseToJson(response)
+        return [desc['Slice_des_ID'] for desc in data]
+
+
