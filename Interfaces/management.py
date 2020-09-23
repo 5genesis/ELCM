@@ -131,6 +131,6 @@ class SliceManager(RestClient):
         url = f"{self.api_url}/base_slice_des"
         response = self.HttpGet(url, {"Accept": "application/json"})
         data: List[Dict] = self.ResponseToJson(response)
-        return [desc['Slice_des_ID'] for desc in data]
+        return [desc['base_slice_des_id'] for desc in data]
 
 
