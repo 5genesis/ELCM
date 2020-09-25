@@ -106,10 +106,16 @@ class SliceManager(RestClient):
                 Log.D(f"Payload: {data}")
         return {'Edge': MetalUsage(4, 4, 8192, 8192, 80, 80)}
 
-    def GetNsdInfo(self, nsd: str = None) -> Dict:
-        url = f"{self.api_url}/nslist{('' if nsd is None else f'?nsd-id={nsd}')}"
+    def GetNsdInfo(self, nsdName: str = None) -> Dict:
+        url = f"{self.api_url}/nslist"
         response = self.HttpGet(url, {"Accept": "application/json"})
-        return self.ResponseToJson(response)
+        data = self.ResponseToJson(response)
+
+        allNsds  = {}
+        for nsd in data:
+            allNsds[nsd['nsd-name']] = nsd
+
+        return allNsds if nsdName is None else allNsds[nsdName]
 
     def GetNsdRequirements(self, nsd: str) -> Optional[Metal]:
         try:
