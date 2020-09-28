@@ -88,6 +88,22 @@ class SliceManager(RestClient):
             return f"Unable to delete slice: Status {status} ({response.reason})", False
 
     def GetVimResources(self) -> Dict[str, MetalUsage]:
+        def _getVimResources(vimData):
+            if 'resources' in vimData.keys():
+                resources = vimData['resources']
+                if 'N/A' in resources.keys():
+                    return MetalUsage(0, 0, 0, 0, 0, 0)
+                else:
+                    totalRam = resources['memory_mb']
+                    usedRam = totalRam - resources['free_ram_mb']
+                    return MetalUsage(cpu=resources['vcpus_used'], ram=usedRam, disk=resources['local_gb_used'],
+                                      totalCpu=resources['vcpus'], totalRam=totalRam, totalDisk=resources['local_gb'])
+            else:
+                total = vimData["max_resources"]
+                current = vimData["available_resources"]
+                return MetalUsage(cpu=current['CPUs'], ram=current['RAM'], disk=current['Disk'],
+                                  totalCpu=total['CPUs'], totalRam=total['RAM'], totalDisk=total['Disk'])
+
         response = self.HttpGet(f"{self.api_url}/resources")
         status = self.ResponseStatusCode(response)
         res = {}
@@ -96,15 +112,11 @@ class SliceManager(RestClient):
             try:
                 for vim in data["VIMs"]:
                     name = vim["name"]
-                    total = vim["max_resources"]
-                    current = vim["available_resources"]
-                    metal = MetalUsage(cpu=current['CPUs'], ram=current['RAM'], disk=current['Disk'],
-                                       totalCpu=total['CPUs'], totalRam=total['RAM'], totalDisk=total['Disk'])
-                    res[name] = metal
+                    res[name] = _getVimResources(vim)
             except Exception as e:
                 Log.E(f"Exception while retrieving VIM resources: {e}")
                 Log.D(f"Payload: {data}")
-        return {'Edge': MetalUsage(4, 4, 8192, 8192, 80, 80)}
+        return res
 
     def GetNsdInfo(self, nsdName: str = None) -> Dict:
         url = f"{self.api_url}/nslist"
@@ -137,6 +149,12 @@ class SliceManager(RestClient):
         url = f"{self.api_url}/base_slice_des"
         response = self.HttpGet(url, {"Accept": "application/json"})
         data: List[Dict] = self.ResponseToJson(response)
-        return [desc['base_slice_des_id'] for desc in data]
+        res = []
+        for desc in data:
+            descId = desc.get('Slice_des_ID', desc.get('base_slice_des_id', None))
+            if descId is not None:
+                res.append(descId)
+        return res
+
 
 
