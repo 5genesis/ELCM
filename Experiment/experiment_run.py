@@ -36,7 +36,7 @@ class ExperimentRun:
         if ExperimentRun.portal is None or ExperimentRun.grafana is None:
             from Helper import DashboardGenerator  # Delayed to avoid cyclic imports
             config = Config()
-            ExperimentRun.portal = PortalApi(config.Dispatcher.Host, config.Dispatcher.Port)
+            ExperimentRun.portal = PortalApi(config.Portal.Host, config.Portal.Port)
             ExperimentRun.grafana = DashboardGenerator(config.Grafana.Enabled, config.Grafana.Host,
                                                        config.Grafana.Port, config.Grafana.Bearer,
                                                        config.Grafana.ReportGenerator)

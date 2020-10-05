@@ -15,7 +15,7 @@ class ExecutorBase(Child):
     def __init__(self, params: Dict, name: str, tempFolder: TemporaryDirectory = None):
         if self.portal is None:
             config = Config()
-            self.portal = PortalApi(config.Dispatcher.Host, config.Dispatcher.Port)
+            self.portal = PortalApi(config.Portal.Host, config.Portal.Port)
 
         now = datetime.now(timezone.utc)
         super().__init__(f"{name}{now.strftime('%y%m%d%H%M%S%f')}", tempFolder)

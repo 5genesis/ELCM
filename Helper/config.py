@@ -147,11 +147,6 @@ class TapConfig(validable):
             return super().Validation
 
 
-class Dispatcher(restApi):
-    def __init__(self, data: Dict):
-        super().__init__(data, 'Dispatcher', {})
-
-
 class Portal(restApi):
     def __init__(self, data: Dict):
         super().__init__(data, 'Portal', {})
@@ -276,12 +271,8 @@ class Config:
         return Logging(Config.data.get('Logging', {}))
 
     @property
-    def Dispatcher(self):
-        return Dispatcher(Config.data.get('Dispatcher', {}))
-
-    @property
     def Portal(self):
-        return Dispatcher(Config.data.get('Portal', {}))
+        return Portal(Config.data.get('Portal', {}))
 
     @property
     def TempFolder(self):
@@ -329,7 +320,7 @@ class Config:
         for key, default in [('TempFolder', 'Temp'), ('ResultsFolder', 'Results')]:
             _validateSingle(key, default)
 
-        for entry in [self.Logging, self.Dispatcher, self.SliceManager, self.Tap,
+        for entry in [self.Logging, self.Portal, self.SliceManager, self.Tap,
                       self.Grafana, self.InfluxDb, self.Metadata, ]:
             Config.Validation.extend(entry.Validation)
             keys.discard(entry.section)

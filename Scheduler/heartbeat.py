@@ -12,7 +12,6 @@ class Beat(Child):
 
     def Run(self):
         while not self.stopRequested:
-            self.Broadcast(Level.DEBUG, 'Alive')
             ExecutionQueue.UpdateAll()
             Beat.wait()
 

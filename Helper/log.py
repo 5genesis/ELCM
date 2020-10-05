@@ -110,6 +110,9 @@ class Log:
         # Put console logger at the end (to avoid saving _colors_ to file)
         app.logger.handlers.reverse()
 
+        # Hide werkzeug messages below WARNING
+        logging.getLogger("werkzeug").setLevel(logging.WARNING)
+
         cls.app = app
         cls.initialized = True
 

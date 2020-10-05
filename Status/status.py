@@ -1,6 +1,7 @@
 from threading import Lock
 from Helper import Serialize, IO
 from Utils import synchronized
+from os.path import dirname
 
 
 class Status:
@@ -16,7 +17,7 @@ class Status:
     def Initialize(cls):
         path = Serialize.Path('persistence')
 
-        if not IO.EnsureFolder(path):
+        if not IO.EnsureFolder(dirname(path)):
             Serialize.Save(cls._persistence_yml, path)
 
         data = Serialize.Load(path)

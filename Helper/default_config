@@ -4,9 +4,6 @@ Logging:
   Folder: 'Logs'
   AppLevel: INFO
   LogLevel: DEBUG
-Dispatcher:
-  Host: '127.0.0.1'
-  Port: 5001
 Portal:
   Host: '127.0.0.1'
   Port: 5000
