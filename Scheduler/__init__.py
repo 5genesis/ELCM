@@ -39,4 +39,7 @@ app.register_blueprint(DispatcherBp, url_prefix='/api/v0')
 from Scheduler.facility import bp as FacilityBp
 app.register_blueprint(FacilityBp, url_prefix='/facility')
 
+from Scheduler.east_west import bp as EastwestBp
+app.register_blueprint(EastwestBp, url_prefix='/distributed')
+
 from Scheduler import routes
