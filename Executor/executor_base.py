@@ -74,6 +74,12 @@ class ExecutorBase(Child):
             self.Status = status
         self.LogAndMessage(Level.INFO, f"Finished (status: {self.Status.name})", percent)
 
+    def AddMilestone(self, milestone: str):
+        from Status import ExecutionQueue
+        parent = ExecutionQueue.Find(self.ExecutionId)
+        if parent is not None:  # Only running experiments should be able to use this method
+            parent.Milestones.append(milestone)
+
     def Serialize(self) -> Dict:
         data = {
             'ExecutionId': self.ExecutionId,

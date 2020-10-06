@@ -8,6 +8,8 @@ from Helper import Config, Serialize, Log
 from Interfaces import PortalApi
 from Composer import Composer, PlatformConfiguration
 from os.path import join, abspath
+from string import hexdigits
+from random import choices
 
 
 @unique
@@ -31,6 +33,8 @@ class ExperimentRun:
         self._coarseStatus = CoarseStatus.Init
         self._dashboardUrl = None
         self.Cancelled = False
+        self.Token = ''.join(choices(hexdigits, k=12))
+        self.Milestones = []
         self.Created = datetime.now(timezone.utc)
 
         if ExperimentRun.portal is None or ExperimentRun.grafana is None:
@@ -213,7 +217,8 @@ class ExperimentRun:
             'Created': Serialize.DateToString(self.Created),
             'CoarseStatus': self.CoarseStatus.name,
             'Cancelled': self.Cancelled,
-            'JsonDescriptor': self.Descriptor.Json
+            'JsonDescriptor': self.Descriptor.Json,
+            'Milestones': self.Milestones
         }
         return data
 
