@@ -8,8 +8,6 @@ from Helper import Config, Serialize, Log
 from Interfaces import PortalApi
 from Composer import Composer, PlatformConfiguration
 from os.path import join, abspath
-from string import hexdigits
-from random import choices
 
 
 @unique
@@ -33,7 +31,6 @@ class ExperimentRun:
         self._coarseStatus = CoarseStatus.Init
         self._dashboardUrl = None
         self.Cancelled = False
-        self.Token = ''.join(choices(hexdigits, k=12))
         self.Milestones = []
         self.Created = datetime.now(timezone.utc)
 
