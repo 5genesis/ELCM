@@ -92,6 +92,16 @@ class Grafana(restApi):
             return super().Validation
 
 
+class EastWest(validable):
+    def __init__(self, data: Dict):
+        defaults = {'Enabled': (False, Level.WARNING)}
+        super().__init__(data, 'EastWest', defaults)
+
+    @property
+    def Enabled(self):
+        return self._keyOrDefault('Enabled')
+
+
 class TapConfig(validable):
     def __init__(self, data: Dict):
         defaults = {
@@ -302,6 +312,10 @@ class Config:
     def Metadata(self):
         return Metadata(Config.data.get('Metadata', {}))
 
+    @property
+    def EastWest(self):
+        return EastWest(Config.data.get('EastWest', {}))
+
     def Validate(self):
         def _validateSingle(key: str, default: str):
             if key not in Config.data:
@@ -321,7 +335,7 @@ class Config:
             _validateSingle(key, default)
 
         for entry in [self.Logging, self.Portal, self.SliceManager, self.Tap,
-                      self.Grafana, self.InfluxDb, self.Metadata, ]:
+                      self.Grafana, self.InfluxDb, self.Metadata, self.EastWest, ]:
             Config.Validation.extend(entry.Validation)
             keys.discard(entry.section)
 

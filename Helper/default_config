@@ -34,3 +34,5 @@ InfluxDb:
 Metadata:
   HostIp: "127.0.0.1"
   Facility:
+EastWest:
+  Enabled: False
