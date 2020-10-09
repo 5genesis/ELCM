@@ -1,5 +1,6 @@
 from Task import Task
 from Helper import Level, Config
+from time import sleep
 
 
 class Coordinate(Task):
@@ -15,7 +16,19 @@ class Coordinate(Task):
                 if host is not None:
                     remoteApi = None  # TODO: Implement API
                     self.parent.RemoteApi = remoteApi
-                    # TODO: Wait for remote experiment ID
+                    self.Log(Level.INFO, 'Remote connection configured. Waiting for remote Execution ID...')
+
+                    timeout = eastWest.Timeout or 120
+                    while self.parent.RemoteId is None:
+                        if timeout < 0: break
+                        self.Log(Level.DEBUG, f'Unavailable. Timeout in {timeout} seconds.')
+                        sleep(5)
+                        timeout -= 5
+
+                    if self.parent.RemoteId is not None:
+                        self.Log(Level.INFO, 'Remote Execution ID received.')
+                    else:
+                        raise RuntimeError("Timeout reached while waiting for remote Execution ID.")
                 else:
                     raise RuntimeError(f"Unknown remote '{remote}'.")
             else:

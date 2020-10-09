@@ -88,12 +88,20 @@ class ExecutorBase(Child):
         parent = self.findParent()
         if parent is not None:
             return parent.RemoteApi
+        return None
 
     @RemoteApi.setter
     def RemoteApi(self, api):
         parent = self.findParent()
         if parent is not None:
             parent.RemoteApi = api
+
+    @property
+    def RemoteId(self):
+        parent = self.findParent()
+        if parent is not None:
+            return parent.RemoteId
+        return None
 
     def Serialize(self) -> Dict:
         data = {

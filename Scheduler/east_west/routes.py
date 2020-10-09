@@ -13,12 +13,15 @@ def peer(executionId: int):
     if execution is not None:
         data = request.json
         try:
-            host = data['host']
-            port = data['port']
-            execId = data['execution_id']
+            remoteId = data['execution_id']
         except KeyError as e:
-            return jsonify({'success': False, 'message': f'Invalid payload: {e}'})
-        return "PENDING"
+            return jsonify({'success': False, 'message': f'Invalid payload, missing {e}'})
+
+        if execution.RemoteId is None:
+            execution.RemoteId = remoteId
+            return jsonify({'success': True, 'message': f'Remote Id for experiment {executionId} set to {remoteId}'})
+        else:
+            return jsonify({'success': False, 'message': f'Remote Id for experiment {executionId} was already set'})
     else:
         return jsonify(notFound)
 
