@@ -1,6 +1,7 @@
 from Task import Task
 from Helper import Level, Config
 from time import sleep
+from Interfaces import RemoteApi
 
 
 class Coordinate(Task):
@@ -14,7 +15,7 @@ class Coordinate(Task):
             if eastWest.Enabled:
                 host, port = eastWest.GetRemote(remote)
                 if host is not None:
-                    remoteApi = None  # TODO: Implement API
+                    remoteApi = RemoteApi(host, port)
                     self.parent.RemoteApi = remoteApi
                     self.Log(Level.INFO, 'Remote connection configured. Waiting for remote Execution ID...')
 
