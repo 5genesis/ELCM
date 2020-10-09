@@ -36,3 +36,11 @@ Metadata:
   Facility:
 EastWest:
   Enabled: False
+  Timeout: 120
+  Remotes:
+    ExampleRemote1:
+      Host: host1
+      Port: port1
+    ExampleRemote2:
+      Host: host1
+      Port: port1
