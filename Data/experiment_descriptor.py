@@ -1,5 +1,5 @@
 from Helper import Serialize
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Optional
 from enum import Enum, unique
 from datetime import datetime, timezone
 
@@ -12,19 +12,6 @@ class ExperimentType(Enum):
     MONROE = 3
 
 
-@unique
-class Role(Enum):
-    Master = 0
-    Slave = 1
-
-
-class DistributedSettings:
-    def __init__(self, data: Dict):
-        self.Role = Role[data['Role']]
-        self.SlavePlatform = None if self.Role == Role.Slave else data['SlavePlatform']
-        self.SlaveExperiment = None if self.Role == Role.Slave else data['SlaveExperiment']
-
-
 class ExperimentDescriptor:
     def __init__(self, data: Dict):
         time = datetime.now(timezone.utc).strftime("%y%m%d%H%M%S")
@@ -33,21 +20,15 @@ class ExperimentDescriptor:
         if self.Valid:
             self.Type = ExperimentType[data['ExperimentType']]
             self.Identifier = f"{time}{self.Type.name}:{(','.join(self.TestCases))}-{(','.join(self.UEs))}"
-            self.Distributed = DistributedSettings(data) if data['Distributed'] else None
         else:
             self.Type = ExperimentType.Error
             self.Identifier = time
-            self.Distributed = None
-
-        # TODO: Atts to delete
-        self.Id = self.Platform = self.HasNsd = None
 
     @staticmethod
     def validate(data: Dict) -> Tuple[bool, List[str]]:
         keys = ['Version', 'ExperimentType', 'TestCases', 'UEs', 'Slice', 'NSs',
                 'ExclusiveExecution', 'Scenario', 'Automated', 'ReservationTime',
-                'Application', 'Parameters', 'Distributed', 'Role', 'SlavePlatform',
-                'SlaveExperiment', 'Extra']
+                'Application', 'Parameters', 'Remote', 'Extra']
         return Serialize.CheckKeys(data, *keys)
 
     @property
@@ -101,6 +82,10 @@ class ExperimentDescriptor:
     @property
     def Extra(self) -> Dict[str, object]:
         return self._data['Extra']
+
+    @property
+    def Remote(self) -> Optional[str]:
+        return self._data['Remote']
 
     @property
     def ValidityCheck(self) -> Tuple[bool, List[str]]:

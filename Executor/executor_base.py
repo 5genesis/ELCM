@@ -74,11 +74,26 @@ class ExecutorBase(Child):
             self.Status = status
         self.LogAndMessage(Level.INFO, f"Finished (status: {self.Status.name})", percent)
 
-    def AddMilestone(self, milestone: str):
+    def findParent(self):  # Only running experiments should be able to use this method
         from Status import ExecutionQueue
-        parent = ExecutionQueue.Find(self.ExecutionId)
-        if parent is not None:  # Only running experiments should be able to use this method
+        return ExecutionQueue.Find(self.ExecutionId)
+
+    def AddMilestone(self, milestone: str):
+        parent = self.findParent()
+        if parent is not None:
             parent.Milestones.append(milestone)
+
+    @property
+    def RemoteApi(self):
+        parent = self.findParent()
+        if parent is not None:
+            return parent.RemoteApi
+
+    @RemoteApi.setter
+    def RemoteApi(self, api):
+        parent = self.findParent()
+        if parent is not None:
+            parent.RemoteApi = api
 
     def Serialize(self) -> Dict:
         data = {

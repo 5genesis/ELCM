@@ -32,6 +32,7 @@ class ExperimentRun:
         self._dashboardUrl = None
         self.Cancelled = False
         self.Milestones = []
+        self.RemoteApi = None
         self.Created = datetime.now(timezone.utc)
 
         if ExperimentRun.portal is None or ExperimentRun.grafana is None:
