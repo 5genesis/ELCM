@@ -146,15 +146,18 @@ class SliceManager(RestClient):
             return None
 
     def GetBaseSliceDescriptors(self) -> List[str]:
-        url = f"{self.api_url}/base_slice_des"
-        response = self.HttpGet(url, {"Accept": "application/json"})
-        data: List[Dict] = self.ResponseToJson(response)
-        res = []
-        for desc in data:
-            descId = desc.get('Slice_des_ID', desc.get('base_slice_des_id', None))
-            if descId is not None:
-                res.append(descId)
-        return res
-
+        try:
+            url = f"{self.api_url}/base_slice_des"
+            response = self.HttpGet(url, {"Accept": "application/json"})
+            data: List[Dict] = self.ResponseToJson(response)
+            res = []
+            for desc in data:
+                descId = desc.get('Slice_des_ID', desc.get('base_slice_des_id', None))
+                if descId is not None:
+                    res.append(descId)
+            return res
+        except Exception as e:
+            Log.E(f"Exception while retrieving Base Slice Descriptors: {e}")
+            return []
 
 
