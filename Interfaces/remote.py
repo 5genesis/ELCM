@@ -1,6 +1,7 @@
 from REST import RestClient
 from Executor import ExecutorStatus
 from typing import List, Tuple, Dict, Optional
+from Helper import Log
 
 
 class RemoteApi(RestClient):
@@ -8,13 +9,40 @@ class RemoteApi(RestClient):
         super().__init__(host, port, '/distributed')
 
     def GetStatus(self, remoteId: int) -> Tuple[Optional[ExecutorStatus], List[str]]:
-        pass
+        try:
+            response = self.HttpGet(f'/{remoteId}/status')
+            data: Dict = self.ResponseToJson(response)
+            if data['success']:
+                return data['status'], data['milestones']
+            else:
+                raise RuntimeError(data['message'])
+        except Exception as e:
+            Log.E(f"GetStatus error: {e}")
+            return None, []
 
-    def GetAllValues(self, remoteId: int, name: str = None) -> Dict[str, str]:
-        pass
+    def GetAllValues(self, remoteId: int) -> Dict[str, str]:
+        try:
+            response = self.HttpGet(f'/{remoteId}/values')
+            data: Dict = self.ResponseToJson(response)
+            if data['success']:
+                return data['values']
+            else:
+                raise RuntimeError(data['message'])
+        except Exception as e:
+            Log.E(f"GetAllValues error: {e}")
+            return {}
 
-    def GetValue(self, remoteId: int, name: str = None) -> str:
-        pass
+    def GetValue(self, remoteId: int, name: str = None) -> Optional[str]:
+        try:
+            response = self.HttpGet(f'/{remoteId}/values/{name}')
+            data: Dict = self.ResponseToJson(response)
+            if data['success']:
+                return data['value']
+            else:
+                raise RuntimeError(data['message'])
+        except Exception as e:
+            Log.E(f"GetAllValues error: {e}")
+            return None
 
     def GetResults(self, remoteId: int):
         pass
