@@ -1,5 +1,4 @@
 from REST import RestClient
-from Executor import ExecutorStatus
 from typing import List, Tuple, Dict, Optional
 from Helper import Log
 
@@ -8,12 +7,13 @@ class RemoteApi(RestClient):
     def __init__(self, host, port):
         super().__init__(host, port, '/distributed')
 
-    def GetStatus(self, remoteId: int) -> Tuple[Optional[ExecutorStatus], List[str]]:
+    def GetStatus(self, remoteId: int) -> Tuple[Optional['ExecutorStatus'], List[str]]:
+        from Executor import ExecutorStatus
         try:
             response = self.HttpGet(f'/{remoteId}/status')
             data: Dict = self.ResponseToJson(response)
             if data['success']:
-                return data['status'], data['milestones']
+                return ExecutorStatus[data['status']], data['milestones']
             else:
                 raise RuntimeError(data['message'])
         except Exception as e:
@@ -41,7 +41,7 @@ class RemoteApi(RestClient):
             else:
                 raise RuntimeError(data['message'])
         except Exception as e:
-            Log.E(f"GetAllValues error: {e}")
+            Log.E(f"GetValue error: {e}")
             return None
 
     def GetResults(self, remoteId: int):
