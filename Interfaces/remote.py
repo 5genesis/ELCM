@@ -46,3 +46,14 @@ class RemoteApi(RestClient):
 
     def GetResults(self, remoteId: int):
         pass
+
+
+class ElcmDirect(RestClient):
+    def __init__(self, host, port):
+        super().__init__(host, port, '/api/v0')
+
+    def ForceRun(self, descriptor: Dict) -> Optional[int]:
+        from json import dumps
+        url = f"{self.api_url}/run"
+        response = self.HttpPost(url, extra_headers={'Content-Type': 'application/json'}, body=dumps(descriptor))
+        return self.ResponseToJson(response).get('ExecutionId', None)

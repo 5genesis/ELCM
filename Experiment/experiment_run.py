@@ -138,6 +138,17 @@ class ExperimentRun:
         self.CoarseStatus = CoarseStatus.Cancelled
 
     def PreRun(self):
+        # TESTING
+        from Data import ExperimentType
+        if self.Descriptor.Type == ExperimentType.Distributed:
+            from Helper import Config
+            from Interfaces import ElcmDirect
+            host, port = Config().EastWest.GetRemote(self.Descriptor.Remote)
+            remote = ElcmDirect(host, port)
+            descriptor = self.Descriptor.RemoteDescriptor
+            descriptor['Extra'] = {'PeerId': self.ExecutionId}
+            peerId = remote.ForceRun(descriptor)
+
         self.CoarseStatus = CoarseStatus.PreRun
         self.PreRunner.Start()
 
