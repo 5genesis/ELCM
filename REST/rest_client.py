@@ -34,7 +34,7 @@ class RestClient:
 
     def Trace(self, traceId, url, method, headers=None, body=None, files=None):
         from Helper import Log
-        Log.D(f"[{traceId}] >> [{method}] {self.api_url}/{url}")
+        Log.D(f"[{traceId}] >> [{method}] {url}")
         for name, param in [('Headers', headers), ('Body', body), ('Files', files)]:
             if param is not None:
                 Log.D(f'[{traceId}] >> {name}: {param}')

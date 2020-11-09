@@ -61,4 +61,4 @@ class ExecutionQueue:
                     Log.I(f'Removing Execution {execution.Id} from queue (status: {execution.CoarseStatus.name})')
                     cls.Delete(execution.Id)
             except Exception as e:
-                Log.C(f"Exeption while updating execution {execution.Id}: {e}")
+                Log.C(f"Exception while updating execution {execution.Id}: {e}")

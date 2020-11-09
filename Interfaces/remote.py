@@ -10,7 +10,7 @@ class RemoteApi(RestClient):
     def GetStatus(self, remoteId: int) -> Tuple[Optional['ExecutorStatus'], List[str]]:
         from Executor import ExecutorStatus
         try:
-            response = self.HttpGet(f'/{remoteId}/status')
+            response = self.HttpGet(f'{self.api_url}/{remoteId}/status')
             data: Dict = self.ResponseToJson(response)
             if data['success']:
                 return ExecutorStatus[data['status']], data['milestones']
@@ -22,7 +22,7 @@ class RemoteApi(RestClient):
 
     def GetAllValues(self, remoteId: int) -> Dict[str, str]:
         try:
-            response = self.HttpGet(f'/{remoteId}/values')
+            response = self.HttpGet(f'{self.api_url}/{remoteId}/values')
             data: Dict = self.ResponseToJson(response)
             if data['success']:
                 return data['values']
@@ -34,7 +34,7 @@ class RemoteApi(RestClient):
 
     def GetValue(self, remoteId: int, name: str = None) -> Optional[str]:
         try:
-            response = self.HttpGet(f'/{remoteId}/values/{name}')
+            response = self.HttpGet(f'{self.api_url}/{remoteId}/values/{name}')
             data: Dict = self.ResponseToJson(response)
             if data['success']:
                 return data['value']

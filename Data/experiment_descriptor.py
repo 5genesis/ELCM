@@ -10,6 +10,7 @@ class ExperimentType(Enum):
     Standard = 1
     Custom = 2
     MONROE = 3
+    Distributed = 4
 
 
 class ExperimentDescriptor:
@@ -86,6 +87,10 @@ class ExperimentDescriptor:
     @property
     def Remote(self) -> Optional[str]:
         return self._data['Remote']
+
+    @property
+    def RemoteDescriptor(self) -> Optional[Dict]:
+        return self._data.get("RemoteDescriptor", None)
 
     @property
     def ValidityCheck(self) -> Tuple[bool, List[str]]:
