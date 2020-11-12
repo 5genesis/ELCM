@@ -17,6 +17,7 @@ class Coordinate(Task):
                 if host is not None:
                     remoteApi = RemoteApi(host, port)
                     self.parent.RemoteApi = remoteApi
+                    # TODO: Why are these messages not visible in the logs?
                     self.Log(Level.INFO, 'Remote connection configured. Waiting for remote Execution ID...')
 
                     timeout = eastWest.Timeout or 120

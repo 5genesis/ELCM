@@ -16,7 +16,7 @@ class PreRunner(ExecutorBase):
         self.AddMessage("Configuration completed", 10)
 
         try:
-            Coordinate(self.Log, self)
+            Coordinate(self.Log, self).Start()
         except Exception as e:
             self.Log(Level.ERROR, f'Unable to continue. Coordination failed: {e}')
             raise e

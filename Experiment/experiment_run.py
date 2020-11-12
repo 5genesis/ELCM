@@ -148,9 +148,9 @@ class ExperimentRun:
                 remote = ElcmDirect(host, port)
                 descriptor = self.Descriptor.RemoteDescriptor
                 descriptor['Extra'] = {'PeerId': self.ExecutionId}
-                peerId = remote.ForceRun(descriptor)
+                self.RemoteId = remote.ForceRun(descriptor)
             else:  # We are secondary
-                peerId = self.Descriptor.Extra['PeerId']
+                self.RemoteId = self.Descriptor.Extra['PeerId']
 
         self.CoarseStatus = CoarseStatus.PreRun
         self.PreRunner.Start()
