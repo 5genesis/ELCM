@@ -141,13 +141,16 @@ class ExperimentRun:
         # TESTING
         from Data import ExperimentType
         if self.Descriptor.Type == ExperimentType.Distributed:
-            from Helper import Config
-            from Interfaces import ElcmDirect
-            host, port = Config().EastWest.GetRemote(self.Descriptor.Remote)
-            remote = ElcmDirect(host, port)
-            descriptor = self.Descriptor.RemoteDescriptor
-            descriptor['Extra'] = {'PeerId': self.ExecutionId}
-            peerId = remote.ForceRun(descriptor)
+            if self.Descriptor.RemoteDescriptor is not None:  # We are primary
+                from Helper import Config
+                from Interfaces import ElcmDirect
+                host, port = Config().EastWest.GetRemote(self.Descriptor.Remote)
+                remote = ElcmDirect(host, port)
+                descriptor = self.Descriptor.RemoteDescriptor
+                descriptor['Extra'] = {'PeerId': self.ExecutionId}
+                peerId = remote.ForceRun(descriptor)
+            else:  # We are secondary
+                peerId = self.Descriptor.Extra['PeerId']
 
         self.CoarseStatus = CoarseStatus.PreRun
         self.PreRunner.Start()
