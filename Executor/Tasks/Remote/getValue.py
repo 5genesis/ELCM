@@ -1,14 +1,13 @@
-from Task import Task
+from .base_remote_task import BaseRemoteTask
 from Helper import Level
 from time import sleep
 
 
-class GetValue(Task):
+class GetValue(BaseRemoteTask):
     def __init__(self, logMethod, parent, params):
-        super().__init__("Get Value", parent, params, logMethod, None)
+        super().__init__("Get Value", logMethod, parent, params)
 
     def Run(self):
-        timeout = self.params.get('Timeout', 30)
         valueName = self.params.get('Value', None)
         publishName = self.params.get('PublishName', valueName)
 
@@ -18,15 +17,15 @@ class GetValue(Task):
 
         value = None
         while value is None:
-            self.Log(Level.DEBUG, f"Trying to retrieve '{valueName}' value from remote. Timeout in {timeout} seconds.")
-            value = self.parent.RemoteApi.GetValue(self.parent.RemoteId, valueName)
+            self.Log(Level.DEBUG,
+                     f"Trying to retrieve '{valueName}' value from remote. Timeout in {self.timeout} seconds.")
+            value = self.remoteApi.GetValue(self.remoteId, valueName)
             if value is None:
-                if timeout <= 0: break
+                if self.timeout <= 0:
+                    raise RuntimeError(f"Timeout reached while waiting for remote remote value '{valueName}'.")
                 sleep(5)
-                timeout -= 5
+                self.timeout -= 5
 
-        if value is not None:
-            self.Log(Level.INFO, f"Value received ({valueName}={value}).")
-            self.Publish(publishName, value)
-        else:
-            raise RuntimeError(f"Timeout reached while waiting for remote remote value '{valueName}'.")
+        self.Log(Level.INFO, f"Value received ({valueName}={value}).")
+        self.Publish(publishName, value)
+
