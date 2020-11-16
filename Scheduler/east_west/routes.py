@@ -30,7 +30,7 @@ def peer(executionId: int):
 def status(executionId: int):
     execution = ExecutionQueue.Find(executionId)
     if execution is not None:
-        return jsonify({'success': True, 'status': execution.Status, 'milestones': execution.Milestones,
+        return jsonify({'success': True, 'status': execution.CoarseStatus.name, 'milestones': execution.Milestones,
                         'message': f'Status of execution {executionId} retrieved successfully'})
     else:
         return jsonify(notFound)

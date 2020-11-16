@@ -71,6 +71,8 @@ class ExperimentRun:
         if value != self._coarseStatus:
             self._coarseStatus = value
             ExperimentRun.portal.UpdateExecutionData(self.Id, status=value.name)
+            if value.name not in self.Milestones:
+                self.Milestones.append(value.name)
 
     @property
     def DashboardUrl(self):
