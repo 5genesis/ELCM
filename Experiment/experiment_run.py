@@ -233,7 +233,8 @@ class ExperimentRun:
             'CoarseStatus': self.CoarseStatus.name,
             'Cancelled': self.Cancelled,
             'JsonDescriptor': self.Descriptor.Json,
-            'Milestones': self.Milestones
+            'Milestones': self.Milestones,
+            'RemoteId': self.RemoteId
         }
         return data
 

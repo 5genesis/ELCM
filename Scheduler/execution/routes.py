@@ -80,6 +80,15 @@ def logs(executionId: int):
     })
 
 
+@bp.route('<int:executionId>/peerId')
+def peerId(executionId: int):
+    execution = executionOrTombstone(executionId)
+
+    return jsonify({
+        'RemoteId': execution.RemoteId if execution is not None else None
+    })
+
+
 @bp.route('<int:executionId>/results')
 def results(executionId: int):
     execution = executionOrTombstone(executionId)
