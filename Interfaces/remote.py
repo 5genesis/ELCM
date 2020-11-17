@@ -8,12 +8,12 @@ class RemoteApi(RestClient):
         super().__init__(host, port, '/distributed')
 
     def GetStatus(self, remoteId: int) -> Tuple[Optional['ExecutorStatus'], List[str]]:
-        from Executor import ExecutorStatus
+        from Experiment import ExperimentStatus
         try:
             response = self.HttpGet(f'{self.api_url}/{remoteId}/status')
             data: Dict = self.ResponseToJson(response)
             if data['success']:
-                return ExecutorStatus[data['status']], data['milestones']
+                return ExperimentStatus[data['status']], data['milestones']
             else:
                 raise RuntimeError(data['message'])
         except Exception as e:
