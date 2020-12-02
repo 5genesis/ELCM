@@ -44,9 +44,9 @@ class PublishFromSource(Task):
         raise RuntimeError(f"'{variable}' not defined, please review the Task configuration.")
 
 
-class PublishFromPreviousLog(PublishFromSource):
+class PublishFromPreviousTaskLog(PublishFromSource):
     def __init__(self, logMethod, parent, params):
-        super().__init__("Publish From Previous Log", parent, params, logMethod)
+        super().__init__("Publish From Previous Task Log", parent, params, logMethod)
 
     def generator(self, params: Dict):
         logMessages = self.parent.Params["PreviousTaskLog"]

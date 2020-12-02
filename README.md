@@ -392,6 +392,17 @@ Will produce this message in the log:
 
 `- INFO - 1: Text; 2: 1; 3: <<UNDEFINED>>; 4: NoProblem`
 
+#### Run.PublishFromFile / Run.PublishFromPreviousTaskLog
+Reads the contents of a file / the log of the previous task and looks for lines that match the specified regular
+expression pattern, publishing the groups found. Configuration values:
+- `Pattern`: Regular expression to try to match, following
+[Python's syntax](https://docs.python.org/3/library/re.html#regular-expression-syntax).
+- `Keys`: List of (index, key) pairs, where index refers to the regex group, and key is the identifier to use when publishing.
+> - Groups are defined within regular expressions using '(' ... ')'.
+> - Group 0 always refers to the complete matched line, manually specified groups start at index 1.
+> - While writing the `Keys` in the task configuration note that YAML does not have a syntax for tuples, use lists of two elements instead.
+- `Path` (only for Run.PublishFromFile): Path of the file to read
+
 #### Run.SingleSliceCreationTime
 Sends the Slice Creation Time reported by the Slice Manager to InfluxDb. This task will not perform any deployment
  by itself, and will only read the values for an slice deployed during the experiment pre-run stage.
