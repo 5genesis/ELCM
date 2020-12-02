@@ -14,6 +14,7 @@ class Task:
         self.logMethod = Log.Log if logMethod is None else logMethod
         self.condition = conditionMethod
         self.Vault = {}
+        self.LogMessages = []
 
     def Start(self) -> Dict:
         if self.condition is None or self.condition():
@@ -35,3 +36,4 @@ class Task:
 
     def Log(self, level: Union[Level, str], msg: str):
         self.logMethod(level, msg)
+        self.LogMessages.append(msg)
