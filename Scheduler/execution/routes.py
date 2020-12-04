@@ -89,8 +89,13 @@ def peerId(executionId: int):
     })
 
 
+# Shared implementation with east_west.files
 @bp.route('<int:executionId>/results')
 def results(executionId: int):
+    return handleExecutionResults(executionId)
+
+
+def handleExecutionResults(executionId: int):
     execution = executionOrTombstone(executionId)
     if execution is not None:
         folder = abspath(Config().ResultsFolder)

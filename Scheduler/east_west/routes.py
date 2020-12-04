@@ -1,4 +1,5 @@
 from Scheduler.east_west import bp
+from Scheduler.execution import handleExecutionResults
 from flask import jsonify, request, json
 from Status import ExecutionQueue
 
@@ -66,3 +67,9 @@ def results(executionId: int):
         return "PENDING"
     else:
         return jsonify(notFound)
+
+
+# Shared implementation with execution.results
+@bp.route('<int:executionId>/files')
+def files(executionId: int):
+    return handleExecutionResults(executionId)

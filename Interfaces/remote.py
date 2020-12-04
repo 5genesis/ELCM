@@ -47,6 +47,9 @@ class RemoteApi(RestClient):
     def GetResults(self, remoteId: int):
         pass
 
+    def GetFiles(self, remoteId: int):
+        pass
+
 
 class ElcmDirect(RestClient):
     def __init__(self, host, port):
