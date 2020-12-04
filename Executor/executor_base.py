@@ -29,7 +29,8 @@ class ExecutorBase(Child):
         self.Status = Status.Init
         self.Messages = []
         self.PerCent = 0
-        self.AddMessage("Init")
+        if not self.params.get('Deserialized', False):
+            self.AddMessage("Init")
 
     @property
     def Params(self) -> Dict:

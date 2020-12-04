@@ -52,10 +52,13 @@ class RestClient:
         Log.D(f'[{traceId}] << [Code {code}] {body}')
         return response
 
-    def DownloadFile(self, url, output_folder):
-        response = self.HttpGet(url)
-        filename = self.GetFilename(response.headers["Content-Disposition"])
-        output_file = realpath(join(output_folder, filename))
+    def DownloadFile(self, url, output_folder) -> Optional[str]:
+        try:
+            response = self.HttpGet(url)
+            filename = self.GetFilename(response.headers["Content-Disposition"])
+            output_file = realpath(join(output_folder, filename))
+        except Exception:
+            return None
 
         with open(output_file, 'wb+') as out:
             out.write(response.data)
