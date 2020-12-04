@@ -17,7 +17,7 @@ class Payload(Enum):
 class RestClient:
     HEADERS = {'Accept-Language': 'en-US;q=0.5,en;q=0.3'}
     RETRIES = 3
-    FILENAME_PATTERN = re.compile(r".*filename=\"(.*)\"")
+    FILENAME_PATTERN = re.compile(r'.*filename="?(.*)"?')
 
     def __init__(self, api_host, api_port, suffix, https=False, insecure=False):
         self.api_url = f'http{"s" if https else ""}://{api_host}:{api_port}{suffix}'

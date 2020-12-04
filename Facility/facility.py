@@ -29,15 +29,6 @@ class Facility:
 
     Validation: List[Tuple[Level, str]] = []
 
-    @property
-    def ActiveExperiments(self):
-        return self.activeExperiments
-
-    @ActiveExperiments.setter
-    def ActiveExperiments(self, value):
-        Log.D(f"Setting ActiveExperiments to {value}, was {self.activeExperiments}")
-        self.activeExperiments = value
-
     @classmethod
     def Reload(cls):
         from Helper import IO
@@ -276,8 +267,8 @@ class Facility:
             cls.requesters[executor] = resourceIds
 
         # For exclusive experiments check if something else is running
-        if exclusive and cls.ActiveExperiments != 0:
-            Log.D(f"Resources denied to {executor}: Requests exclusive execution ({cls.ActiveExperiments} active)")
+        if exclusive and cls.activeExperiments != 0:
+            Log.D(f"Resources denied to {executor}: Requests exclusive execution ({cls.activeExperiments} active)")
             return False
 
         # For non exclusive experiments check if an exclusive experiment is running
@@ -311,7 +302,7 @@ class Facility:
 
         if exclusive:
             cls.activeExclusive = owner.ExecutionId
-        cls.ActiveExperiments += 1
+        cls.activeExperiments += 1
 
         return True
 
@@ -324,7 +315,7 @@ class Facility:
 
         if execution == cls.activeExclusive:
             cls.activeExclusive = None
-        cls.ActiveExperiments -= 1
+        cls.activeExperiments -= 1
 
     @classmethod
     def _releaseResources(cls, ids: List[str]):

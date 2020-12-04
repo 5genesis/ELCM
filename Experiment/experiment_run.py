@@ -195,14 +195,25 @@ class ExperimentRun:
             self.handleExecutionEnd()
 
     def handleExecutionEnd(self):
+        allFiles = self.GeneratedFiles
+
+        # Try to get the log files from the remote side
+        if self.RemoteId is not None:
+            Log.I(f'Trying to retrieve remote side files.')
+            file = self.RemoteApi.GetFiles(self.RemoteId, self.TempFolder.name)
+            if file is not None:
+                allFiles.append(file)
+            else:
+                Log.W("Could not retrieve remote side files.")
+
         # Compress all generated files
         try:
             from Helper import Compress, IO
-            Log.I(f"Experiment generated files: {self.GeneratedFiles}")
+            Log.I(f"Experiment generated files: {allFiles}")
             folder = abspath(Config().ResultsFolder)
             IO.EnsureFolder(folder)
             path = join(folder, f"{self.Id}.zip")
-            Compress.Zip(self.GeneratedFiles, path, flat=True)
+            Compress.Zip(allFiles, path, flat=True)
         except Exception as e:
             Log.E(f"Exception while compressing experiment files ({self.Id}): {e}")
 

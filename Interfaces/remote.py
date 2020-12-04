@@ -1,6 +1,7 @@
 from REST import RestClient
 from typing import List, Tuple, Dict, Optional
 from Helper import Log
+from time import sleep
 
 
 class RemoteApi(RestClient):
@@ -47,8 +48,15 @@ class RemoteApi(RestClient):
     def GetResults(self, remoteId: int):
         pass
 
-    def GetFiles(self, remoteId: int):
-        pass
+    def GetFiles(self, remoteId: int, outputPath: str) -> Optional[str]:
+        retries = 5
+        file = None
+        while retries > 0 and file is None:
+            file = self.DownloadFile(f"{self.api_url}/{remoteId}/files", outputPath)
+            if file is None:
+                retries -= 1
+                sleep(5)
+        return file
 
 
 class ElcmDirect(RestClient):
