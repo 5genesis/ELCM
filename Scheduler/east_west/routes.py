@@ -75,14 +75,21 @@ def results(executionId: int):
             for measurement in measurements:
                 payloads = influx.GetMeasurement(executionId, measurement)
                 data[measurement] = []
+
                 for payload in payloads:
-                    points = []
-                    for point in payload.Points:
-                        points.append([point.Time, point.Fields])
-                    data[measurement].append({
-                        'tags': payload.Tags,
-                        'points': points
-                    })
+                    if len(payload.Points) != 0:
+                        header = list(payload.Points[0].Fields.keys())
+                        points = []
+                        for point in payload.Points:
+                            fields = point.Fields
+                            values = [fields[value] for value in header]
+
+                            points.append([point.Time.timestamp(), values])
+                        data[measurement].append({
+                            'tags': payload.Tags,
+                            'header': header,
+                            'points': points
+                        })
 
             return jsonify({'success': True, 'measurements': measurements, 'data': data,
                             'message': f"Results for execution {executionId} retrieved successfully"})
