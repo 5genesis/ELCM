@@ -38,6 +38,18 @@ class InfluxPayload:
         return f"InfluxPayload['{self.Measurement}' - Tags: {self.Tags} - " + \
             f"Points: [{', '.join(str(p) for p in self.Points)}]]"
 
+    @classmethod
+    def FromEastWestData(cls, measurement: str, tags: Dict[str, str], header: List[str], points: List):
+        res = InfluxPayload(measurement)
+        res.Tags = tags
+        for point in points:
+            timestamp, values = point
+            influxPoint = InfluxPoint(datetime.fromtimestamp(timestamp))
+            for key, value in zip(header, values):
+                influxPoint.Fields[key] = value
+            res.Points.append(influxPoint)
+        return res
+
 
 class InfluxDb:
     client = None

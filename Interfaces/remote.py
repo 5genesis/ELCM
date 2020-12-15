@@ -45,8 +45,39 @@ class RemoteApi(RestClient):
             Log.E(f"GetValue error: {e}")
             return None
 
-    def GetResults(self, remoteId: int):
-        pass
+    def GetResults(self, remoteId: int) -> List['InfluxPayload']:
+        from Helper import InfluxPayload
+        url = f'{self.api_url}/{remoteId}/results'
+        retries = 5
+
+        while retries > 0:
+            try:
+                response = self.HttpGet(url, timeout=120)
+
+                status = self.ResponseStatusCode(response)
+                if status != 200: raise RuntimeError(f'Status {status}')
+
+                json = self.ResponseToJson(response)
+                if not json['success']: raise RuntimeError(json['message'])
+
+                measurements = json['measurements']
+                data = json['data']
+                res = []
+
+                for measurement in measurements:
+                    for singlePayload in data[measurement]:
+                        influxPayload = InfluxPayload.FromEastWestData(
+                            measurement, singlePayload['tags'], singlePayload['header'], singlePayload['points'])
+                        res.append(influxPayload)
+
+                return res
+            except Exception as e:
+                Log.E(f"GetResults error: {e}")
+                retries -= 1
+                sleep(5)
+
+        return []
+
 
     def GetFiles(self, remoteId: int, outputPath: str) -> Optional[str]:
         retries = 5
