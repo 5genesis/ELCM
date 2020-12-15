@@ -41,6 +41,7 @@ class InfluxPayload:
 
 class InfluxDb:
     client = None
+    database = None
     baseTags = {}
 
     @classmethod
@@ -61,6 +62,7 @@ class InfluxDb:
             "host": metadata.HostIp,
             "hostname": metadata.HostName
         }
+        cls.database = influx.Database
 
     @classmethod
     def BaseTags(cls) -> Dict[str, object]:
@@ -147,21 +149,21 @@ class InfluxDb:
         if cls.client is None:
             cls.initialize()
 
-        reply = cls.client.query(f'SHOW measurements WHERE ExecutionId =~ /{executionId}/')
+        reply = cls.client.query(f'SHOW measurements WHERE ExecutionId =~ /^{executionId}$/')
         return [e['name'] for e in reply['measurements']]
 
 
     @classmethod
     def GetMeasurement(cls, executionId: int, measurement: str) -> List[InfluxPayload]:
         def _getTagSet(point, tags):
-            values = [point[tag] for tag in tags]
+            values = [str(point[tag]) for tag in tags]
             return ','.join(values)
 
         def _getDateTime(value: str):
             try:
-                return datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
+                return datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
             except ValueError:
-                return datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
+                return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
 
         if cls.client is None:
             cls.initialize()
@@ -173,7 +175,7 @@ class InfluxDb:
         pointsPerTagSet = {}
 
         # Retrieve all points, separated depending on the tags
-        reply = cls.client.query(f'SELECT * FROM "{measurement}" WHERE ExecutionId =~ /{executionId}/')
+        reply = cls.client.query(f'SELECT * FROM "{measurement}" WHERE ExecutionId =~ /^{executionId}$/')
         for point in reply.get_points():
             tagSet = _getTagSet(point, tags)
             if tagSet not in pointsPerTagSet.keys():

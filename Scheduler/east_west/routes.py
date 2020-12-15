@@ -1,7 +1,8 @@
 from Scheduler.east_west import bp
-from Scheduler.execution import handleExecutionResults
+from Scheduler.execution import handleExecutionResults, executionOrTombstone
 from flask import jsonify, request, json
 from Status import ExecutionQueue
+from Helper import Config, InfluxDb
 
 
 notFound = {'success': False, 'message': 'Execution ID is not valid or experiment is not running'}
@@ -60,11 +61,33 @@ def values(executionId: int, name: str = None):
         return jsonify(notFound)
 
 
+# Note: Routes below can operate with finished exeperiments
+
 @bp.route('/<int:executionId>/results')
 def results(executionId: int):
-    execution = ExecutionQueue.Find(executionId)
+    execution = executionOrTombstone(executionId)
     if execution is not None:
-        return "PENDING"
+        if Config().InfluxDb.Enabled:
+            influx = InfluxDb()
+            measurements = influx.GetExecutionMeasurements(executionId)
+            data = {}
+
+            for measurement in measurements:
+                payloads = influx.GetMeasurement(executionId, measurement)
+                data[measurement] = []
+                for payload in payloads:
+                    points = []
+                    for point in payload.Points:
+                        points.append([point.Time, point.Fields])
+                    data[measurement].append({
+                        'tags': payload.Tags,
+                        'points': points
+                    })
+
+            return jsonify({'success': True, 'measurements': measurements, 'data': data,
+                            'message': f"Results for execution {executionId} retrieved successfully"})
+        else:
+            return {'success': False, 'message': 'Database not available'}
     else:
         return jsonify(notFound)
 
