@@ -2,7 +2,7 @@ from influxdb import InfluxDBClient
 from .config import Config
 from typing import Dict, List, Union
 from datetime import datetime, timezone
-from csv import DictWriter, DictReader, Sniffer
+from csv import DictWriter, DictReader, Dialect, QUOTE_NONE
 from os.path import abspath
 import re
 
@@ -49,6 +49,16 @@ class InfluxPayload:
                 influxPoint.Fields[key] = value
             res.Points.append(influxPoint)
         return res
+
+
+class baseDialect(Dialect):
+    delimiter = ','
+    escapechar = None
+    doublequote = False
+    skipinitialspace = False
+    lineterminator = '\r\n'
+    quotechar = ''
+    quoting = QUOTE_NONE
 
 
 class InfluxDb:
@@ -126,13 +136,6 @@ class InfluxDb:
             cls.initialize()
 
         with open(csvFile, 'r', encoding='utf-8', newline='') as file:
-            sniffer = Sniffer()
-            if not sniffer.has_header(file.read(1024)):
-                raise RuntimeError("CSV file does not seem to contain a header")
-            file.seek(0)
-            dialect = sniffer.sniff(file.read(1024), delimiters=delimiter)
-            file.seek(0)
-
             header = file.readline()
             keys = [k.strip() for k in header.split(delimiter)]
 
@@ -140,11 +143,20 @@ class InfluxDb:
                 raise RuntimeError(f"CSV file does not seem to contain timestamp ('{timestampKey}') values. "
                                    f"Keys in file: {keys}")
 
+            dialect = baseDialect()
+            dialect.delimiter = str(delimiter.strip())
+
             csv = DictReader(file, fieldnames=keys, restval=None, dialect=dialect)
             payload = InfluxPayload(measurement)
 
             for row in csv:
-                timestamp = datetime.fromtimestamp(float(row.pop(timestampKey)), tz=timezone.utc)
+                timestampValue = float(row.pop(timestampKey))
+                try:
+                    timestamp = datetime.fromtimestamp(timestampValue, tz=timezone.utc)
+                except OSError:
+                    # value outside of bounds, maybe because it's specified in milliseconds instead of seconds
+                    timestamp = datetime.fromtimestamp(timestampValue/1000.0, tz=timezone.utc)
+
                 point = InfluxPoint(timestamp)
                 for key, value in row.items():
                     if key in keysToRemove:
