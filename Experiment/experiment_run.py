@@ -187,12 +187,11 @@ class ExperimentRun:
             if self.Executor.Finished:
                 self.PostRun()
         elif self.CoarseStatus == CoarseStatus.PostRun:
-            if self.PostRunner.HasFailed:
-                Log.I(f'Execution {self.Id} has failed on Run')
-                self.CoarseStatus = CoarseStatus.Errored
-            elif self.PostRunner.Finished:
-                self.CoarseStatus = CoarseStatus.Finished
-            self.handleExecutionEnd()
+            if self.PostRunner.HasFailed or self.PostRunner.Finished:
+                if self.PostRunner.HasFailed:
+                    Log.I(f'Execution {self.Id} has failed on Run')
+                self.CoarseStatus = CoarseStatus.Errored if self.PostRunner.HasFailed else CoarseStatus.Finished
+                self.handleExecutionEnd()
 
     def handleExecutionEnd(self):
         allFiles = self.GeneratedFiles
