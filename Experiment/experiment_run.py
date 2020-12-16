@@ -1,6 +1,6 @@
 from Executor import PreRunner, Executor, PostRunner, ExecutorBase
 from Data import ExperimentDescriptor
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from enum import Enum, unique
 from datetime import datetime, timezone
 from tempfile import TemporaryDirectory
@@ -50,6 +50,10 @@ class ExperimentRun:
     @property
     def ExecutionId(self):
         return self.Id
+
+    @property
+    def IsRemoteMaster(self) -> bool:
+        return (self.Descriptor.RemoteDescriptor is not None) if self.Descriptor is not None else False
 
     @property
     def GeneratedFiles(self):
@@ -196,8 +200,20 @@ class ExperimentRun:
     def handleExecutionEnd(self):
         allFiles = self.GeneratedFiles
 
-        # Try to get the log files from the remote side
-        if self.RemoteId is not None:
+        # Handle results from the remote side
+        if self.RemoteId is not None and self.IsRemoteMaster:
+            if Config().InfluxDb.Enabled:
+                from Helper import InfluxDb, InfluxPayload
+                influx = InfluxDb()
+                Log.I(f'Trying to retrieve results from remote side database.')
+                results: List[InfluxPayload] = self.RemoteApi.GetResults(self.RemoteId)
+                Log.D(f'Retrieved {len(results)} payloads: {([p.Measurement for p in results])}')
+                for payload in results:
+                    payload.Measurement = f"Remote_{payload.Measurement}"
+                    payload.Tags['ExecutionId'] = str(self.ExecutionId)
+                    influx.Send(payload)
+                    Log.D(f"Sent '{payload.Measurement}' payload to database")
+
             Log.I(f'Trying to retrieve remote side files.')
             file = self.RemoteApi.GetFiles(self.RemoteId, self.TempFolder.name)
             if file is not None:

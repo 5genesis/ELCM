@@ -8,7 +8,7 @@ class RemoteApi(RestClient):
     def __init__(self, host, port):
         super().__init__(host, port, '/distributed')
 
-    def GetStatus(self, remoteId: int) -> Tuple[Optional['ExecutorStatus'], List[str]]:
+    def GetStatus(self, remoteId: int) -> Tuple[Optional['ExperimentStatus'], List[str]]:
         from Experiment import ExperimentStatus
         try:
             response = self.HttpGet(f'{self.api_url}/{remoteId}/status')
@@ -58,7 +58,11 @@ class RemoteApi(RestClient):
                 if status != 200: raise RuntimeError(f'Status {status}')
 
                 json = self.ResponseToJson(response)
-                if not json['success']: raise RuntimeError(json['message'])
+                if not json['success']:
+                    if "Database not available" in json["message"]:
+                        return []
+                    else:
+                        raise RuntimeError(json['message'])
 
                 measurements = json['measurements']
                 data = json['data']
@@ -77,7 +81,6 @@ class RemoteApi(RestClient):
                 sleep(5)
 
         return []
-
 
     def GetFiles(self, remoteId: int, outputPath: str) -> Optional[str]:
         retries = 5
