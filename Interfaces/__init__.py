@@ -1,3 +1,3 @@
 from .management import Management
 from .portal import PortalApi
-from .remote import RemoteApi, ElcmDirect
+from .remote import RemoteApi
