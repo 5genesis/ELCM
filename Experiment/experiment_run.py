@@ -1,6 +1,6 @@
 from Executor import PreRunner, Executor, PostRunner, ExecutorBase
 from Data import ExperimentDescriptor
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from enum import Enum, unique
 from datetime import datetime, timezone
 from tempfile import TemporaryDirectory
@@ -31,6 +31,9 @@ class ExperimentRun:
         self._coarseStatus = CoarseStatus.Init
         self._dashboardUrl = None
         self.Cancelled = False
+        self.Milestones = []
+        self.RemoteApi = None
+        self.RemoteId = None
         self.Created = datetime.now(timezone.utc)
 
         if ExperimentRun.portal is None or ExperimentRun.grafana is None:
@@ -47,6 +50,10 @@ class ExperimentRun:
     @property
     def ExecutionId(self):
         return self.Id
+
+    @property
+    def IsRemoteMaster(self) -> bool:
+        return (self.Descriptor.RemoteDescriptor is not None) if self.Descriptor is not None else False
 
     @property
     def GeneratedFiles(self):
@@ -68,6 +75,8 @@ class ExperimentRun:
         if value != self._coarseStatus:
             self._coarseStatus = value
             ExperimentRun.portal.UpdateExecutionData(self.Id, status=value.name)
+            if value.name not in self.Milestones:
+                self.Milestones.append(value.name)
 
     @property
     def DashboardUrl(self):
@@ -168,22 +177,44 @@ class ExperimentRun:
             if self.Executor.Finished:
                 self.PostRun()
         elif self.CoarseStatus == CoarseStatus.PostRun:
-            if self.PostRunner.HasFailed:
-                Log.I(f'Execution {self.Id} has failed on Run')
-                self.CoarseStatus = CoarseStatus.Errored
-            elif self.PostRunner.Finished:
-                self.CoarseStatus = CoarseStatus.Finished
-            self.handleExecutionEnd()
+            if self.PostRunner.HasFailed or self.PostRunner.Finished:
+                if self.PostRunner.HasFailed:
+                    Log.I(f'Execution {self.Id} has failed on Run')
+                self.CoarseStatus = CoarseStatus.Errored if self.PostRunner.HasFailed else CoarseStatus.Finished
+                self.handleExecutionEnd()
 
     def handleExecutionEnd(self):
+        allFiles = self.GeneratedFiles
+
+        # Handle results from the remote side
+        if self.RemoteId is not None and self.IsRemoteMaster:
+            if Config().InfluxDb.Enabled:
+                from Helper import InfluxDb, InfluxPayload
+                influx = InfluxDb()
+                Log.I(f'Trying to retrieve results from remote side database.')
+                results: List[InfluxPayload] = self.RemoteApi.GetResults(self.RemoteId)
+                Log.D(f'Retrieved {len(results)} payloads: {([p.Measurement for p in results])}')
+                for payload in results:
+                    payload.Measurement = f"Remote_{payload.Measurement}"
+                    payload.Tags['ExecutionId'] = str(self.ExecutionId)
+                    influx.Send(payload)
+                    Log.D(f"Sent '{payload.Measurement}' payload to database")
+
+            Log.I(f'Trying to retrieve remote side files.')
+            file = self.RemoteApi.GetFiles(self.RemoteId, self.TempFolder.name)
+            if file is not None:
+                allFiles.append(file)
+            else:
+                Log.W("Could not retrieve remote side files.")
+
         # Compress all generated files
         try:
             from Helper import Compress, IO
-            Log.I(f"Experiment generated files: {self.GeneratedFiles}")
+            Log.I(f"Experiment generated files: {allFiles}")
             folder = abspath(Config().ResultsFolder)
             IO.EnsureFolder(folder)
             path = join(folder, f"{self.Id}.zip")
-            Compress.Zip(self.GeneratedFiles, path, flat=True)
+            Compress.Zip(allFiles, path, flat=True)
         except Exception as e:
             Log.E(f"Exception while compressing experiment files ({self.Id}): {e}")
 
@@ -213,7 +244,9 @@ class ExperimentRun:
             'Created': Serialize.DateToString(self.Created),
             'CoarseStatus': self.CoarseStatus.name,
             'Cancelled': self.Cancelled,
-            'JsonDescriptor': self.Descriptor.Json
+            'JsonDescriptor': self.Descriptor.Json,
+            'Milestones': self.Milestones,
+            'RemoteId': self.RemoteId
         }
         return data
 

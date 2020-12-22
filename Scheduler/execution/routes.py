@@ -80,8 +80,22 @@ def logs(executionId: int):
     })
 
 
+@bp.route('<int:executionId>/peerId')
+def peerId(executionId: int):
+    execution = executionOrTombstone(executionId)
+
+    return jsonify({
+        'RemoteId': execution.RemoteId if execution is not None else None
+    })
+
+
+# Shared implementation with east_west.files
 @bp.route('<int:executionId>/results')
 def results(executionId: int):
+    return handleExecutionResults(executionId)
+
+
+def handleExecutionResults(executionId: int):
     execution = executionOrTombstone(executionId)
     if execution is not None:
         folder = abspath(Config().ResultsFolder)

@@ -101,6 +101,7 @@ class Facility:
                 dashboard = data.pop('Dashboard', None)
                 standard = data.pop('Standard', None)
                 custom = data.pop('Custom', None)
+                distributed = data.pop('Distributed', False)
                 parameters = data.pop('Parameters', {})
 
                 if dashboard is None:
@@ -121,7 +122,8 @@ class Facility:
                         'Standard': standard,
                         'PublicCustom': (custom is not None and len(custom) == 0),
                         'PrivateCustom': custom if custom is not None else [],
-                        'Parameters': parameters
+                        'Parameters': parameters,
+                        'Distributed': distributed
                     }
 
                     if dashboard is not None:

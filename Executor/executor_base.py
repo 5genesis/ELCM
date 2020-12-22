@@ -29,7 +29,8 @@ class ExecutorBase(Child):
         self.Status = Status.Init
         self.Messages = []
         self.PerCent = 0
-        self.AddMessage("Init")
+        if not self.params.get('Deserialized', False):
+            self.AddMessage("Init")
 
     @property
     def Params(self) -> Dict:
@@ -73,6 +74,35 @@ class ExecutorBase(Child):
         if self.Status.value < Status.Cancelled.value:
             self.Status = status
         self.LogAndMessage(Level.INFO, f"Finished (status: {self.Status.name})", percent)
+
+    def findParent(self):  # Only running experiments should be able to use this method
+        from Status import ExecutionQueue
+        return ExecutionQueue.Find(self.ExecutionId)
+
+    def AddMilestone(self, milestone: str):
+        parent = self.findParent()
+        if parent is not None:
+            parent.Milestones.append(milestone)
+
+    @property
+    def RemoteApi(self):
+        parent = self.findParent()
+        if parent is not None:
+            return parent.RemoteApi
+        return None
+
+    @RemoteApi.setter
+    def RemoteApi(self, api):
+        parent = self.findParent()
+        if parent is not None:
+            parent.RemoteApi = api
+
+    @property
+    def RemoteId(self):
+        parent = self.findParent()
+        if parent is not None:
+            return parent.RemoteId
+        return None
 
     def Serialize(self) -> Dict:
         data = {

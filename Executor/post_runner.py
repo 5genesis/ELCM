@@ -1,5 +1,5 @@
 from typing import Dict
-from .Tasks.PostRun import Decommission, ReleaseResources
+from .Tasks.PostRun import Decommission, ReleaseResources, Farewell
 from .executor_base import ExecutorBase
 from tempfile import TemporaryDirectory
 
@@ -10,6 +10,9 @@ class PostRunner(ExecutorBase):
 
     def Run(self):
         self.SetStarted()
+
+        Farewell(self.Log, self).Start()
+        self.AddMessage('End coordination completed', 20)
 
         Decommission(self.Log, self, self.Configuration.NetworkServices).Start()
         self.AddMessage('Network services decommisioned', 50)

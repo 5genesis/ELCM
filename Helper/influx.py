@@ -2,7 +2,7 @@ from influxdb import InfluxDBClient
 from .config import Config
 from typing import Dict, List, Union
 from datetime import datetime, timezone
-from csv import DictWriter, DictReader, Sniffer
+from csv import DictWriter, DictReader, Dialect, QUOTE_NONE
 from os.path import abspath
 import re
 
@@ -38,9 +38,32 @@ class InfluxPayload:
         return f"InfluxPayload['{self.Measurement}' - Tags: {self.Tags} - " + \
             f"Points: [{', '.join(str(p) for p in self.Points)}]]"
 
+    @classmethod
+    def FromEastWestData(cls, measurement: str, tags: Dict[str, str], header: List[str], points: List):
+        res = InfluxPayload(measurement)
+        res.Tags = tags
+        for point in points:
+            timestamp, values = point
+            influxPoint = InfluxPoint(datetime.fromtimestamp(timestamp))
+            for key, value in zip(header, values):
+                influxPoint.Fields[key] = value
+            res.Points.append(influxPoint)
+        return res
+
+
+class baseDialect(Dialect):
+    delimiter = ','
+    escapechar = None
+    doublequote = False
+    skipinitialspace = False
+    lineterminator = '\r\n'
+    quotechar = ''
+    quoting = QUOTE_NONE
+
 
 class InfluxDb:
     client = None
+    database = None
     baseTags = {}
 
     @classmethod
@@ -61,6 +84,7 @@ class InfluxDb:
             "host": metadata.HostIp,
             "hostname": metadata.HostName
         }
+        cls.database = influx.Database
 
     @classmethod
     def BaseTags(cls) -> Dict[str, object]:
@@ -112,13 +136,6 @@ class InfluxDb:
             cls.initialize()
 
         with open(csvFile, 'r', encoding='utf-8', newline='') as file:
-            sniffer = Sniffer()
-            if not sniffer.has_header(file.read(1024)):
-                raise RuntimeError("CSV file does not seem to contain a header")
-            file.seek(0)
-            dialect = sniffer.sniff(file.read(1024), delimiters=delimiter)
-            file.seek(0)
-
             header = file.readline()
             keys = [k.strip() for k in header.split(delimiter)]
 
@@ -126,11 +143,20 @@ class InfluxDb:
                 raise RuntimeError(f"CSV file does not seem to contain timestamp ('{timestampKey}') values. "
                                    f"Keys in file: {keys}")
 
+            dialect = baseDialect()
+            dialect.delimiter = str(delimiter.strip())
+
             csv = DictReader(file, fieldnames=keys, restval=None, dialect=dialect)
             payload = InfluxPayload(measurement)
 
             for row in csv:
-                timestamp = datetime.fromtimestamp(float(row.pop(timestampKey)), tz=timezone.utc)
+                timestampValue = float(row.pop(timestampKey))
+                try:
+                    timestamp = datetime.fromtimestamp(timestampValue, tz=timezone.utc)
+                except OSError:
+                    # value outside of bounds, maybe because it's specified in milliseconds instead of seconds
+                    timestamp = datetime.fromtimestamp(timestampValue/1000.0, tz=timezone.utc)
+
                 point = InfluxPoint(timestamp)
                 for key, value in row.items():
                     if key in keysToRemove:
@@ -141,3 +167,61 @@ class InfluxDb:
                 payload.Points.append(point)
 
             return payload
+
+    @classmethod
+    def GetExecutionMeasurements(cls, executionId: int) -> List[str]:
+        if cls.client is None:
+            cls.initialize()
+
+        reply = cls.client.query(f'SHOW measurements WHERE ExecutionId =~ /^{executionId}$/')
+        return [e['name'] for e in reply['measurements']]
+
+
+    @classmethod
+    def GetMeasurement(cls, executionId: int, measurement: str) -> List[InfluxPayload]:
+        def _getTagSet(point, tags):
+            values = [str(point[tag]) for tag in tags]
+            return ','.join(values)
+
+        def _getDateTime(value: str):
+            try:
+                return datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
+            except ValueError:
+                return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+
+        if cls.client is None:
+            cls.initialize()
+
+        # Retrieve the list of tags from the server, to separate from fields
+        reply = cls.client.query(f"show tag keys on {cls.database} from {measurement}")
+        tags = sorted([t['tagKey'] for t in reply.get_points()])
+
+        pointsPerTagSet = {}
+
+        # Retrieve all points, separated depending on the tags
+        reply = cls.client.query(f'SELECT * FROM "{measurement}" WHERE ExecutionId =~ /^{executionId}$/')
+        for point in reply.get_points():
+            tagSet = _getTagSet(point, tags)
+            if tagSet not in pointsPerTagSet.keys():
+                pointsPerTagSet[tagSet] = []
+            pointsPerTagSet[tagSet].append(point)
+
+        res = []
+
+        # Process each set of points as a separate InfluxPayload
+        for points in pointsPerTagSet.values():
+            payload = InfluxPayload(f'Remote_{measurement}')
+            for tag in tags:
+                payload.Tags[tag] = points[0][tag]
+
+            for point in points:
+                timestamp = point.pop('time')
+                influxPoint = InfluxPoint(_getDateTime(timestamp))
+                for key in [f for f in point.keys() if f not in tags]:
+                    influxPoint.Fields[key] = point[key]
+                payload.Points.append(influxPoint)
+
+            res.append(payload)
+
+        return res
+

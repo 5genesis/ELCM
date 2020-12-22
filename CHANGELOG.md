@@ -1,3 +1,13 @@
+**22/12/2020** [Version 2.4.0]
+
+ - Added East/West interface
+ - Added support for distributed experiments
+ - Added PublishFromFile, PublishFromPreviousLog tasks
+ - Improved CsvToInflux task
+ - Improved REST debugging
+ - Fixed timeout issues
+ - Fixed PostRun execution timing
+
 **31/07/2020** [Version 2.3.2]
 
  - Added Base Slice Descriptor and Scenario handling

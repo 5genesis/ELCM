@@ -39,4 +39,10 @@ app.register_blueprint(DispatcherBp, url_prefix='/api/v0')
 from Scheduler.facility import bp as FacilityBp
 app.register_blueprint(FacilityBp, url_prefix='/facility')
 
+if config.EastWest.Enabled:
+    from Scheduler.east_west import bp as EastwestBp
+    app.register_blueprint(EastwestBp, url_prefix='/distributed')
+
+Log.I(f'Optional East/West interface is {Log.State(config.EastWest.Enabled)}')
+
 from Scheduler import routes

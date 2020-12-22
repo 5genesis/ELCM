@@ -15,4 +15,6 @@ class Tombstone:
         self.PostRunner = Executor.Load('PostRunner', str(self.Id))
         self.Created = Serialize.StringToDate(data['Created'])
         self.JsonDescriptor = data.get('JsonDescriptor', {})
+        self.Milestones = data.get('Milestones', [])
+        self.RemoteId = data.get('RemoteId', None)
 

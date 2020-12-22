@@ -1,5 +1,5 @@
 from typing import Dict
-from .Tasks.PreRun import CheckResources, Instantiate
+from .Tasks.PreRun import CheckResources, Instantiate, Coordinate
 from .executor_base import ExecutorBase
 from tempfile import TemporaryDirectory
 from time import sleep
@@ -13,7 +13,16 @@ class PreRunner(ExecutorBase):
     def Run(self):
         self.SetStarted()
 
-        self.AddMessage("Configuration completed", 30)
+        self.AddMessage("Configuration completed", 10)
+
+        try:
+            Coordinate(self.Log, self).Start()
+        except Exception as e:
+            self.Log(Level.ERROR, f'Unable to continue. Coordination failed: {e}')
+            raise e
+
+        self.AddMessage("Coordination completed", 30)
+
         available = False
         while not available:
             result = CheckResources(self.Log, self.ExecutionId, self.Configuration.Requirements,
@@ -22,7 +31,7 @@ class PreRunner(ExecutorBase):
             feasible = result['Feasible']
             if not feasible:
                 self.AddMessage('Instantiation impossible. Aborting')
-                self.Log(Level.CRITICAL,
+                self.Log(Level.ERROR,
                          'Unable to continue. Not enough total resources on VIMs for network services deployment')
                 raise RuntimeError("Not enough VIM resources for experiment.")
             if not available:
