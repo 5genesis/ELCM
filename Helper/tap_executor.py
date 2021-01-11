@@ -86,7 +86,7 @@ class Tap:
             if self.tapConfig.EnsureClosed:
                 if 'Unable to continue. Now exiting TAP CLI' in line:
                     self.closeStarted = True
-                    Tap.ensureTapClosed(self.process, self.logger)
+                    Tap.ensureTapClosed(self.process, self.logger, self.tapConfig.EnsureAdbClosed)
 
                 if Tap.closingRegex.match(line):
                     self.closedInstruments += 1
