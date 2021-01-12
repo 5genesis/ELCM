@@ -8,9 +8,9 @@
 
 #### 5Genesis components
 
- - [Portal](https://github.com/5genesis/Portal) Version 2.4.0 (22/12/2020)
- - [Dispatcher](https://github.com/5genesis/Dispatcher) Commit 2c05c28e812fb712f73b51ab78c1d190c0f50d0e (04/01/2021)
- - [Katana Slice Manager](https://github.com/5genesis/katana-slice_manager) Version 2.2.6 (14/07/2020)
+ - [Portal](https://github.com/5genesis/Portal) Version 2.4.0 (22/12/2020) or later
+ - [Dispatcher](https://github.com/5genesis/Dispatcher) Commit 2c05c28e812fb712f73b51ab78c1d190c0f50d0e (04/01/2021) or later
+ - [Katana Slice Manager](https://github.com/5genesis/katana-slice_manager) Version 2.2.6 (14/07/2020) or later
 
 #### Third party components
 
@@ -279,7 +279,7 @@ top-right of the dashboard.
 For using this feature in the ELCM you only need to specify the URL where `Grafana reporter` is reachable. Please
 refer to the reporter documentation for the configuration of the reporter itself.
 
-The following is an example of a custom template that includes the 5 Genesis branding:
+The following is an example of a custom template that includes the 5Genesis branding:
 
 ```tex
 %use square brackets as golang text templating delimiters
@@ -291,7 +291,7 @@ The following is an example of a custom template that includes the 5 Genesis bra
 \begin{document}
 \title{
 \includegraphics[scale=1.0]{<<PATH TO 5GENESIS LOGO>>}~\\
-5 Genesis [[.Title]] [[if .VariableValues]] \\ \large [[.VariableValues]] [[end]] [[if .Description]] 
+5Genesis [[.Title]] [[if .VariableValues]] \\ \large [[.VariableValues]] [[end]] [[if .Description]]
 %\small [[.Description]] [[end]]}
 \date{[[.FromFormatted]] to [[.ToFormatted]]}
 \maketitle
@@ -479,7 +479,7 @@ slice to be deployed. Configuration values:
 - `NEST`: Absolute path of the NEST file to use
 - `Iterations`: Number of iterations. Defaults to 25
 - `Timeout`: Timeout in (aprox) seconds to wait until the slice is running or deleted before skipping the iteration.
-If not specified or set to None the task will continue indefinitelly.
+If not specified or set to None the task will continue indefinitely.
 - `CSV`: If set, save the generated results to a CSV file in the specified path. In case of error while sending the
 results to InfluxDb a CSV file will be forcibly created on `"@{TempFolder}/SliceCreationTime.csv"` (only if not set,
 otherwise the file will be created as configured).
@@ -487,7 +487,7 @@ otherwise the file will be created as configured).
 ### Run.TapExecute
 Executes a TAP TestPlan, with the possibility of configuring external parameters. Configuration values:
 - `TestPlan`: Path (absolute) of the testplan file.
-- `GatherResults`: Indicates whether or not to compress the generated CSV files to a Zip file (see below)
+- `GatherResults`: Indicates whether to compress the generated CSV files to a Zip file (see below)
 - `External`: Dictionary of external parameters 
 
 ###### Gathering generated results
@@ -503,7 +503,7 @@ Results\{Identifier}\{Date}-{ResultType}-{Identifier}.csv
 
 It's possible to expand the value of some variables enclosed by @{ }. (Use quotes where required in order to generate 
 valid YAML format). Available values are:
-- `@{ExecutionId}:` Experiment execution ID (unique identifier)
+- `@{ExecutionId}`: Experiment execution ID (unique identifier)
 - `@{SliceId}`: ID of the slice deployed by the Slice Manager during the PreRun stage
 - `@{TempFolder}`: Temporal folder exclusive to the current executor, it's deleted when the experiment finishes.
 - `@{Application}`: The `Application` field from the Experiment Descriptor
@@ -517,10 +517,37 @@ Separate values from the `Parameters` dictionary can also be expanded using the 
 - `@[Params.key]`: The value of `key` in the dictionary, or `<<UNDEFINED>>` if not found
 - `@[Params.key:default]`: The value of `key` in the dictionary, or `default` if not found
 
-> A keen reader may notice that this expressions are very similar to the ones defined for `Run.Publish`: They are 
-> implemented together, but use different dictionaries when looking for values. When a expression does not include 
-> a '.' the ELCM will falls back to looking at the Publish values (the default for Release A). If the collection 
+> A keen reader may notice that these expressions are very similar to the ones defined for `Run.Publish`: They are 
+> implemented together, but use different dictionaries when looking for values. When an expression does not include 
+> a '.' the ELCM will fall back to looking at the Publish values (the default for Release A). If the collection 
 > is not 'Publish' or 'Params', the expression will be replaced by `<<UNKNOWN GROUP {collection}>>`
+
+## MONROE experiments:
+
+The ELCM is able to handle the execution of experiments using a [MONROE](https://github.com/MONROE-PROJECT) node. This
+functionality requires:
+
+- A physical or virtual MONROE node that is prepared to be controlled by the
+  [TAP agent](https://github.com/MONROE-PROJECT/monroe-experiment-core/tree/master/schedulers/tap-agent)
+- An OpenTAP instance configured with the required TAP instrument and steps for controlling the MONROE TAP agent
+  (available as part of the [5Genesis TAP plugins](https://github.com/5genesis/TAP-plugins)), and has network
+  connectivity with the MONROE node
+
+This repository includes the files required for handling the execution of MONROE experiments, however, a small
+preparation is needed before they can be used:
+
+- The `MONROE_Base.TapPlan` file is a pre-configured TAP testplan that contains the required steps and external
+  parameters required for controlling the MONROE TAP agent. Open this file using OpenTAP and confirm that no issues
+  appear in the log. In particular:
+    - Check that all steps where loaded successfully (should be 9 in total)
+    - Check that the necessary result listeners are enabled in the `Set execution metadata` step
+    - Check that your MONROE instrument is selected in all MONROE steps (`Start/List/Stop experiment`)
+  > Errors stating that a result listener is missing or that the testplan version is below the one in use can be
+  > ignored.
+- Save the test plan and, if necessary, move it to another location. Note the absolute path of the file.
+- Edit the `TestCases/MONROE_Base.yml` file. This is a special TestCase definition that is used for handling the
+  execution of MONROE experiments and will not appear as a normal test case for experimenters. Change the `<<Replace
+  with the location of your MONROE_Base testplan.>>` placeholder with the absolute path of `MONROE_Base.TapPlan`. 
 
 ## Distributed experiments:
 
