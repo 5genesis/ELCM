@@ -17,7 +17,7 @@ Tap:
   Folder: C:/Program Files/OpenTAP
   Results: C:/Program Files/OpenTAP/Results
   EnsureClosed: True
-  EnsureAdbClosed: True
+  EnsureAdbClosed: False
 Grafana:
   Enabled: False
   Host:

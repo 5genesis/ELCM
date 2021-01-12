@@ -2,105 +2,92 @@
 
 ## Requirements
 
- - [Python 3.7.x](https://www.python.org)
- - [Optional] [Grafana](https://grafana.com/) (tested on version 5.4)
- - [Optional] [Grafana reporter](https://github.com/IzakMarais/reporter) 
- (tested on version 2.1.0, commit 41b38a0)
+ - [Python 3.7.x](https://www.python.org) (see requirements.txt for a detailed view of required packages)
 
-## Interoperability with other components
+### Optional integrations:
 
-The following information specifies the version that most closely match the expected behavior when this package interacts
-with others developed internally in 5 Genesis (i.e. the version that was available during the development and that was 
-used while testing this component). It's possible that most (or all) features work with some previous versions, and most
-probably there will be no issues when using more recent versions.
+#### 5Genesis components
 
- - [Portal](https://gitlab.fokus.fraunhofer.de/5genesis/portal) Version 1.0.8 (29/05/2019)
+ - [Portal](https://github.com/5genesis/Portal) Version 2.4.0 (22/12/2020) or later
+ - [Dispatcher](https://github.com/5genesis/Dispatcher) Commit 2c05c28e812fb712f73b51ab78c1d190c0f50d0e (04/01/2021) or later
+ - [Katana Slice Manager](https://github.com/5genesis/katana-slice_manager) Version 2.2.6 (14/07/2020) or later
 
-## Installing (development)
-> A video detailing the deployment procedure of the ELCM (and Portal) can be seen [in BSCW](https://bscw.fokus.fraunhofer.de/bscw/bscw.cgi/d3208170/Coordinationlayer_call20190422.mp4)
+#### Third party components
 
-> It is recommended, but not required, to run the Portal in a [Python virtual environment](https://virtualenv.pypa.io/en/stable/).
-> If you are not using virtual environments, skip steps 3 and 4.
+ - [Grafana](https://grafana.com/) (tested with version 5.4)
+ - [Grafana reporter](https://github.com/IzakMarais/reporter) (tested with version 2.1.0, commit 41b38a0)
+ - [InfluxDB](https://www.influxdata.com/products/influxdb/) (tested with version 1.7.6)
+ - [OpenTAP](https://www.opentap.io/) (tested with version 9.9 (Windows))
 
-1. Clone the repository to a known folder, e.g. in `c:\ELCM` 
-2. Enter the folder
-```bash
-cd c:/ELCM
-```
-3. Create a new Python virtualenv:
-```bash
-pip install virtualenv
-virtualenv venv
-```
-4. Activate the virtual environment:
-- For Windows:
-```powershell
-venv\Scripts\Activate.bat
-```
-- For Linux:
-```bash
-source venv/bin/activate
-```
-5. Install Python dependencies:
-```bash
-pip install -r requirements.txt
-```
+## Deployment
 
-6. Start the development server:
-```bash
-flask run
-```
-The app will generate a default configuration file (`config.yml`) and start listening for requests on port 5001.
-Refer to the Configuration section for information about customizing the default values.
-Press `Control+C` to stop the development server.
+### Installation procedure
 
-## Deployment (production)
+> Additional dependencies may be needed depending on your environment. For example, older Windows version may require
+certain Visual C++ redistributables to be installed, and the following packages are known to be required on many Ubuntu
+distributions: `gcc python3.7 python3.7-venv python3.7-dev`. Fixes for specific issues are usually easy to find on 
+Internet.
 
-Since the ELCM should not be exposed to the Internet (the administration interface should only be accessed on the host 
-machine or from inside a trusted network), and it will not receive a large number of concurrent requests it is possible 
-to run the ELCM using the included development server. 
+This repository includes two sets of scripts for use on Linux (`.sh`) and Windows (`.ps1`) machines. In general
+these scripts should be able to perform most of the actions required for instantiating the ELCM, however, depending
+on the deployment environment some actions may fail or require additional tweaking. The contents of the scripts can
+be used as a guide for manual installation, and a description of the actions performed by the scripts is included below
+for use as reference.
 
-It is, however, also possible to run the ELCM using a production WSGI server such as [Waitress](https://github.com/Pylons/waitress) 
-following these instructions:
+1. Ensure that Python 3.7.x is installed. For environments with multiple Python versions note the correct alias.
+   > For example, older Ubuntu distributions refer to Python 2.x by default when invoking `python`, and reference 
+   > Python 3.7 as `python3` or `python3.7`. Use the `--version` parameter to check the version number.
+2. Clone the repository to a known folder
+3. Run `install.sh <python_alias>` or `install.ps1 <python_alias>` (depending on your OS). The script will:
+  - Display the Python version in use (ensure that this is 3.7.x)
+  - Create a [Python virtual environment](https://virtualenv.pypa.io/en/stable/) for exclusive use of the ELCM.
+  - Install the required Python packages (using [pip](https://pypi.org/project/pip/))
+  > Most issues occur during this step, since it is highly dependent on the environment. In case of error, note the 
+  > name of the package that could not be installed, the error message and your OS distribution. Performing an Internet 
+  > search with this information usually yields a solution. Once solved you may re-run the script (delete the `venv` 
+  > folder that was created by the script if necessary) until all packages are correctly installed.
+4. Run `start.sh` or `start.ps1` (depending on your OS). This will create an empty configuration file (`config.yml`).
+   If necessary, press ctrl+c (or your OS equivalent) in order to close the server.
+5. Ensure that the `config.yml` is available in the ELCM folder and customize its contents. Information about all the 
+   possible configuration values can be found below.
 
-1. Install Waitress on the ELCM Python environment:
-```bash
-pip install waitress
-```
-2. Start the server:
-```bash
-waitress-serve --listen=*:5001 app:app
-```
+### Starting the ELCM
+
+> Before using the scripts for starting a production ELCM instance consider changing the `<YOUR SECRET KEY HERE>`
+> value to a random string (for more info see [this answer](https://stackoverflow.com/a/22463969).). This is 
+> particularly important if the ELCM port is exposed to the Internet (in this case also consider using `waitress`,
+> as can be seen in the Portal scripts).
+> 
+> Please note that **it is not recommended exposing the ELCM to the open Internet**, regardless of these tips.
+
+Once configured, the ELCM can be started by running `start.sh <port_number>` or `start.ps1 <port_number>`. If not
+specified, the server will listen on port 5001. In order to stop the server, press ctrl+c (or your OS equivalent) in
+the terminal where the server is running.
 
 ## Configuration
 
-The ELCM instance can be configured by setting environment variables and by editing the `config.yml` file. The ELCM uses
-`python-dotenv`, so it's possible to save the environment variables in the `.flaskenv` file.
+The ELCM instance can be configured by editing the `config.yml` file. The values that can be configured are:
 
-The environment variables that can be set are:
-* FLASK_RUN_PORT: Port where the ELCM will listen (5000 by default)
-* SECRET_KEY: A random string.
-> Since the ELCM should not be exposed to the Internet it is not so important to set a random SECRET_KEY. However, the 
-value is still **needed** and it's recommended to follow the same approach as with the 5Genesis Portal.
-
-The values that can be configured on `config.yml` are:
 * TempFolder: Root folder where the temporal files for the Executors can be created.
+* ResultsFolder: Root folder where the files generated by each experiment execution will be saved.
 * Logging:
     * Folder: Root folder where the different log files will be saved.
     * AppLevel: Minimum log level that will be displayed in the console.
     * LogLevel: Minimum log level that will be recorded in the log files.
-* Dispatcher:
-    * Host: Location of the machine where the Dispatcher is running (localhost by default).
-    * Port: Port where the Dispatcher is listening for connections (5000 by default).
-> The Dispatcher does not currently exist as a separate entity, so this information refers to the Portal during Release A.
+* Portal:
+    * Host: Location of the machine where the Portal is running (localhost by default).
+    * Port: Port where the Portal is listening for connections (5000 by default).
 * Tap: 
-    * Enabled: Whether or not to use TAP, if set to False the settings below will be ignored
-    * OpenTap: True if using OpenTap (TAP 9), False if using TAP 8
-    * Exe: TAP CLI executable
+    * Enabled: Whether to use TAP or not, if set to False the settings below will be ignored
+    * OpenTap: True if using OpenTap (TAP 9.0 or later), False if using TAP 8 (legacy option)
+    * Exe: TAP CLI executable name
     * Folder: TAP installation folder
     * Results: TAP results folder
     * EnsureClosed: Performs an additional check on test plan completion, to ensure that all child processes are 
-    correctly closed. Recommended to set to True, but increases execution time by roughtly 15 seconds.
+    correctly closed. Defaults to True.
+    * EnsureAdbClosed: Forcibly close any adb process at the end of the execution. **This will close adb instances 
+      started by any other means, and may cause issues with other running experiment executions**. Defaults to False,
+      set to True only if the TAP executions hang at the end frequently due to adb not closing.
 > These values will be used by the `Run.TapExecute` task.
 * Grafana:
     * Enabled
@@ -108,11 +95,11 @@ The values that can be configured on `config.yml` are:
     * Port
     * Bearer: Grafana API key without the 'Bearer ' prefix
     * ReportGenerator: URL where the `Grafana reporter` instance can be reached, if any
-> These values will be used when generating a dashboard for the results generated by an experiment execution.
+> These values will be used when creating a dashboard for the results generated by an experiment execution.
 * SliceManager:
     * Host
     * Port
-> These values will be used to communicate with the Katana Slice Manager when deploying/decommisioning slices and when 
+> These values will be used to communicate with the Katana Slice Manager when deploying/decommissioning slices and when 
 > using the `Run.SingleSliceCreationTime` and `Run.SliceCreationTime` tasks. 
 * InfluxDb:
     * Enabled: If set to False the settings below will be ignored
@@ -121,32 +108,45 @@ The values that can be configured on `config.yml` are:
     * User: InfluxDb instance user
     * Password: InfluxDb user password
     * Database: InfluxDb instance database
-> These values will be used for sending results to an InfluxDb instance. In particular, they will be used by the
-> `Run.SingleSliceCreationTime` and `Run.SliceCreationTime` task. Additional tags will be generated by using the values
-> in the `Metadata` section
+> These values will be used for sending results to an InfluxDb instance, for example when running the 
+> `Run.SingleSliceCreationTime`, `Run.SliceCreationTime` or `Run.CsvToInflux` tasks, and for extracting the execution 
+> results on the secondary side of a distributed experiment. Additional tags will be generated by using the values in 
+> the `Metadata` section of the configuration.
 * Metadata:
     * HostIp: IP address of the machine where the ELCM is running
     * Facility: Facility name (or platform)
 > Additional ELCM instance metadata, currently used for values sent to InfluxDb
+* EastWest: Configuration for distributed experiments.
+    * Enabled: Boolean value indicating if the East/West interfaces are available. Defaults to `False`.
+    * Timeout: Timeout for any communication with the remote side of the experiment execution. Defaults to 120 seconds.
+    * Remotes: Dictionary containing the connection configuration for each remote platform's ELCM, with each key
+      containing 'Host' and 'Port' values in the same format as in the `Portal` or `SliceManager` sections. Defaults to 
+      two (invalid) example entries.
 
-## Facility Configuration
+## Facility Configuration (Platform registry)
 
-> Starting with version 1.1, the facility is no longer configured by a single `facility.yml` file. UEs must now
-> be defined using separate files in the `UEs` sub-folder, while TestCases (and their dashboards) are defined in
-> the `TestCases` sub-folder. 
-> 
-> The available values for each element have not changed, so it's possible to move each key on the `facility.yml` file
-> to their respective folders and have the same configuration as before the update.
+The exposed capabilities and functionality of the facility are defined by a set of files distributed in 4 folders
+inside the root of the ELCM instance. These are:
+
+- TestCases: Contains information about the available test cases that can be run by the facility.
+- UEs: Contains specific actions required for using and releasing specific equipment of the facility during the
+  execution test cases.
+- Resources: Contains the definition of certain equipment that can only be used by one experiment at a time.
+- Scenarios: Additional configuration values that can be set during the deployment of a network slice.
+
+### TestCases and UEs
 
 The contents of the `UEs` and `TestCases` sub-folder describe the behavior of the 5Genesis Platform when an Experiment 
-execution request is received. These folders will be automatically generated if they do not exist. The ELCM will load
-the contents of every `yml` file contained in these folders on startup and whenever the `Reload facility` button on
-the web dashboard is pressed. The dashboard will also display a validation log (`Facility log`) which can be used
-in order to detect errors on a TestCase or UE configuration.
+execution request is received. These folders will be automatically generated (empty) if they do not exist. The ELCM will
+load the contents of every `yml` file contained in these folders on startup and whenever the `Reload facility` button on
+the web dashboard is pressed. The dashboard will also display a validation log (`Facility log`) which can be used in
+order to detect errors on a TestCase or UE configuration.
 
-* UEs: The files on the `UEs` folder describe the actions to perform when a certain UE is included in the `Experiment descriptor` received
-as part of the request (for example, initializing or configuring the UE). The `Composer` will add the actions defined for 
-every UE to the Tasks list. The following is an example of a yaml file that configures an UE:
+#### UEs
+The files on the `UEs` folder describe the actions to perform when a certain UE is included in the `Experiment 
+descriptor` received as part of the request (for example, initializing or configuring the UE). The `Composer` will
+add the actions defined for every UE to the Tasks list. The following is an example of a yaml file that configures an
+UE:
 
 ````yaml
 TestUE:
@@ -161,17 +161,19 @@ TestUE:
         Message: This is a dummy entity closure
 ```` 
 
-The name of the UE will be extracted from the initial key on the dictionary (not the name of the file). This key contains
-a list of every action to perform, described by the relative `Order` in which to run, the `Task` to perform (which
-correspond to the different Tasks defined in the `Executor.Tasks` package) and `Config` dictionary, which is different
-for every task and optionally a list of `Requirements`. These requirements corresponds to the resources defined for the
-facility. (See "Facility resources" below).
+The name of the UE will be extracted from the initial key on the dictionary (not the name of the file). This key 
+contains a list of every action to perform, described by the relative `Order` in which to run, the `Task` to perform 
+(which correspond to the different Tasks defined in the `Executor.Tasks` package) and `Config` dictionary, which is 
+different for every task and optionally a list of `Requirements`. These requirements corresponds to the resources 
+defined for the facility. (See "Facility resources" below). Additional information about the available tasks can 
+be seen in the `Available Tasks` section below.
 
 > More information about the composition process can be found in section 3.2 of Deliverable D3.15, please note that
 > this example uses the old `facility.yml` file, but the behavior is the same.
 
-* TestCases and Dashboards: Similarly to the UEs, the files in the ´TestCases´ folder define the actions required in 
-order to execute a certain TestCase included in the `Experiment descriptor`. The following is an example TestCase file:
+#### TestCases
+Similarly to the UEs, the files in the ´TestCases´ folder define the actions required in order to execute a certain 
+test case. The following is an example TestCase file:
 
 ````yaml
 Slice Creation:
@@ -182,6 +184,56 @@ Slice Creation:
         WaitForRunning: True
         Timeout: 60
         SliceId: "@{SliceId}"
+Standard: True
+Distributed: False
+Dashboard: {}
+````
+
+##### Standard and Custom experiment. TestCase parameters.
+
+In order to control how each TestCase is handled by the 5GENESIS Portal and when using the Open APIs, several keys can 
+be added to the yaml description. These keys are:
+ - `Standard`: Boolean. Indicates whether the TestCase is selectable from the list of Standard test cases. If not 
+   specified, this value defaults to 'False' if the `Custom` key is defined, 'True' otherwise.
+ - `Custom`: List of strings. Indicates that the TestCase is a Custom test case and may accept parameters. If this
+   value is set to an empty list ('[]') the test case is considered public and will appear on the list of Custom 
+   experiments for all users of the Portal. If the list contains one or more email addresses, the test case will be 
+   visible only to the users with matching emails.
+ - `Parameters`: Dictionary of dictionaries, where each entry is defined as follows:
+ ```yaml
+"<Parameter Name>":
+    Type: "String, used to guide the user as to what is the expected format"
+    Description: "String, textual description of the parameter"
+ ```
+
+Parameters can be used to customize the execution of test cases. For example, a Test Case may be implemented using a
+TAP test plan, that accepts an external parameter called 'Interval'. Using variable expansion the value of this
+external parameter can be linked with the value of an 'Interval' (or a different name) parameter contained in the
+experiment descriptor. 
+
+It is also possible to define default values during variable expansion, which means that a Test Case can be defined
+as 'Standard', where it will use the default values for all parameters, and 'Custom', where some values can be replaced
+by the experimenter.
+
+For more information see the 'Variable expansion' section below.
+
+> Parameters with the equal names from different test cases are considered to be **the same**: They will appear only
+> once in the Portal when the user selects multiple test cases and will have the same value at run time. For example,
+> if two different test cases define an 'Interval' parameter and are both included in the same experiment they will
+> share the same value.
+> - If it's necessary to configure these values separately please use different names.
+> - If a parameter is defined in multiple test cases with different Type or Description a warning will be displayed on
+> the ELCM interface. The information displayed on the Portal will correspond to one *(any one)* of the definitions.
+
+##### Test case dashboard
+
+If a Grafana instance is available and configured, the ELCM can automatically create a Dashboard for displaying
+some of the most important raw results generated during an experiment execution. In order to use this functionality,
+the test case definition must include a collection of Grafana panel definitions. For each experiment execution, the
+panels defined by all of the test cases selected will be aggregated in a single dashboard. An example of dashboard
+definition with a single panel can be seen below.
+
+````yaml
 Dashboard:
     - Name: "Slice Deployment Time"
       Measurement: Slice_Creation_Time
@@ -196,9 +248,7 @@ Dashboard:
       Thresholds: [0, 15, 25, 30]
 ```` 
 
-The first key ('Slice Creation') follows the same format as un the UEs section, however, these files can contain an 
-additional `Dashboard` key that define the list of panels that will be generated as part of the Grafana dashboard
-that corresponds to the TestCase. The following values can be set for each panel:
+The following values can be set for each panel:
 
 - [Mandatory] `Type`: 'singlestat' (gauges or single value) or 'graph' (time series)
 - [Optional]  `Name`: Panel name, '{Measurement}: {Field}' if not set
@@ -209,18 +259,89 @@ that corresponds to the TestCase. The following values can be set for each panel
 - [Mandatory] `Position`: (As list) [<x>, <y>]
 - [Optional]  `Color`: Graph or text color(s). For Gauges this is a list of 3 colors, otherwise a single value. Each color can be defined using these formats: "#rrggbb" or "rgba(rrr, ggg, bbb, a.aa)"
 
-#### For graph:
+###### For graph:
 - [Mandatory] `Lines`: True to display as lines, False to display as bars
 - [Mandatory] `Percentage`: Whether the field is a percentage or not
 - [Optional]  `Interval`: Time interval of the graph, default $__interval if not set
 - [Optional]  `Dots`: Display dots along with the graph or bar
 
-#### For singlestat:
+###### For singlestat:
 - [Mandatory] `Gauge`: True to display as a gauge, false to display as numeric value
 - [Optional]  `MaxValue`: Max expected value of the gauge, 100 if not set
 - [Optional]  `MinValue`: Min expected value of the gauge, 0 if not set
 
-### Facility resources
+##### PDF Report generation
+
+It's possible to integrate an instance of [Grafana reporter](https://github.com/IzakMarais/reporter) in order to
+generate PDF reports from the Grafana dashboards of the experiments. This feature will appear as a button on the
+top-right of the dashboard.
+
+For using this feature in the ELCM you only need to specify the URL where `Grafana reporter` is reachable. Please
+refer to the reporter documentation for the configuration of the reporter itself.
+
+The following is an example of a custom template that includes the 5Genesis branding:
+
+```tex
+%use square brackets as golang text templating delimiters
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\graphicspath{ {images/} }
+
+\begin{document}
+\title{
+\includegraphics[scale=1.0]{<<PATH TO 5GENESIS LOGO>>}~\\
+5Genesis [[.Title]] [[if .VariableValues]] \\ \large [[.VariableValues]] [[end]] [[if .Description]]
+%\small [[.Description]] [[end]]}
+\date{[[.FromFormatted]] to [[.ToFormatted]]}
+\maketitle
+\begin{center}
+[[range .Panels]][[if .IsSingleStat]]\begin{minipage}{0.3\textwidth}
+\includegraphics[width=\textwidth]{image[[.Id]]}
+\end{minipage}
+[[else]]\par
+\vspace{0.5cm}
+\includegraphics[width=\textwidth]{image[[.Id]]}
+\par
+\vspace{0.5cm}
+[[end]][[end]]
+\end{center}
+\end{document}
+```
+> Remember to specify the correct path to the 5Genesis logo
+
+##### Dashboard auto-generation (Autograph)
+
+The ELCM is able to generate additional panels if certain values appear on the names of the generated TAP results. For
+this feature to work an additional result listener (AutoGraph) must be enabled in TAP. This result listener does not
+require any configuration and, once enabled, the auto-generation of panels will work for any subsequently executed
+experiment.
+
+This feature works as follows:
+ - During the experiment execution within TAP, the AutoGraph result listener inspects the generated results for names
+   that include information about panel generation.
+ - At testplan end, the result listener generates a message describing the panel to generate.
+ - If the test case includes a dashboard definition the ELCM will generate the panels described in it first.
+ - The logs generated during the experiment execution will be parsed, looking for messages generated by the AutoGraph
+   result listener.
+ - For each message detected, a new panel will be generated after the ones described in the test case.
+
+The expected formats on a result name are "`<Result name> [[<Panel type>]]`" and
+"`<Result name> [[<Panel type>:<Unit>]]`", where:
+ - `<Result name>` is the name of the panel.
+ - `<Panel type>` is one of [`Si`, `Ga`, `Li`, `Ba`], where:
+    - `Si` stands for 'Single': The panel contains a single numeric value.
+    - `Ga` stands for 'Gauge': The panel is a Gauge (min 0, max 100, green until 25, red after 75).
+    - `Li` stands for 'Lines': The panel is a line graph.
+    - `Ba` stands for 'Bars': The panel is a bars graph.
+ - `<Unit>` if present, is the unit of the results. Must be recognized by Grafana, otherwise an error will be displayed
+   in the panel.
+
+> All graphs are generated with an interval of 1 sec
+
+> Other result listeners will save the results including the panel information in the result name.
+
+#### Facility resources
 
 It is possible to define a set of available local resources. These resources can be specified as requirements for the
 execution of each kind of task inside a test case.
@@ -236,7 +357,7 @@ all the required resources. When an experiment starts, all these resources will 
 experiments with common requirements will be blocked until the running experiment finishes and their resources are
 released.
 
-### Scenarios and Network Slice deployment
+#### Scenarios and Network Slice deployment
 
 A scenario is a collection of configuration values that are used to further customize the behavior of a deployed
 slice. These values are defined as YAML files contained in the `Scenarios` folder, where each file contains a
@@ -270,87 +391,24 @@ A generated NEST has the following format:
 For more information about Network Slice deployment refer to the
 [Katana Slice Manager documentation](https://github.com/medianetlab/katana-slice_manager/tree/master/katana-schemas)
 
-### Dashboard auto-generation (Autograph)
+## Available Tasks:
 
-The ELCM is able to generate additional panels if certain values appear on the names of the generated TAP results. For
-this feature to work an additional result listener (AutoGraph) must be enabled in TAP. This result listener does not
-require any configuration and, once enabled, the auto-generation of panels will work for any subsequently executed
-experiment.
+The following is a list of the tasks that can be defined as part of a TestCase or UE list of actions, as well as
+their configuration values:
 
-This feature works as follows:
- - During the experiment execution within TAP, the AutoGraph result listener inspects the generated results for names
-   that include information about panel generation.
- - At testplan end, the result listener generates a message describing the panel to generate.
- - If the test case includes a dashboard definition the ELCM will generate the panels described in it first.
- - The logs generated during the experiment execution will be parsed, looking for messages generated by the AutoGraph
-   result listener.
- - For each message detected, a new panel will be generated after the ones described in the test case.
- 
-The expected formats on a result name are "`<Result name> [[<Panel type>]]`" and
-"`<Result name> [[<Panel type>:<Unit>]]`", where:
- - `<Result name>` is the name of the panel.
- - `<Panel type>` is one of [`Si`, `Ga`, `Li`, `Ba`], where:
-    - `Si` stands for 'Single': The panel contains a single numeric value.
-    - `Ga` stands for 'Gauge': The panel is a Gauge (min 0, max 100, green until 25, red after 75).
-    - `Li` stands for 'Lines': The panel is a line graph.
-    - `Ba` stands for 'Bars': The panel is a bars graph.
- - `<Unit>` if present, is the unit of the results. Must be recognized by Grafana, otherwise an error will be displayed
-   in the panel.
-
-> All graphs are generated with an interval of 1 sec
-
-> Other result listeners will save the results including the panel information in the result name.
-
-### TestCase parameters. Standard and Custom experiment:
-
-In order to control how each TestCase is handled by the 5GENESIS Portal, several keys can be added to the yml description.
-These keys are:
- - `Standard`: Boolean. Indicates wether or not the TestCase must be selectable from the list of Standard test cases.
- If not specified, this value defaults to 'False' if the `Custom` key is defined, 'True' otherwise.
- - `Custom`: List of strings. Indicates that the TestCase is a Custom test case and may accept parameters. If this value
- is set to an empty list ('[]') the test case is considered public and will appear on the list of Custom experiments for
- all users of the Portal. If the list contains one or more email addresses, the test case will be visible only to the users
- with matching emails.
- - `Parameters`: Dictionary of dictionaries, where each entry is defined as follows:
- ```yaml
-"<Parameter Name>":
-    Type: "String, used to guide the user as to what is the expected format"
-    Description: "String, textual description of the parameter"
- ```
-
-Parameters can be used to customize the execution of test cases. For example, a Test Case may be implemented using a TAP test plan,
-that accepts an external parameter called 'Interval'. Using variable expansion the value of this external parameter can be linked
-with the value of an 'Interval' (or a different name) parameter contained in the experiment descriptor. 
-
-It is also possible to define default values during variable expansion, which means that a Test Case can be defined as 'Standard', 
-where it will use the default values for all parameters, and 'Custom', where some of the values can be replaced by the experimenter.
-
-For more information see the 'Variable expansion' section below.
-
-> Parameters with the equal names from different test cases are considered to be **the same**: They will appear only once in the
-Portal when the user selects multiple test cases and will have the same value at run time. For example, if two different test cases
-define an 'Interval' parameter and are both included in the same experiment they will share the same value.
-> - If it's necessary to configure these values separately please use different names.
-> - If a parameter is defined in multiple test cases with different Type or Description a warning will be displayed on the ELCM interface. The information displayed on the Portal will correspond to one (any one) of the definitions.
-
-### Available Tasks:
-
-The following is a list of the tasks that can be defined as part of a TestCase or UE list of actions, as well as their
-configuration values:
-
-#### Run.CliExecute
+### Run.CliExecute
 Executes a script or command through the command line. Configuration values:
 - `Parameters`: Parameters to pass to the command line (i.e. the line to write on the CLI)
 - `CWD`: Working directory where the command will run
 
-#### Run.CompressFiles
+### Run.CompressFiles
 Generates a Zip file that contains all the specified files. Configuration values:
 - `Files`: List of (single) files to add to the Zip file
 - `Folders`: List of folders to search files from. All the files contained within
 these folders and their sub-folders will be added to the Zip file
 - `Output`: Name of the Zip file to generate. 
 
-#### Run.CsvToInflux
+### Run.CsvToInflux
 Uploads the contents of a CSV file to InfluxDb. The file must contain a header row that specifies the names of each
 column, and must contain a column that specifies the timestamp value of the row as a POSIX timestamp (seconds from the
 epoch as float, and UTC timezone). Configuration values:
@@ -362,19 +420,19 @@ epoch as float, and UTC timezone). Configuration values:
 - `Convert`: If True, try to convert the values to a suitable format (int, float, bool, str). Only 'True' and 'False'
 with any capitalization are converted to bool. If False, send all values as string. Defaults to True.
 
-#### Run.Delay
+### Run.Delay
 Adds a configurable time wait to an experiment execution. Has a single configuration value:
 - `Time`: Time to wait in seconds.
 
-#### Run.Dummy
+### Run.Dummy
 Dummy action, will only display the values on the `Config` dictionary on the log
 
-#### Run.Message
+### Run.Message
 Displays a message on the log, with the configured severity. Configuration values:
 - `Severity`: Severity level (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`)
 - `Message`: Text of the message
 
-#### Run.Publish
+### Run.Publish
 Saves a value (identified with a name) for use in another task that runs later. The value can be retrieved using 
 the `@[key]` or `@[Publish.key]` variable expansion. If the key is not defined at the time of expansion it will
 be replaced by the string `<<UNDEFINED>>` unless another default is defined using `@[key:default]`.
@@ -392,7 +450,7 @@ Will produce this message in the log:
 
 `- INFO - 1: Text; 2: 1; 3: <<UNDEFINED>>; 4: NoProblem`
 
-#### Run.PublishFromFile / Run.PublishFromPreviousTaskLog
+### Run.PublishFromFile / Run.PublishFromPreviousTaskLog
 Reads the contents of a file / the log of the previous task and looks for lines that match the specified regular
 expression pattern, publishing the groups found. Configuration values:
 - `Pattern`: Regular expression to try to match, following
@@ -403,7 +461,7 @@ expression pattern, publishing the groups found. Configuration values:
 > - While writing the `Keys` in the task configuration note that YAML does not have a syntax for tuples, use lists of two elements instead.
 - `Path` (only for Run.PublishFromFile): Path of the file to read
 
-#### Run.SingleSliceCreationTime
+### Run.SingleSliceCreationTime
 Sends the Slice Creation Time reported by the Slice Manager to InfluxDb. This task will not perform any deployment
  by itself, and will only read the values for an slice deployed during the experiment pre-run stage.
 Configuration values:
@@ -412,7 +470,7 @@ Configuration values:
 - `Timeout`: 'WaitForRunning' timeout in (aprox) seconds
 - `SliceId`: Slice ID to check (can be dinamically expanded from `@{SliceId}`)
 
-#### Run.SliceCreationTime
+### Run.SliceCreationTime
 Repeats a cycle of slice creation and deletion for a configured number of times, obtaining the Slice Creation Time on
 each iteration and sending the values to the configured InfluxDb database. This task does not take into account the
 slices deployed during the experiment's pre-run stage (if any). This task uses a local NEST file to describe the
@@ -421,15 +479,15 @@ slice to be deployed. Configuration values:
 - `NEST`: Absolute path of the NEST file to use
 - `Iterations`: Number of iterations. Defaults to 25
 - `Timeout`: Timeout in (aprox) seconds to wait until the slice is running or deleted before skipping the iteration.
-If not specified or set to None the task will continue indefinitelly.
+If not specified or set to None the task will continue indefinitely.
 - `CSV`: If set, save the generated results to a CSV file in the specified path. In case of error while sending the
 results to InfluxDb a CSV file will be forcibly created on `"@{TempFolder}/SliceCreationTime.csv"` (only if not set,
 otherwise the file will be created as configured).
 
-#### Run.TapExecute
+### Run.TapExecute
 Executes a TAP TestPlan, with the possibility of configuring external parameters. Configuration values:
 - `TestPlan`: Path (absolute) of the testplan file.
-- `GatherResults`: Indicates whether or not to compress the generated CSV files to a Zip file (see below)
+- `GatherResults`: Indicates whether to compress the generated CSV files to a Zip file (see below)
 - `External`: Dictionary of external parameters 
 
 ###### Gathering generated results
@@ -441,11 +499,11 @@ necessary to add a MultiCSV result listener to TAP that has the following (recom
 Results\{Identifier}\{Date}-{ResultType}-{Identifier}.csv
 ```
 
-##### Variable expansion
+### Variable expansion
 
 It's possible to expand the value of some variables enclosed by @{ }. (Use quotes where required in order to generate 
 valid YAML format). Available values are:
-- `@{ExecutionId}:` Experiment execution ID (unique identifier)
+- `@{ExecutionId}`: Experiment execution ID (unique identifier)
 - `@{SliceId}`: ID of the slice deployed by the Slice Manager during the PreRun stage
 - `@{TempFolder}`: Temporal folder exclusive to the current executor, it's deleted when the experiment finishes.
 - `@{Application}`: The `Application` field from the Experiment Descriptor
@@ -459,58 +517,114 @@ Separate values from the `Parameters` dictionary can also be expanded using the 
 - `@[Params.key]`: The value of `key` in the dictionary, or `<<UNDEFINED>>` if not found
 - `@[Params.key:default]`: The value of `key` in the dictionary, or `default` if not found
 
-> A keen reader may notice that this expressions are very similar to the ones defined for `Run.Publish`: They are 
-> implemented together, but use different dictionaries when looking for values. When a expression does not include 
-> a '.' the ELCM will falls back to looking at the Publish values (the default for Release A). If the collection 
+> A keen reader may notice that these expressions are very similar to the ones defined for `Run.Publish`: They are 
+> implemented together, but use different dictionaries when looking for values. When an expression does not include 
+> a '.' the ELCM will fall back to looking at the Publish values (the default for Release A). If the collection 
 > is not 'Publish' or 'Params', the expression will be replaced by `<<UNKNOWN GROUP {collection}>>`
 
-## PDF Report generation
+## MONROE experiments:
 
-It's possible to integrate an instance of [Grafana reporter](https://github.com/IzakMarais/reporter) in order to 
-generate PDF reports from the Grafana dashboards of the experiments. This feature will appear as a button on the 
-top-right of the dashboard.
+The ELCM is able to handle the execution of experiments using a [MONROE](https://github.com/MONROE-PROJECT) node. This
+functionality requires:
 
-For using this feature in the ELCM you only need to specify the URL where `Grafana reporter` is reachable. Please refer 
-to the reporter documentation for the configuration of the reporter itself. 
+- A physical or virtual MONROE node that is prepared to be controlled by the
+  [TAP agent](https://github.com/MONROE-PROJECT/monroe-experiment-core/tree/master/schedulers/tap-agent)
+- An OpenTAP instance configured with the required TAP instrument and steps for controlling the MONROE TAP agent
+  (available as part of the [5Genesis TAP plugins](https://github.com/5genesis/TAP-plugins)), and has network
+  connectivity with the MONROE node
 
-The following is an example of a custom template that includes the 5 Genesis branding:
+This repository includes the files required for handling the execution of MONROE experiments, however, a small
+preparation is needed before they can be used:
 
-```tex
-%use square brackets as golang text templating delimiters
-\documentclass{article}
-\usepackage{graphicx}
-\usepackage[margin=1in]{geometry}
-\graphicspath{ {images/} }
+- The `MONROE_Base.TapPlan` file is a pre-configured TAP testplan that contains the required steps and external
+  parameters required for controlling the MONROE TAP agent. Open this file using OpenTAP and confirm that no issues
+  appear in the log. In particular:
+    - Check that all steps where loaded successfully (should be 9 in total)
+    - Check that the necessary result listeners are enabled in the `Set execution metadata` step
+    - Check that your MONROE instrument is selected in all MONROE steps (`Start/List/Stop experiment`)
+  > Errors stating that a result listener is missing or that the testplan version is below the one in use can be
+  > ignored.
+- Save the test plan and, if necessary, move it to another location. Note the absolute path of the file.
+- Edit the `TestCases/MONROE_Base.yml` file. This is a special TestCase definition that is used for handling the
+  execution of MONROE experiments and will not appear as a normal test case for experimenters. Change the `<<Replace
+  with the location of your MONROE_Base testplan.>>` placeholder with the absolute path of `MONROE_Base.TapPlan`. 
 
-\begin{document}
-\title{
-\includegraphics[scale=1.0]{<<PATH TO 5GENESIS LOGO>>}~\\
-5 Genesis [[.Title]] [[if .VariableValues]] \\ \large [[.VariableValues]] [[end]] [[if .Description]] 
-%\small [[.Description]] [[end]]}
-\date{[[.FromFormatted]] to [[.ToFormatted]]}
-\maketitle
-\begin{center}
-[[range .Panels]][[if .IsSingleStat]]\begin{minipage}{0.3\textwidth}
-\includegraphics[width=\textwidth]{image[[.Id]]}
-\end{minipage}
-[[else]]\par
-\vspace{0.5cm}
-\includegraphics[width=\textwidth]{image[[.Id]]}
-\par
-\vspace{0.5cm}
-[[end]][[end]]
-\end{center}
-\end{document}
-```
-> Remember to specify the correct path to the 5Genesis logo
+## Distributed experiments:
 
-## REST API
+When correctly configured, two 5Genesis platforms can perform the execution of a distributed experiment, in which
+both platforms execute tasks in a coordinated manner and exchange information with each other. In order to use this
+functionality, the following conditions must be met:
 
-Information about the current REST API of the ELCM (and Portal) can be seen [in BSCW](https://bscw.fokus.fraunhofer.de/bscw/bscw.cgi/d3228781/OpenAPIv1.docx).
+- On each platform, a test case that defines the set of actions (including any necessary coordination) of that side
+  exists.
+- The East/West interface of the ELCM in both sides is enabled, there is connectivity between the two instances and
+  connection details for the remote side's ELCM are defined.
+- The remote platforms are registered in the Dispatcher of both sides (see the Dispatcher documentation).
+
+Optionally, in order to ease the creation of a valid experiment descriptor:
+
+- The East/West interface of the Portal in both sides is enabled, there is connectivity between the two instances and
+  connection details for the remote side's Portal are defined.
+
+### Defining a distributed experiment
+
+The creation of a distributed experiment is a collaborative activity between the two platforms involved in the
+execution of the experiment. Each platform is responsible for the definition of their set of actions, as only
+they have the required knowledge on the usage of their equipment, but must agree with the other platform's
+administrators about any necessary coordination and information exchange that is required in order to successfully
+execute the test case.
+
+The actual definition of the test case is very similar to that of a normal (non-distributed) experiment, but with the
+following differences:
+
+- The test case definition yaml must include an additional key: `Distributed: True`
+- A distributed experiment cannot be `Custom` (i.e. cannot define `Parameters`)
+- Additional task types are available (for coordination and information exchange)
+
+The general workflow during a distributed experiment is as follows:
+
+- The Dispatcher of one of the platforms (the `Main` platform) receives a distributed experiment execution request,
+  either from the Portal or through the Open APIs.
+- The Dispatcher performs the initial coordination, contacting with the ELCM of its own platform and the Dispatcher
+  of the remote platform (the `Secondary`platform).
+- Once the initial coordination is completed, the ELCM on both sides communicate directly for the rest of the
+  experiment execution.
+- Each side performs the execution of their tasks as normal, unless they reach a point where they must coordinate:
+    - If one of the platforms must wait until the remote side has performed some actions:
+        - The waiting platform can use the `Remote.WaitForMilestone` task.
+        - The other platform can indicate that the actions have been performed using the `Run.AddMilestone` task.
+    - If one of the platforms requires certain information from the remote side:
+        - The querying platform can use the `Remote.GetValue` task.
+        - The other platform can set the value requested using any of the `Run.Publish`, `Run.PublishFromFile` and
+          `Run.PublishFromPreviousTaskLog` tasks.
+- Once both platforms execute all their tasks, the `Main` platform requests all the generated files and results to the
+  `Secondary` platform, so that they are saved along with the ones generated by the `Main` and available to the
+  experimenter.
+
+### Distributed-specific tasks
+
+#### Remote.WaitForMilestone
+Halts the execution of additional tasks until the remote side specifies that a certain milestone has been reached
+(using the `Run.AddMilestone` task). Configuration values:
+- `Milestone`: Name of the milestone to wait for.
+- `Timeout`: Custom timeout for this particular request. If not specified, the value configured in the East/West
+  section of the configuration is used.
+
+> `Init`, `PreRun`, `Run`, `PostRun`, `Finished`, `Cancelled` and `Errored` are valid milestone names that are 
+> automatically added (if/when reached) in all experiment executions.
+
+#### Remote.GetValue
+Halts the execution of additional tasks until a certain value can be obtained from the remote side (using any of the
+`Run.Publish`, `Run.PublishFromFile` and `Run.PublishFromPreviousTaskLog` tasks). When received, the value will be
+published internally and available for variable expansion. Configuration values:
+- `Value`: Name of the value to request.
+- `PublishName`: Name to use when publishing the value. If not specified the same `Value` name will be used.
+- `Timeout`: Custom timeout for this particular request. If not specified, the value configured in the East/West
+  section of the configuration is used.
 
 ## Authors
 
-* **Bruno Garcia Garcia**
+* **[Bruno Garcia Garcia](https://github.com/NaniteBased)**
 
 ## License
 
