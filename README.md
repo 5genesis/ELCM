@@ -130,7 +130,7 @@ inside the root of the ELCM instance. These are:
 
 - TestCases: Contains information about the available test cases that can be run by the facility.
 - UEs: Contains specific actions required for using and releasing specific equipment of the facility during the
-  execution test cases.
+  execution of test cases.
 - Resources: Contains the definition of certain equipment that can only be used by one experiment at a time.
 - Scenarios: Additional configuration values that can be set during the deployment of a network slice.
 

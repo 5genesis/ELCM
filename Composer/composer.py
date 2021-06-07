@@ -134,8 +134,7 @@ class Composer:
                 if scenarioData is None:
                     raise RuntimeError(f"Unrecognized scenario '{scenario}'")
                 sliceDescriptor.update(scenarioData)
-            else:
-                raise RuntimeError("Cannot create NEST without an scenario value")
+            # We allow having no scenario, but not having an unrecognized one
 
             nest = {"base_slice_descriptor": sliceDescriptor}
             if len(nsList) != 0:

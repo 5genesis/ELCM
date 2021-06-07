@@ -39,7 +39,7 @@ class PreRunner(ExecutorBase):
                 sleep(10)
 
         Instantiate(self.Log, self.TempFolder, self,
-                    self.Configuration.NetworkServices, self.Configuration.Nest).Start()
+                    self.Configuration.NetworkServices, self.Configuration.Nest, self.Descriptor.Slice).Start()
         self.AddMessage('Instantiation completed', 80)
 
         self.SetFinished(percent=100)
