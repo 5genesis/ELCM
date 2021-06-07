@@ -18,11 +18,12 @@ class Instantiate(Task):
         nest: Dict = self.params['NEST']
 
         if baseSlice is not None:
-            self.Log(Level.INFO, f"Experiment contains {len(networkServices)} NSD IDs on slice {baseSlice}. "
+            self.Log(Level.INFO, f"Experiment contains {len(networkServices)} NSD IDs over Base Slice '{baseSlice}'. "
                                  f"Requesting instantiation.")
             self.Log(Level.DEBUG, f"NEST: '{nest}'")
             maybeSliceId, success = Management.SliceManager().CreateSlice(dumps(nest))
             if success:
+                self.params['DeployedSliceId'] = maybeSliceId
                 for ns in networkServices:
                     ns.SliceId = maybeSliceId
             else:

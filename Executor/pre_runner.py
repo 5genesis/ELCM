@@ -38,8 +38,12 @@ class PreRunner(ExecutorBase):
                 self.AddMessage('Not available')
                 sleep(10)
 
-        Instantiate(self.Log, self.TempFolder, self,
-                    self.Configuration.NetworkServices, self.Configuration.Nest, self.Descriptor.Slice).Start()
+        result = Instantiate(self.Log, self.TempFolder, self, self.Configuration.NetworkServices,
+                             self.Configuration.Nest, self.Descriptor.Slice).Start()
+
+        # Save the Slice Id (if any) for the Decommission step
+        self.params['DeployedSliceId'] = result.get('DeployedSliceId', None)
+
         self.AddMessage('Instantiation completed', 80)
 
         self.SetFinished(percent=100)
