@@ -48,6 +48,10 @@ class ExecutorBase(Child):
     def Configuration(self) -> Optional[PlatformConfiguration]:
         return self.params.get('Configuration', None)
 
+    @property
+    def DeployedSliceId(self) -> Optional[str]:
+        return self.params.get('DeployedSliceId', None)
+
     def Run(self):
         raise NotImplementedError()
 

@@ -130,7 +130,7 @@ inside the root of the ELCM instance. These are:
 
 - TestCases: Contains information about the available test cases that can be run by the facility.
 - UEs: Contains specific actions required for using and releasing specific equipment of the facility during the
-  execution test cases.
+  execution of test cases.
 - Resources: Contains the definition of certain equipment that can only be used by one experiment at a time.
 - Scenarios: Additional configuration values that can be set during the deployment of a network slice.
 
@@ -364,8 +364,8 @@ slice. These values are defined as YAML files contained in the `Scenarios` folde
 dictionary with a single key (that defines the name of the Scenario). The value for this key is a second
 dictionary that contains the collection of values that are to be customized by the Scenario.
 
-When the ELCM requests the deployment of a Network Slice it will create a NEST description. The NEST created by the
-ELCM has 3 main parts:
+When the experiment requests the deployment of a Network Slice the ELCM will create a NEST description. The NEST created
+by the ELCM has 3 main parts:
  - A reference to a base slice descriptor, that must be available in the Katana Slice Manager.
  - A collection of values that are to be overridden from the base slice descriptor, taken from the selected Scenario.
  - A possibly empty list of references to Network Services that are to be included as part of the Network Slice.

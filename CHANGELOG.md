@@ -1,3 +1,7 @@
+**08/06/2021** [Version 2.4.2]
+
+ - Allow instantiation of slices without network services or scenario
+
 **12/01/2021** [Version 2.4.1]
 
  - Updated documentation
