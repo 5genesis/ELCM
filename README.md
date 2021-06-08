@@ -364,8 +364,8 @@ slice. These values are defined as YAML files contained in the `Scenarios` folde
 dictionary with a single key (that defines the name of the Scenario). The value for this key is a second
 dictionary that contains the collection of values that are to be customized by the Scenario.
 
-When the ELCM requests the deployment of a Network Slice it will create a NEST description. The NEST created by the
-ELCM has 3 main parts:
+When the experiment requests the deployment of a Network Slice the ELCM will create a NEST description. The NEST created
+by the ELCM has 3 main parts:
  - A reference to a base slice descriptor, that must be available in the Katana Slice Manager.
  - A collection of values that are to be overridden from the base slice descriptor, taken from the selected Scenario.
  - A possibly empty list of references to Network Services that are to be included as part of the Network Slice.
