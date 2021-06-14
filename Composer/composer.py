@@ -120,14 +120,16 @@ class Composer:
             if baseSlice is None:
                 raise RuntimeError("Cannot create NEST without a base slice value")
 
-            nsList = []
-            for ns in nss:
-                nsList.append({
-                    "nsd-id": ns.Id,
-                    "placement": ns.Location,
-                })
+            try:
+                sliceManager = Management.SliceManager()
+                descriptors = sliceManager.GetBaseSliceDescriptors()
+                baseSliceId = descriptors.get(baseSlice, None)
+                if baseSliceId is None:
+                    raise RuntimeError(f"Unknown base slice '{baseSlice}'")
+            except Exception as e:
+                raise RuntimeError(f"Could not retrieve base slice information: {e}")
 
-            sliceDescriptor = {"base_slice_des_id": baseSlice}
+            sliceDescriptor = {"base_slice_des_id": baseSliceId}
 
             if scenario is not None:
                 scenarioData = Facility.Scenarios().get(scenario, None)
@@ -135,6 +137,13 @@ class Composer:
                     raise RuntimeError(f"Unrecognized scenario '{scenario}'")
                 sliceDescriptor.update(scenarioData)
             # We allow having no scenario, but not having an unrecognized one
+
+            nsList = []
+            for ns in nss:
+                nsList.append({
+                    "nsd-id": ns.Id,
+                    "placement": ns.Location,
+                })
 
             nest = {"base_slice_descriptor": sliceDescriptor}
             if len(nsList) != 0:
