@@ -123,9 +123,11 @@ class SliceManager(RestClient):
         response = self.HttpGet(url, {"Accept": "application/json"})
         data = self.ResponseToJson(response)
 
-        allNsds  = {}
+        allNsds = {}
         for nsd in data:
+            # Index by name and database id
             allNsds[nsd['nsd-name']] = nsd
+            allNsds[nsd['nsd-id']] = nsd
 
         return allNsds if nsdName is None else allNsds[nsdName]
 
