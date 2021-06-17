@@ -42,11 +42,11 @@ class Composer:
                 for ns in descriptor.NetworkServices:
                     nsId, location = ns
                     try:
-                        nsInfo = NsInfo(nsId, location)
-                        requirements = sliceManager.GetNsdRequirements(nsId)
-                        if requirements is None:
+                        nsdName, nsdId, nsdRequirements = sliceManager.GetNsdData(nsId)
+                        if nsdRequirements is None:
                             raise RuntimeError("Could not retrieve NSD information")
-                        nsInfo.Requirements = requirements
+                        nsInfo = NsInfo(nsdName, nsdId, location)
+                        nsInfo.Requirements = nsdRequirements
                         configuration.NetworkServices.append(nsInfo)
                     except Exception as e:
                         errored = True
@@ -133,7 +133,9 @@ class Composer:
             for ns in nss:
                 nsList.append({
                     "nsd-id": ns.Id,
+                    "nsd-name": ns.Name,
                     "placement": ns.Location,
+                    "optional": False  # All network services should be deployed for the test
                 })
 
             nest = {"base_slice_descriptor": sliceDescriptor}

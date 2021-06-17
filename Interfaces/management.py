@@ -131,7 +131,8 @@ class SliceManager(RestClient):
 
         return allNsds if nsdName is None else allNsds[nsdName]
 
-    def GetNsdRequirements(self, nsd: str) -> Optional[Metal]:
+    def GetNsdData(self, nsd: str) -> Tuple[Optional[str], Optional[str], Optional[Metal]]:
+        """Returns (nsd_name, nsd_id, requirements (as Metal))"""
         try:
             data = self.GetNsdInfo(nsd)
             if isinstance(data, list):
@@ -140,12 +141,13 @@ class SliceManager(RestClient):
                 else: raise RuntimeError("Received an empty list")
             try:
                 flavor = data["flavor"]
-                return Metal(cpu=flavor["vcpu-count"], ram=flavor["memory-mb"], disk=flavor["storage-gb"])
+                return data['nsd-name'], data['nsd-id'], Metal(cpu=flavor["vcpu-count"],
+                                                               ram=flavor["memory-mb"], disk=flavor["storage-gb"])
             except KeyError as k:
                 raise RuntimeError(f"'{k}' key not present in data")
         except Exception as e:
             Log.E(f"Exception while retrieving NSD information: {e}")
-            return None
+            return None, None, None
 
     def GetBaseSliceDescriptors(self) -> List[str]:
         try:
