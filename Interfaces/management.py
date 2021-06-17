@@ -147,22 +147,17 @@ class SliceManager(RestClient):
             Log.E(f"Exception while retrieving NSD information: {e}")
             return None
 
-    def GetBaseSliceDescriptors(self) -> Dict[str, str]:
+    def GetBaseSliceDescriptors(self) -> List[str]:
         try:
             url = f"{self.api_url}/base_slice_des"
             response = self.HttpGet(url, {"Accept": "application/json"})
             data: List[Dict] = self.ResponseToJson(response)
-            res = {}
+            res = []
             for desc in data:
                 descId = desc.get('Slice_des_ID', desc.get('base_slice_des_id', None))
-                dbId = desc.get('DB_ID', desc.get('_id', None))
-                if descId is not None and dbId is not None:
-                    res[descId] = dbId
-                else:
-                    Log.W(f"Detected invalid base slice: '{desc}'. Ignored")
+                if descId is not None:
+                    res.append(descId)
             return res
         except Exception as e:
             Log.E(f"Exception while retrieving Base Slice Descriptors: {e}")
-            return {}
-
-
+            return []

@@ -120,16 +120,7 @@ class Composer:
             if baseSlice is None:
                 raise RuntimeError("Cannot create NEST without a base slice value")
 
-            try:
-                sliceManager = Management.SliceManager()
-                descriptors = sliceManager.GetBaseSliceDescriptors()
-                baseSliceId = descriptors.get(baseSlice, None)
-                if baseSliceId is None:
-                    raise RuntimeError(f"Unknown base slice '{baseSlice}'")
-            except Exception as e:
-                raise RuntimeError(f"Could not retrieve base slice information: {e}")
-
-            sliceDescriptor = {"base_slice_des_id": baseSliceId}
+            sliceDescriptor = {"base_slice_des_ref": baseSlice}
 
             if scenario is not None:
                 scenarioData = Facility.Scenarios().get(scenario, None)
