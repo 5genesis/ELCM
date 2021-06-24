@@ -130,13 +130,20 @@ class Composer:
             # We allow having no scenario, but not having an unrecognized one
 
             nsList = []
+            coverage = []
             for ns in nss:
+                if ns.Location != 'Core':
+                    coverage.append(ns.Location)
+
                 nsList.append({
                     "nsd-id": ns.Id,
                     "nsd-name": ns.Name,
                     "placement": ns.Location,
                     "optional": False  # All network services should be deployed for the test
                 })
+
+            if len(coverage) != 0:
+                sliceDescriptor['coverage'] = coverage
 
             nest = {"base_slice_descriptor": sliceDescriptor}
             if len(nsList) != 0:
