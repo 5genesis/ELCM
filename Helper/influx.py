@@ -153,7 +153,7 @@ class InfluxDb:
                 timestampValue = float(row.pop(timestampKey))
                 try:
                     timestamp = datetime.fromtimestamp(timestampValue, tz=timezone.utc)
-                except OSError:
+                except (OSError, ValueError):
                     # value outside of bounds, maybe because it's specified in milliseconds instead of seconds
                     timestamp = datetime.fromtimestamp(timestampValue/1000.0, tz=timezone.utc)
 
