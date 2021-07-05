@@ -132,8 +132,7 @@ class Composer:
             nsList = []
             coverage = []
             for ns in nss:
-                if ns.Location != 'Core':
-                    coverage.append(ns.Location)
+                coverage.append(ns.Location)
 
                 nsList.append({
                     "nsd-id": ns.Id,
