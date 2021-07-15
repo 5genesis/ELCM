@@ -168,7 +168,7 @@ class SliceManager(RestClient):
         try:
             response = self.HttpGet(f"{self.api_url}/vim", {"Accept": "application/json"})
             data = self.ResponseToJson(response)
-            vimIds = [vim['DB_ID'] for vim in data]
+            vimIds = [vim['_id'] for vim in data]
         except Exception as e:
             Log.E(f"Exception while retrieving VIM ids: {e}")
             return {}
