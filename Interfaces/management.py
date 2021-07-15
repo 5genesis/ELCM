@@ -35,7 +35,7 @@ class Management:
 
             for vim, required in totalRequired.items():
                 if vim not in vimResources.keys():
-                    Log.E(f"Unknown VIM {vim}. Execution unfeasible.")
+                    Log.E(f"Unknown VIM '{vim}'. Execution unfeasible.")
                     return False, False
                 current = vimResources[vim]
                 if (required.Cpu > current.TotalCpu or
@@ -111,8 +111,12 @@ class SliceManager(RestClient):
             data = self.ResponseToJson(response)
             try:
                 for vim in data["VIMs"]:
+                    # Index by name and location
                     name = vim["name"]
-                    res[name] = _getVimResources(vim)
+                    location = vim["location"]
+                    resources = _getVimResources(vim)
+                    res[name] = resources
+                    res[location] = resources
             except Exception as e:
                 Log.E(f"Exception while retrieving VIM resources: {e}")
                 Log.D(f"Payload: {data}")
