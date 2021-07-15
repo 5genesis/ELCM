@@ -39,12 +39,16 @@ class Composer:
         if descriptor.Slice is not None:
             if len(descriptor.NetworkServices) != 0:
                 sliceManager = Management.SliceManager()
+                nameToLocation = sliceManager.GetVimNameToLocationMapping()
                 for ns in descriptor.NetworkServices:
-                    nsId, location = ns
+                    nsId, vimName = ns
                     try:
                         nsdName, nsdId, nsdRequirements = sliceManager.GetNsdData(nsId)
+                        location = nameToLocation.get(vimName, None)
                         if nsdRequirements is None:
-                            raise RuntimeError("Could not retrieve NSD information")
+                            raise RuntimeError(f"Could not retrieve NSD information for '{nsId}'")
+                        elif location is None:
+                            raise RuntimeError(f"Could not retrieve location for VIM '{vimName}'")
                         nsInfo = NsInfo(nsdName, nsdId, location)
                         nsInfo.Requirements = nsdRequirements
                         configuration.NetworkServices.append(nsInfo)
@@ -130,19 +134,13 @@ class Composer:
             # We allow having no scenario, but not having an unrecognized one
 
             nsList = []
-            coverage = []
             for ns in nss:
-                coverage.append(ns.Location)
-
                 nsList.append({
                     "nsd-id": ns.Id,
                     "nsd-name": ns.Name,
                     "placement": ns.Location,
                     "optional": False  # All network services should be deployed for the test
                 })
-
-            if len(coverage) != 0:
-                sliceDescriptor['coverage'] = coverage
 
             nest = {"base_slice_descriptor": sliceDescriptor}
             if len(nsList) != 0:
