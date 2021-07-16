@@ -1,3 +1,8 @@
+**16/07/2021** [Version 2.4.3]
+
+ - Fix network services instantiation
+ - Fix csvToInflux exception on Ubuntu 18.04
+
 **08/06/2021** [Version 2.4.2]
 
  - Allow instantiation of slices without network services or scenario
