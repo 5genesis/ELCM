@@ -137,7 +137,7 @@ class Composer:
             for ns in nss:
                 nsList.append({
                     "nsd-id": ns.Id,
-                    "nsd-name": ns.Name,
+                    "ns-name": ns.Name,
                     "placement": ns.Location,
                     "optional": False  # All network services should be deployed for the test
                 })
