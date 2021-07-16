@@ -35,7 +35,7 @@ class Management:
 
             for vim, required in totalRequired.items():
                 if vim not in vimResources.keys():
-                    Log.E(f"Unknown VIM {vim}. Execution unfeasible.")
+                    Log.E(f"Unknown VIM '{vim}'. Execution unfeasible.")
                     return False, False
                 current = vimResources[vim]
                 if (required.Cpu > current.TotalCpu or
@@ -111,8 +111,12 @@ class SliceManager(RestClient):
             data = self.ResponseToJson(response)
             try:
                 for vim in data["VIMs"]:
+                    # Index by name and location
                     name = vim["name"]
-                    res[name] = _getVimResources(vim)
+                    location = vim["location"]
+                    resources = _getVimResources(vim)
+                    res[name] = resources
+                    res[location] = resources
             except Exception as e:
                 Log.E(f"Exception while retrieving VIM resources: {e}")
                 Log.D(f"Payload: {data}")
@@ -123,13 +127,16 @@ class SliceManager(RestClient):
         response = self.HttpGet(url, {"Accept": "application/json"})
         data = self.ResponseToJson(response)
 
-        allNsds  = {}
+        allNsds = {}
         for nsd in data:
+            # Index by name and database id
             allNsds[nsd['nsd-name']] = nsd
+            allNsds[nsd['nsd-id']] = nsd
 
         return allNsds if nsdName is None else allNsds[nsdName]
 
-    def GetNsdRequirements(self, nsd: str) -> Optional[Metal]:
+    def GetNsdData(self, nsd: str) -> Tuple[Optional[str], Optional[str], Optional[Metal]]:
+        """Returns (nsd_name, nsd_id, requirements (as Metal))"""
         try:
             data = self.GetNsdInfo(nsd)
             if isinstance(data, list):
@@ -138,12 +145,13 @@ class SliceManager(RestClient):
                 else: raise RuntimeError("Received an empty list")
             try:
                 flavor = data["flavor"]
-                return Metal(cpu=flavor["vcpu-count"], ram=flavor["memory-mb"], disk=flavor["storage-gb"])
+                return data['nsd-name'], data['nsd-id'], Metal(cpu=flavor["vcpu-count"],
+                                                               ram=flavor["memory-mb"], disk=flavor["storage-gb"])
             except KeyError as k:
                 raise RuntimeError(f"'{k}' key not present in data")
         except Exception as e:
             Log.E(f"Exception while retrieving NSD information: {e}")
-            return None
+            return None, None, None
 
     def GetBaseSliceDescriptors(self) -> List[str]:
         try:
@@ -160,4 +168,21 @@ class SliceManager(RestClient):
             Log.E(f"Exception while retrieving Base Slice Descriptors: {e}")
             return []
 
+    def GetVimNameToLocationMapping(self) -> Dict[str, str]:
+        try:
+            response = self.HttpGet(f"{self.api_url}/vim", {"Accept": "application/json"})
+            data = self.ResponseToJson(response)
+            vimIds = [vim['_id'] for vim in data]
+        except Exception as e:
+            Log.E(f"Exception while retrieving VIM ids: {e}")
+            return {}
 
+        res = {}
+        for vimId in vimIds:
+            try:
+                response = self.HttpGet(f"{self.api_url}/vim/{vimId}", {"Accept": "application/json"})
+                data = self.ResponseToJson(response)
+                res[data["name"]] = data["location"]
+            except Exception as e:
+                Log.W(f"Exception while retrieving information for VIM '{vimId}': {e}")
+        return res

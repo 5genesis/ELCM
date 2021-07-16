@@ -39,14 +39,18 @@ class Composer:
         if descriptor.Slice is not None:
             if len(descriptor.NetworkServices) != 0:
                 sliceManager = Management.SliceManager()
+                nameToLocation = sliceManager.GetVimNameToLocationMapping()
                 for ns in descriptor.NetworkServices:
-                    nsId, location = ns
+                    nsId, vimName = ns
                     try:
-                        nsInfo = NsInfo(nsId, location)
-                        requirements = sliceManager.GetNsdRequirements(nsId)
-                        if requirements is None:
-                            raise RuntimeError("Could not retrieve NSD information")
-                        nsInfo.Requirements = requirements
+                        nsdName, nsdId, nsdRequirements = sliceManager.GetNsdData(nsId)
+                        location = nameToLocation.get(vimName, None)
+                        if nsdRequirements is None:
+                            raise RuntimeError(f"Could not retrieve NSD information for '{nsId}'")
+                        elif location is None:
+                            raise RuntimeError(f"Could not retrieve location for VIM '{vimName}'")
+                        nsInfo = NsInfo(nsdName, nsdId, location)
+                        nsInfo.Requirements = nsdRequirements
                         configuration.NetworkServices.append(nsInfo)
                     except Exception as e:
                         errored = True
@@ -120,14 +124,7 @@ class Composer:
             if baseSlice is None:
                 raise RuntimeError("Cannot create NEST without a base slice value")
 
-            nsList = []
-            for ns in nss:
-                nsList.append({
-                    "nsd-id": ns.Id,
-                    "placement": ns.Location,
-                })
-
-            sliceDescriptor = {"base_slice_des_id": baseSlice}
+            sliceDescriptor = {"base_slice_des_ref": baseSlice}
 
             if scenario is not None:
                 scenarioData = Facility.Scenarios().get(scenario, None)
@@ -135,6 +132,15 @@ class Composer:
                     raise RuntimeError(f"Unrecognized scenario '{scenario}'")
                 sliceDescriptor.update(scenarioData)
             # We allow having no scenario, but not having an unrecognized one
+
+            nsList = []
+            for ns in nss:
+                nsList.append({
+                    "nsd-id": ns.Id,
+                    "ns-name": ns.Name,
+                    "placement": ns.Location,
+                    "optional": False  # All network services should be deployed for the test
+                })
 
             nest = {"base_slice_descriptor": sliceDescriptor}
             if len(nsList) != 0:
