@@ -2,18 +2,20 @@ from REST import RestClient
 import json
 from threading import Thread
 from typing import Optional, Union
+from Helper.config import Portal as PortalConfig
 
 
 class PortalApi(RestClient):
-    def __init__(self, host, port):
-        super().__init__(host, port, '/api')
+    def __init__(self, config: PortalConfig):
+        self.Enabled = config.Enabled
+        super().__init__(config.Host, config.Port, '/api')
 
     def UpdateExecutionData(self, executionId: int,
                             status: Optional[str] = None, dashboardUrl: Optional[str] = None,
                             percent: Optional[int] = None, message: Optional[str] = None):
-
-        Thread(target=self.updateAsync,
-               args=(executionId, status, dashboardUrl, percent, message)).start()
+        if self.Enabled:
+            Thread(target=self.updateAsync,
+                   args=(executionId, status, dashboardUrl, percent, message)).start()
 
     def updateAsync(self, executionId: int,
                     status: Optional[str], dashboardUrl: Optional[str],

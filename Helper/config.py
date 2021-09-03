@@ -171,7 +171,14 @@ class TapConfig(validable):
 
 class Portal(restApi):
     def __init__(self, data: Dict):
-        super().__init__(data, 'Portal', {})
+        defaults = {
+            'Enabled': (False, Level.WARNING)
+        }
+        super().__init__(data, 'Portal', defaults)
+
+    @property
+    def Enabled(self):
+        return self._keyOrDefault('Enabled')
 
 
 class SliceManager(restApi):

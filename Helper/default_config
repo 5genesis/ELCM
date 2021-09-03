@@ -5,6 +5,7 @@ Logging:
   AppLevel: INFO
   LogLevel: DEBUG
 Portal:
+  Enabled: False
   Host: '127.0.0.1'
   Port: 5000
 SliceManager:
