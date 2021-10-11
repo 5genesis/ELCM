@@ -2,7 +2,7 @@
 
 ## Requirements
 
- - [Python 3.7.x](https://www.python.org) (see requirements.txt for a detailed view of required packages)
+ - [Python 3.10.x](https://www.python.org) (see requirements.txt for a detailed view of required packages)
 
 ### Optional integrations:
 
@@ -25,7 +25,7 @@
 
 > Additional dependencies may be needed depending on your environment. For example, older Windows version may require
 certain Visual C++ redistributables to be installed, and the following packages are known to be required on many Ubuntu
-distributions: `gcc python3.7 python3.7-venv python3.7-dev`. Fixes for specific issues are usually easy to find on 
+distributions: `gcc python3.10 python3.10-venv python3.10-dev`. Fixes for specific issues are usually easy to find on 
 Internet.
 
 This repository includes two sets of scripts for use on Linux (`.sh`) and Windows (`.ps1`) machines. In general,
@@ -34,12 +34,12 @@ on the deployment environment some actions may fail or require additional tweaki
 be used as a guide for manual installation, and a description of the actions performed by the scripts is included below
 for use as reference.
 
-1. Ensure that Python 3.7.x is installed. For environments with multiple Python versions note the correct alias.
+1. Ensure that Python 3.10.x is installed. For environments with multiple Python versions note the correct alias.
    > For example, older Ubuntu distributions refer to Python 2.x by default when invoking `python`, and reference 
-   > Python 3.7 as `python3` or `python3.7`. Use the `--version` parameter to check the version number.
+   > Python 3.10 as `python3` or `python3.10`. Use the `--version` parameter to check the version number.
 2. Clone the repository to a known folder
 3. Run `install.sh <python_alias>` or `install.ps1 <python_alias>` (depending on your OS). The script will:
-  - Display the Python version in use (ensure that this is 3.7.x)
+  - Display the Python version in use (ensure that this is 3.10.x)
   - Create a [Python virtual environment](https://virtualenv.pypa.io/en/stable/) for exclusive use of the ELCM.
   - Install the required Python packages (using [pip](https://pypi.org/project/pip/))
   > Most issues occur during this step, since it is highly dependent on the environment. In case of error, note the 
@@ -75,6 +75,7 @@ The ELCM instance can be configured by editing the `config.yml` file. The values
     * AppLevel: Minimum log level that will be displayed in the console.
     * LogLevel: Minimum log level that will be recorded in the log files.
 * Portal:
+    * Enabled: Whether to send experiment updates to the portal or not.
     * Host: Location of the machine where the Portal is running (localhost by default).
     * Port: Port where the Portal is listening for connections (5000 by default).
 * Tap: 

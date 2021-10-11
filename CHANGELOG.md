@@ -1,3 +1,9 @@
+**11/10/2021** [Version 3.0.0]
+
+ - Initial EVOLVED-5G release
+ - Python 3.10 migration
+ - Make communication with Portal optional
+
 **16/07/2021** [Version 2.4.3]
 
  - Fix network services instantiation
