@@ -7,26 +7,26 @@ import re
 class PublishFromSource(Task):
     def __init__(self, name, parent, params, logMethod):
         super().__init__(name, parent, params, logMethod, None)
+        self.paramRules = {
+            'Pattern': (None, True),
+            'Keys': (None, True),
+            'Path': (None, False)  # Mandatory only for PublishFromFile, handled below
+        }
 
     def Run(self):
         self.Log(Level.INFO, f'Running task {self.name} with params: {self.params}')
 
-        filePath = self.params.get("Path", None)
-        pattern = self.params.get("Pattern", None)
-        keys = self.params.get("Keys", None)
+        filePath = self.params["Path"]
+        pattern = self.params["Pattern"]
+        keys = self.params["Keys"]
 
-        if pattern is None:
-            self.raiseConfigError("Pattern")
+        self.Log(Level.DEBUG, f"Looking for pattern: '{pattern}'; Assigning groups as:")
 
-        if keys is None:
-            self.raiseConfigError("Keys")
-        else:
-            self.Log(Level.DEBUG, f"Looking for pattern: '{pattern}'; Assigning groups as:")
-            try:
-                for index, key in keys:
-                    self.Log(Level.DEBUG, f"  {index}: {key}")
-            except Exception as e:
-                raise RuntimeError(f"Invalid 'Keys' definition: {e}")
+        try:
+            for index, key in keys:
+                self.Log(Level.DEBUG, f"  {index}: {key}")
+        except Exception as e:
+            raise RuntimeError(f"Invalid 'Keys' definition: {e}")
 
         regex = re.compile(pattern)
 

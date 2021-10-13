@@ -6,13 +6,19 @@ from os.path import abspath
 class CompressFiles(Task):
     def __init__(self, logMethod, parent, params):
         super().__init__("Compress Files", parent, params, logMethod, None)
+        self.paramRules = {
+            'Files': ([], False),
+            'Folders': ([], False),
+            'Output': (None, True)
+        }
 
     def Run(self):
         from Helper import Compress, IO
 
-        files = [abspath(f) for f in self.params.get("Files", [])]
-        folders = [abspath(f) for f in self.params.get("Folders", [])]
-        output = self.params.get("Output", "")
+        files = [abspath(f) for f in self.params["Files"]]
+        folders = [abspath(f) for f in self.params["Folders"]]
+        output = self.params["Output"] .get("Output", "")
+
         self.Log(Level.INFO, f"Compressing files to output: {output}")
 
         for folder in folders:

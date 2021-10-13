@@ -6,9 +6,10 @@ from time import sleep
 class Delay(Task):
     def __init__(self, logMethod, parent, params):
         super().__init__("Delay", parent, params, logMethod, None)
+        self.paramRules = {'Time': (60, False)}
 
     def Run(self):
-        value = self.params.get('Time', 60)
+        value = self.params['Time']
         try:
             time = int(value)
             if time < 0:

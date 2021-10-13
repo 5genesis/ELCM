@@ -51,5 +51,5 @@ class Task:
                     return False
                 else:
                     self.params[key] = default
-                    self.Log(Level.DEBUG, f"Parameter '{key}' set to default ('{str(default)}').")
+                    self.Log(Level.DEBUG, f"Parameter '{key}' set to default ({str(default)}).")
         return True
