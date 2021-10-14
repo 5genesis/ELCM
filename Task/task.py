@@ -25,7 +25,9 @@ class Task:
                 self.Run()
                 self.Log(Level.INFO, f"[Task '{self.name}' finished]")
             else:
-                self.Log(Level.ERROR, f"[Task '{self.name}' cancelled due to incorrect parameters]")
+                message = f"[Task '{self.name}' cancelled due to incorrect parameters ({self.params})]"
+                self.Log(Level.ERROR, message)
+                raise RuntimeError(message)
             self.Log(Level.DEBUG, f'Params: {self.params}')
         else:
             self.Log(Level.INFO, f"[Task '{self.name}' not started (condition false)]")

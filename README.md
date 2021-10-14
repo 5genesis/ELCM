@@ -462,6 +462,25 @@ expression pattern, publishing the groups found. Configuration values:
 > - While writing the `Keys` in the task configuration note that YAML does not have a syntax for tuples, use lists of two elements instead.
 - `Path` (only for Run.PublishFromFile): Path of the file to read
 
+### Run.RestApi
+
+Provides direct access to the internal RestClient functionality, avoiding the need of using external utilities such as
+`curl` for simple queries. Configuration values:
+- `Host`: Location where the REST API is listening
+- `Port`: Port where the REST API is listening
+- `Endpoint`: Specific API endpoint where the request will be sent
+- `Https`: Whether to use HTTPS or not, defaults to False
+- `Insecure`: Whether to ignore certificate errors when using HTTPS, defaults to False
+- `Method`: REST method to use, currently suported methods are `GET`, `POST`, `PATCH`, `DELETE`
+- `Payload`: Data to send in JSON format (as a single string), defaults to `'{}'`
+- `PayloadMode`: Field where the payload will be sent, possible values are:
+  - `Data`: The payload is saved in the `Body` field of the request. Also adds the `Content-Type=application/json` header
+  - `Form`: The payload is saved on the `Form` field of the request
+- `Responses`: Set of expected responses as a single value or a list. The special value `Success` indicates any possible
+success response (2xx). Set to `None` to disable the check.
+- `Timeout`: Maximum time in seconds to wait for a response
+- `Headers`: Additional headers to add to the request
+
 ### Run.SingleSliceCreationTime
 Sends the Slice Creation Time reported by the Slice Manager to InfluxDb. This task will not perform any deployment
  by itself, and will only read the values for an slice deployed during the experiment pre-run stage.
@@ -522,6 +541,43 @@ Separate values from the `Parameters` dictionary can also be expanded using the 
 > implemented together, but use different dictionaries when looking for values. When an expression does not include 
 > a '.' the ELCM will fall back to looking at the Publish values (the default for Release A). If the collection 
 > is not 'Publish' or 'Params', the expression will be replaced by `<<UNKNOWN GROUP {collection}>>`
+
+## Implementing additional tasks:
+
+The ELCM is designed to be extensible, and thus, it is possible to easily integrate additional tasks. The basic steps
+for defining a new task are:
+
+1. Create a new Python file with a descriptive name, for example `compress_files.py`. This file must be saved in the
+`/Execitor/Task/Run` subfolder of the ELCM
+2. In this file, define a new class, for example `CompressFiles`, which inherits from `Task`. The constructor of this
+class must have the signature displayed below:
+    ```python
+    class CompressFiles(Task):
+        def __init__(self, logMethod, parent, params):
+            super().__init__("Compress Files", parent, params, logMethod, None)
+    ```
+    In general, the parameters received in the constructor will be sent directly to the superclass, along with a Task
+name (in the first parameter). The last parameter is an optional "Condition" method. If the callable passed in this
+parameter evaluates to False, the execution of the Task will be skipped.
+3. Override the `Run` method of the Task class. If this method is not overridden, a `NotImplementedError` will be raised
+at runtime. The following methods and fields are available:
+    - `self.name`: Contains the name of the Task.
+    - `self.parent`: Contains a reference to the Executor that called the task. Using this reference a Task can gain
+access to additional information about the Experiment.
+    - `self.params`: Contains a dictionary with the parameters of the Task, expanded following the procedure described
+in the previous section.
+    - `self.paramRules`: Set of validation rules to automatically apply on the parameters before the execution of the
+task, with the following format: ```Dict[<ParameterName>: (<Default>, <Mandatory>)]```. If `<ParameterName>` has not
+been defined, but it's not `<Mandatory>`, then it is assigned the `<Default>` value. If it's `<Mandatory` an exception
+is generated and the task is aborted.
+    - `self.Publish(key, value)`: Saves a value under the key identifier. This value can be retrieved by Tasks that are
+executed later in the same experiment execution (via parameter expansion as part of their own self.params dictionary).
+4. In order to make the new Task available for use during an experiment execution, it is necessary to add a new import
+directive to `/Executor/Tasks/Run/__init__.py`. In our example: `from .compress_files import CompressFiles`
+
+After restarting the ELCM, the new Task will be available for use when defining new experiments. The Task identifier,
+in this example, is `Run.CompressFiles`. The complete code of this example can be seen it the
+`Executor\Run\compress_file.py` file. Other tasks in that folder can also be used as reference.
 
 ## MONROE experiments:
 
