@@ -4,7 +4,8 @@ from Experiment import Tombstone
 from flask import render_template, make_response, request, flash, redirect, url_for
 from functools import wraps, update_wrapper
 from datetime import datetime
-from Helper import Log, Serialize, LogInfo, Config
+from Helper import Log, Serialize, LogInfo
+from Settings import Config
 from Facility import Facility
 from typing import List, Dict
 from flask_paginate import Pagination, get_page_parameter

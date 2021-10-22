@@ -3,7 +3,7 @@ from Status import Status, ExecutionQueue
 from Experiment import ExperimentRun, Tombstone
 from Scheduler.execution import bp
 from typing import Union, Optional
-from Helper import Config
+from Settings import Config
 from os.path import join, isfile, abspath
 
 

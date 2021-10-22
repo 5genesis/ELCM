@@ -3,7 +3,7 @@ from Helper import Log
 from Status import Status
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
-from Helper import Config
+from Settings import Config
 from Facility import Facility
 from .heartbeat import HeartBeat
 from dotenv import load_dotenv

@@ -465,7 +465,7 @@ expression pattern, publishing the groups found. Configuration values:
 ### Run.RestApi
 
 Provides direct access to the internal RestClient functionality, avoiding the need of using external utilities such as
-`curl` for simple queries. Configuration values:
+`curl` for simple requests. Configuration values:
 - `Host`: Location where the REST API is listening
 - `Port`: Port where the REST API is listening
 - `Endpoint`: Specific API endpoint where the request will be sent

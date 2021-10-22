@@ -4,7 +4,7 @@ from .log_level import Level
 from flask import Flask
 from os.path import exists, join
 from os import makedirs
-from .config import Config
+from Settings import Config
 import traceback
 from typing import Union, Optional, List, Dict, Tuple
 from dataclasses import dataclass

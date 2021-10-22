@@ -2,7 +2,7 @@ from typing import Dict, Union
 from .experiment_run import ExperimentRun
 from Executor import ExecutorBase
 from re import finditer
-from Helper import Config
+from Settings import Config
 from json import dumps
 
 

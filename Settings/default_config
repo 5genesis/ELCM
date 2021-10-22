@@ -45,3 +45,7 @@ EastWest:
     ExampleRemote2:
       Host: host1
       Port: port1
+Evolved5g:
+  Jenkins:
+    User:
+    Password:

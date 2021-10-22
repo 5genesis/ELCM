@@ -1,5 +1,6 @@
 from Task import Task
-from Helper import Tap, Config, Level
+from Helper import Tap, Level
+from Settings import Config
 from os.path import exists, join
 from datetime import datetime, timezone
 

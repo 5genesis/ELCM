@@ -1,5 +1,6 @@
 from Task import Task
-from Helper import Level, Config
+from Helper import Level
+from Settings import Config
 from time import sleep
 from Interfaces import RemoteApi
 
