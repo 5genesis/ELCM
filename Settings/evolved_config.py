@@ -3,31 +3,39 @@ from Helper.log_level import Level
 from .config_base import validable, restApi, ConfigBase
 
 
-class JenkisApi(restApi):
+class JenkinsApi(restApi):
     def __init__(self, data: Dict):
         defaults = {
             'Enabled': (False, Level.WARNING)
         }
-        super().__init__(data, 'Portal', defaults)
+        super().__init__(data, 'JenkinsApi', defaults)
 
     @property
     def Enabled(self):
         return self._keyOrDefault('Enabled')
+
+    @property
+    def Validation(self) -> List[Tuple['Level', str]]:
+        if self.Enabled:
+            return super().Validation
+        else:
+            return [(Level.INFO, "Jenkins API is disabled")]
 
 
 class EvolvedConfig(ConfigBase):
     data = None
     Validation: List[Tuple['Level', str]] = []
 
-    def __init__(self):
+    def __init__(self, forceReload=False):
         super().__init__('evolved5g.yml', 'Settings/default_evolved_config')
-        if self.data is None:
+        if self.data is None or forceReload:
             EvolvedConfig.data = self.Reload()
-        self.Validate()
+            self.Validate()
 
     @property
-    def Portal(self):
-        return JenkisApi(EvolvedConfig.data.get('Portal', {}))
+    def JenkinsApi(self):
+        return JenkinsApi(EvolvedConfig.data.get('JenkinsApi', {}))
 
     def Validate(self):
-        pass
+        for entry in [self.JenkinsApi, ]:
+            EvolvedConfig.Validation.extend(entry.Validation)

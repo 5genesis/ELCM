@@ -124,6 +124,13 @@ class Portal(restApi):
     def Enabled(self):
         return self._keyOrDefault('Enabled')
 
+    @property
+    def Validation(self) -> List[Tuple['Level', str]]:
+        if self.Enabled:
+            return super().Validation
+        else:
+            return [(Level.INFO, "Portal is disabled")]
+
 
 class SliceManager(restApi):
     def __init__(self, data: Dict):
@@ -221,11 +228,11 @@ class Config(ConfigBase):
     data = None
     Validation: List[Tuple['Level', str]] = []
 
-    def __init__(self):
+    def __init__(self, forceReload = False):
         super().__init__('config.yml', 'Settings/default_config')
-        if self.data is None:
+        if self.data is None or forceReload:
             Config.data = self.Reload()
-        self.Validate()
+            self.Validate()
 
     @property
     def Logging(self):
