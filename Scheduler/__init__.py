@@ -3,7 +3,7 @@ from Helper import Log
 from Status import Status
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
-from Settings import Config
+from Settings import Config, EvolvedConfig
 from Facility import Facility
 from .heartbeat import HeartBeat
 from dotenv import load_dotenv
@@ -11,15 +11,20 @@ import os
 
 load_dotenv(dotenv_path='./.flaskenv', verbose=True)
 
+def _showValidation(name, validation):
+    print(f"{name} validation:")
+    for level, message in validation:
+        print(f"  {level.name:8}: {message}", flush=True)
+
+
 config = Config()
-print("Config validation:")
-for level, message in config.Validation:
-    print(f"  {level.name:8}: {message}", flush=True)
+_showValidation("Config", config.Validation)
+
+evolvedConfig = EvolvedConfig()
+_showValidation("Evolved5g Config", evolvedConfig.Validation)
 
 Facility.Reload()
-print("Facility validation:")
-for level, message in Facility.Validation:
-    print(f"  {level.name:8}: {message}", flush=True)
+_showValidation("Facility", Facility.Validation)
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')

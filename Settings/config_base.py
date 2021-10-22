@@ -1,3 +1,6 @@
+import yaml
+from os.path import exists
+from shutil import copy
 from typing import Dict, List, Tuple, Optional
 from Helper.log_level import Level
 from REST import RestClient
@@ -55,3 +58,24 @@ class restApi(validable):
             except Exception as e:
                 res.append((Level.ERROR, f'Exception creating {self.section} client: {e}'))
         return res
+
+
+class ConfigBase:
+    def __init__(self, filename: str, defaultsFile: str):
+        self.filename = filename
+        self.defaultsFile = defaultsFile
+
+    def Reload(self) -> Dict:
+        if not exists(self.filename):
+            copy(self.defaultsFile, self.filename)
+
+        try:
+            with open(self.filename, 'r', encoding='utf-8') as file:
+                return yaml.safe_load(file)
+        except Exception as e:
+            from Helper import Log
+            Log.C(f"Exception while loading {self.filename} file: {e}")
+            return {}
+
+    def Validate(self):
+        raise NotImplementedError

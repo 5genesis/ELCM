@@ -1,12 +1,10 @@
-import yaml
 from os.path import exists, abspath, realpath, join
 from os import getenv
-from shutil import copy
 from typing import Dict, List, Tuple, Optional
 import logging
 import platform
 from Helper.log_level import Level
-from .config_base import validable, restApi
+from .config_base import validable, restApi, ConfigBase
 
 
 class Grafana(restApi):
@@ -217,28 +215,16 @@ class Metadata(validable):
     def Facility(self): return self._keyOrDefault("Facility")
 
 
-class Config:
+class Config(ConfigBase):
     FILENAME = 'config.yml'
 
     data = None
     Validation: List[Tuple['Level', str]] = []
 
     def __init__(self):
-        if Config.data is None:
-            self.Reload()
-
-    def Reload(self):
-        if not exists(Config.FILENAME):
-            copy('Settings/default_config', Config.FILENAME)
-
-        try:
-            with open(Config.FILENAME, 'r', encoding='utf-8') as file:
-                Config.data = yaml.safe_load(file)
-        except Exception as e:
-            from Helper import Log
-            Log.C(f"Exception while loading config file: {e}")
-            return
-
+        super().__init__('config.yml', 'Settings/default_config')
+        if self.data is None:
+            Config.data = self.Reload()
         self.Validate()
 
     @property
