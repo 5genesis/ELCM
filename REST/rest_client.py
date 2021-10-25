@@ -20,7 +20,9 @@ class RestClient:
     FILENAME_PATTERN = re.compile(r'.*filename="?(.*)"?')
 
     def __init__(self, api_host, api_port, suffix, https=False, insecure=False):
-        self.api_url = f'http{"s" if https else ""}://{api_host}:{api_port}{suffix}'
+        protocol = f'http{"s" if https else ""}://'
+        port = api_port if api_port is not None else (443 if https else 80)
+        self.api_url = f'{protocol}{api_host}:{port}{suffix}'
 
         kw = {'maxsize': 1, 'headers': self.HEADERS}
         if https and insecure:
