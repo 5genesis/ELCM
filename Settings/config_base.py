@@ -54,7 +54,7 @@ class restApi(validable):
         if all([e[0] == Level.INFO for e in res]):
             # No errors, but check if a rest server can be created with the configuration
             try:
-                _ = RestClient(self.Host, self.Port, "")
+                _ = RestClient(self.Host, self.Port if self.Port is not None else 80, "")
             except Exception as e:
                 res.append((Level.ERROR, f'Exception creating {self.section} client: {e}'))
         return res

@@ -6,13 +6,23 @@ from .config_base import validable, restApi, ConfigBase
 class JenkinsApi(restApi):
     def __init__(self, data: Dict):
         defaults = {
-            'Enabled': (False, Level.WARNING)
+            'Enabled': (False, Level.WARNING),
+            'User': (None, Level.ERROR),
+            'Password': (None, Level.ERROR),
         }
         super().__init__(data, 'JenkinsApi', defaults)
 
     @property
     def Enabled(self):
         return self._keyOrDefault('Enabled')
+
+    @property
+    def User(self):
+        return self._keyOrDefault('User')
+
+    @property
+    def Password(self):
+        return self._keyOrDefault('Password')
 
     @property
     def Validation(self) -> List[Tuple['Level', str]]:
@@ -37,5 +47,7 @@ class EvolvedConfig(ConfigBase):
         return JenkinsApi(EvolvedConfig.data.get('JenkinsApi', {}))
 
     def Validate(self):
+        EvolvedConfig.Validation = []
+
         for entry in [self.JenkinsApi, ]:
             EvolvedConfig.Validation.extend(entry.Validation)
