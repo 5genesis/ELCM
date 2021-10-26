@@ -1,1 +1,1 @@
-from .jenkins_api import JenkinsBuild, JenkinsStatus
+from .jenkins_api import JenkinsJob, JenkinsStatus

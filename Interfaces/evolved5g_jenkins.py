@@ -34,8 +34,40 @@ class Evolved5gJenkinsApi(RestClient):
         if self.token is None or current >= self.expiry:
             self.RenewToken()
 
-    def TriggerBuild(self):
-        pass
+    def getExtraHeaders(self):
+        self.MaybeRenewToken()
+        return {"Content-Type": "application/json", "Authorization": self.token}
 
-    def CheckStatus(self):
-        pass
+    def TriggerJob(self, instance: str, job: str, repository: str, branch: str, version: str) -> str:
+        headers = self.getExtraHeaders()
+        payload = {
+            "instance": instance,
+            "job": job,
+            "parameters": {
+                "VERSION": version, "GIT_URL": repository, "GIT_BRANCH": branch
+            }
+        }
+
+        try:
+            response = self.HttpPost("/api/executions", payload=Payload.Data, body=payload, extra_headers=headers)
+            return ""  # TODO
+        except Exception as e:
+            raise RuntimeError(f"Unable to trigger job: {e}") from e
+
+    def CheckJob(self, jobId: str) -> str:
+        headers = self.getExtraHeaders()
+
+        try:
+            response = self.HttpGet(f"/api/executions/{jobId}", extra_headers=headers)
+            status = self.ResponseStatusCode(response)
+
+            if 200 <= status <= 299:
+                return "Correct"  # TODO
+            elif status == 401:
+                return "Unauthorized"
+            elif status == 404:
+                return "Not Found"
+            else:
+                raise RuntimeError(f"Unrecognized status code: {status}")
+        except Exception as e:
+            raise RuntimeError(f"Unable to retrieve job status: {e}") from e

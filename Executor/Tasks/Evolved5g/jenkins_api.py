@@ -25,21 +25,56 @@ class JenkinsBase(Task):
                                    self.config.User, self.config.Password)
 
 
-class JenkinsBuild(JenkinsBase):
+class JenkinsJob(JenkinsBase):
     def __init__(self, logMethod, parent, params):
-        super().__init__("Jenkins Build", parent, params, logMethod)
-        self.paramRules = {}
+        super().__init__("Jenkins Job", parent, params, logMethod)
+        self.paramRules = {
+            'Instance': (None, True),
+            'Job': (None, True),
+            'GitUrl': (None, True),
+            'GitBranch': (None, True),
+            'Version': ('1.0', False),
+            'PublishKey': ('JenkinsJobId', False),
+        }
 
     def Run(self):
         super().Run()
         if self.client is None: return
+
+        instance = self.params["Instance"]
+        job = self.params["Job"]
+        url = self.params["GitUrl"]
+        branch = self.params["GitBranch"]
+        version = self.params["Version"]
+
+        self.Log(Level.DEBUG,
+                 f"Trying to trigger job '{job}' on instance '{instance}' ({url}|{branch}|{version})")
+
+        try:
+            jobId = self.client.TriggerJob(instance, job, url, branch, version)
+            self.Log(Level.INFO, f"Triggered '{job}'. Received Job Id: {jobId}")
+            self.Publish(self.params["PublishKey"], jobId)
+        except Exception as e:
+            self.Log(Level.ERROR, f"Unable to trigger job: {e}")
 
 
 class JenkinsStatus(JenkinsBase):
     def __init__(self, logMethod, parent, params):
         super().__init__("Jenkins Status", parent, params, logMethod)
-        self.paramRules = {}
+        self.paramRules = {
+            'JobId': (None, True),
+            'PublishKey': ('JenkinsJobStatus', False),
+        }
 
     def Run(self):
         super().Run()
         if self.client is None: return
+
+        jobId = self.params['JobId']
+
+        try:
+            status = self.client.CheckJob(jobId)
+            self.Log(Level.INFO, f"Status of job '{jobId}': {status}")
+            self.Publish(self.params["PublishKey"], status)
+        except Exception as e:
+            self.Log(Level.ERROR, f"Unable to check job '{jobId}' status: {e}")
