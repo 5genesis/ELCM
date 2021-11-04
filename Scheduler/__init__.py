@@ -11,6 +11,7 @@ import os
 
 load_dotenv(dotenv_path='./.flaskenv', verbose=True)
 
+
 def _showValidation(name, validation):
     print(f"{name} validation:")
     for level, message in validation:

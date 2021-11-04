@@ -1,6 +1,4 @@
 from REST import RestClient, Payload
-from typing import List, Tuple, Dict, Optional
-from Helper import Log
 from datetime import datetime, timezone
 
 
@@ -50,11 +48,16 @@ class Evolved5gJenkinsApi(RestClient):
 
         try:
             response = self.HttpPost("/api/executions", payload=Payload.Data, body=payload, extra_headers=headers)
-            return ""  # TODO
+            status = self.ResponseStatusCode(response)
+            if 200 <= status <= 299:
+                data = self.ResponseToJson(response)
+                return data['id']
+            else:
+                raise RuntimeError(f"Unexpected status code {status} received.")
         except Exception as e:
             raise RuntimeError(f"Unable to trigger job: {e}") from e
 
-    def CheckJob(self, jobId: str) -> str:
+    def CheckJob(self, jobId: str) -> (str, None | str):
         headers = self.getExtraHeaders()
 
         try:
@@ -62,11 +65,13 @@ class Evolved5gJenkinsApi(RestClient):
             status = self.ResponseStatusCode(response)
 
             if 200 <= status <= 299:
-                return "Correct"  # TODO
+                data = self.ResponseToJson(response)
+                return data['status'], data.get('console_log', None)
+
             elif status == 401:
-                return "Unauthorized"
+                return "401 - Unauthorized", None
             elif status == 404:
-                return "Not Found"
+                return "404 - Not Found", None
             else:
                 raise RuntimeError(f"Unrecognized status code: {status}")
         except Exception as e:

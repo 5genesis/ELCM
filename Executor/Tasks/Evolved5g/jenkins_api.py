@@ -73,8 +73,9 @@ class JenkinsStatus(JenkinsBase):
         jobId = self.params['JobId']
 
         try:
-            status = self.client.CheckJob(jobId)
-            self.Log(Level.INFO, f"Status of job '{jobId}': {status}")
+            status, message = self.client.CheckJob(jobId)
+            message = message if message is not None else "<No details>"
+            self.Log(Level.INFO, f"Status of job '{jobId}': {status} ('{message}')")
             self.Publish(self.params["PublishKey"], status)
         except Exception as e:
             self.Log(Level.ERROR, f"Unable to check job '{jobId}' status: {e}")
