@@ -38,15 +38,18 @@ def view(executionId: int):
 
 @bp.route('<int:executionId>/json')
 def json(executionId: int):
-    execution = ExecutionQueue.Find(executionId)
+    execution = executionOrTombstone(executionId)
     coarse = status = 'ERR'
     percent = 0
     messages = []
     if execution is not None:
         coarse = execution.CoarseStatus.name
-        status = execution.Status
-        percent = execution.PerCent
-        messages = execution.Messages
+        if isinstance(execution, Tombstone):
+            status = "Not Running"
+        else:
+            status = execution.Status
+            percent = execution.PerCent
+            messages = execution.Messages
     return jsonify({
         'Coarse': coarse, 'Status': status,
         'PerCent': percent, 'Messages': messages
