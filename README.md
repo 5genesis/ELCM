@@ -124,6 +124,16 @@ The ELCM instance can be configured by editing the `config.yml` file. The values
       containing 'Host' and 'Port' values in the same format as in the `Portal` or `SliceManager` sections. Defaults to 
       two (invalid) example entries.
 
+An additional configuration file (`evolved5g.yml`) contains the configuration values for the EVOLVED-5G tasks. The
+configuration values in this file are:
+
+* JenkinsApi: Configuration values for the EVOLVED-5G CI/CD infrastructure.
+   * Enabled: Boolean value indicating if the Jenkins API will be used. Defaults to `False`.
+   * Host: Address where the Jenkins API is listening
+   * Port: Port where the API is listening. If empty, the default ports (80 for http, 443 for https) will be used
+   * User: Provided user name
+   * Password: Provided password
+
 ## Facility Configuration (Platform registry)
 
 The exposed capabilities and functionality of the facility are defined by a set of files distributed in 4 folders
@@ -542,6 +552,31 @@ Separate values from the `Parameters` dictionary can also be expanded using the 
 > a '.' the ELCM will fall back to looking at the Publish values (the default for Release A). If the collection 
 > is not 'Publish' or 'Params', the expression will be replaced by `<<UNKNOWN GROUP {collection}>>`
 
+## EVOLVED-5G specific tasks:
+
+The following is a list of tasks specifically tailored for use on the EVOLVED-5G H2020 project. Configuration
+values for these tasks can be set in the `evolved5g.yml` file at the root of the ELCM folder.
+
+### Evolved5g.JenkinsJob
+
+Initiates the execution of a Jenkins pipeline in the CI/CD infrastructure. The returned job ID will be published
+as a variable for use later in the same experiment. Configuration values:
+
+- Instance: Address of the instance where the pipeline will be launched.
+- Job: Kind of job to launch.
+- GitUrl: URL of the GitHub repository that contains the NetApp code.
+- GitBranch: Repository branch that will be used by the pipeline.
+- Version: Pipeline version, defaults to `'1.0'`
+- PublishKey: Name of the key that will be used for storing the returned job id, defaults to `JenkinsJobId`
+
+### Evolved5g.JenkinsStatus
+
+Checks the status of the specified pipeline, and publishes the obtained value for later use in the same experiment.
+Configuration values:
+
+- JobId: Pipeline to check. Can be expanded from a previous JenkinsJob using `'@[Params.JenkinsJobId]'`.
+- PublishKey: Name of the key that will be used for storing the returned status, defaults to `JenkinsJobStatus`
+
 ## Implementing additional tasks:
 
 The ELCM is designed to be extensible, and thus, it is possible to easily integrate additional tasks. The basic steps
@@ -557,7 +592,7 @@ class must have the signature displayed below:
             super().__init__("Compress Files", parent, params, logMethod, None)
     ```
     In general, the parameters received in the constructor will be sent directly to the superclass, along with a Task
-name (in the first parameter). The last parameter is an optional "Condition" method. If the callable passed in this
+name (in the first parameter). The last parameter is an optional "Condition" method. If the `callable` passed in this
 parameter evaluates to False, the execution of the Task will be skipped.
 3. Override the `Run` method of the Task class. If this method is not overridden, a `NotImplementedError` will be raised
 at runtime. The following methods and fields are available:
