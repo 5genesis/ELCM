@@ -13,22 +13,21 @@ class SliceCreationTime(Task):
 
     def __init__(self, logMethod, parent, params):
         super().__init__("Slice Creation Time Measurement", parent, params, logMethod, None)
+        self.paramRules = {
+            'ExecutionId': (None, True),
+            'NEST': (None, True),
+            'Iterations': (25, False),
+            'CSV': (None, False),
+            'Timeout': (None, False)
+        }
 
     def Run(self):
-        executionId = self.params.get('ExecutionId', None)
-        nestFile = self.params.get("NEST", None)
-        iterations = self.params.get("Iterations", 25)
-        csvFile = self.params.get("CSV", None)
-        timeout = self.params.get("Timeout", None)
+        executionId = self.params['ExecutionId']
+        nestFile = self.params["NEST"]
+        iterations = self.params["Iterations"]
+        csvFile = self.params["CSV"]
+        timeout = self.params["Timeout"]
         pollTime = 5
-
-        if executionId is None:
-            self.Log(Level.ERROR, "ExecutionId value not defined, please review the Task configuration.")
-            return
-
-        if nestFile is None:
-            self.Log(Level.ERROR, "NEST value not defined, please review the Task configuration.")
-            return
 
         try:
             with open(nestFile, 'r', encoding='utf-8') as input:

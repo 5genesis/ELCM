@@ -2,7 +2,7 @@ from REST import RestClient
 import json
 from threading import Thread
 from typing import Optional, Union
-from Helper.config import Portal as PortalConfig
+from Settings.config import Portal as PortalConfig
 
 
 class PortalApi(RestClient):

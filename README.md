@@ -124,6 +124,16 @@ The ELCM instance can be configured by editing the `config.yml` file. The values
       containing 'Host' and 'Port' values in the same format as in the `Portal` or `SliceManager` sections. Defaults to 
       two (invalid) example entries.
 
+An additional configuration file (`evolved5g.yml`) contains the configuration values for the EVOLVED-5G tasks. The
+configuration values in this file are:
+
+* JenkinsApi: Configuration values for the EVOLVED-5G CI/CD infrastructure.
+   * Enabled: Boolean value indicating if the Jenkins API will be used. Defaults to `False`.
+   * Host: Address where the Jenkins API is listening
+   * Port: Port where the API is listening. If empty, the default ports (80 for http, 443 for https) will be used
+   * User: Provided user name
+   * Password: Provided password
+
 ## Facility Configuration (Platform registry)
 
 The exposed capabilities and functionality of the facility are defined by a set of files distributed in 4 folders
@@ -462,6 +472,25 @@ expression pattern, publishing the groups found. Configuration values:
 > - While writing the `Keys` in the task configuration note that YAML does not have a syntax for tuples, use lists of two elements instead.
 - `Path` (only for Run.PublishFromFile): Path of the file to read
 
+### Run.RestApi
+
+Provides direct access to the internal RestClient functionality, avoiding the need of using external utilities such as
+`curl` for simple requests. Configuration values:
+- `Host`: Location where the REST API is listening
+- `Port`: Port where the REST API is listening
+- `Endpoint`: Specific API endpoint where the request will be sent
+- `Https`: Whether to use HTTPS or not, defaults to False
+- `Insecure`: Whether to ignore certificate errors when using HTTPS, defaults to False
+- `Method`: REST method to use, currently suported methods are `GET`, `POST`, `PATCH`, `DELETE`
+- `Payload`: Data to send in JSON format (as a single string), defaults to `'{}'`
+- `PayloadMode`: Field where the payload will be sent, possible values are:
+  - `Data`: The payload is saved in the `Body` field of the request. Also adds the `Content-Type=application/json` header
+  - `Form`: The payload is saved on the `Form` field of the request
+- `Responses`: Set of expected responses as a single value or a list. The special value `Success` indicates any possible
+success response (2xx). Set to `None` to disable the check.
+- `Timeout`: Maximum time in seconds to wait for a response
+- `Headers`: Additional headers to add to the request
+
 ### Run.SingleSliceCreationTime
 Sends the Slice Creation Time reported by the Slice Manager to InfluxDb. This task will not perform any deployment
  by itself, and will only read the values for an slice deployed during the experiment pre-run stage.
@@ -522,6 +551,68 @@ Separate values from the `Parameters` dictionary can also be expanded using the 
 > implemented together, but use different dictionaries when looking for values. When an expression does not include 
 > a '.' the ELCM will fall back to looking at the Publish values (the default for Release A). If the collection 
 > is not 'Publish' or 'Params', the expression will be replaced by `<<UNKNOWN GROUP {collection}>>`
+
+## EVOLVED-5G specific tasks:
+
+The following is a list of tasks specifically tailored for use on the EVOLVED-5G H2020 project. Configuration
+values for these tasks can be set in the `evolved5g.yml` file at the root of the ELCM folder.
+
+### Evolved5g.JenkinsJob
+
+Initiates the execution of a Jenkins pipeline in the CI/CD infrastructure. The returned job ID will be published
+as a variable for use later in the same experiment. Configuration values:
+
+- Instance: Address of the instance where the pipeline will be launched.
+- Job: Kind of job to launch.
+- GitUrl: URL of the GitHub repository that contains the NetApp code.
+- GitBranch: Repository branch that will be used by the pipeline.
+- Version: Pipeline version, defaults to `'1.0'`
+- PublishKey: Name of the key that will be used for storing the returned job id, defaults to `JenkinsJobId`
+
+### Evolved5g.JenkinsStatus
+
+Checks the status of the specified pipeline, and publishes the obtained value for later use in the same experiment.
+Configuration values:
+
+- JobId: Pipeline to check. Can be expanded from a previous JenkinsJob using `'@[Params.JenkinsJobId]'`.
+- PublishKey: Name of the key that will be used for storing the returned status, defaults to `JenkinsJobStatus`
+
+## Implementing additional tasks:
+
+The ELCM is designed to be extensible, and thus, it is possible to easily integrate additional tasks. The basic steps
+for defining a new task are:
+
+1. Create a new Python file with a descriptive name, for example `compress_files.py`. This file must be saved in the
+`/Execitor/Task/Run` subfolder of the ELCM
+2. In this file, define a new class, for example `CompressFiles`, which inherits from `Task`. The constructor of this
+class must have the signature displayed below:
+    ```python
+    class CompressFiles(Task):
+        def __init__(self, logMethod, parent, params):
+            super().__init__("Compress Files", parent, params, logMethod, None)
+    ```
+    In general, the parameters received in the constructor will be sent directly to the superclass, along with a Task
+name (in the first parameter). The last parameter is an optional "Condition" method. If the `callable` passed in this
+parameter evaluates to False, the execution of the Task will be skipped.
+3. Override the `Run` method of the Task class. If this method is not overridden, a `NotImplementedError` will be raised
+at runtime. The following methods and fields are available:
+    - `self.name`: Contains the name of the Task.
+    - `self.parent`: Contains a reference to the Executor that called the task. Using this reference a Task can gain
+access to additional information about the Experiment.
+    - `self.params`: Contains a dictionary with the parameters of the Task, expanded following the procedure described
+in the previous section.
+    - `self.paramRules`: Set of validation rules to automatically apply on the parameters before the execution of the
+task, with the following format: ```Dict[<ParameterName>: (<Default>, <Mandatory>)]```. If `<ParameterName>` has not
+been defined, but it's not `<Mandatory>`, then it is assigned the `<Default>` value. If it's `<Mandatory` an exception
+is generated and the task is aborted.
+    - `self.Publish(key, value)`: Saves a value under the key identifier. This value can be retrieved by Tasks that are
+executed later in the same experiment execution (via parameter expansion as part of their own self.params dictionary).
+4. In order to make the new Task available for use during an experiment execution, it is necessary to add a new import
+directive to `/Executor/Tasks/Run/__init__.py`. In our example: `from .compress_files import CompressFiles`
+
+After restarting the ELCM, the new Task will be available for use when defining new experiments. The Task identifier,
+in this example, is `Run.CompressFiles`. The complete code of this example can be seen it the
+`Executor\Run\compress_file.py` file. Other tasks in that folder can also be used as reference.
 
 ## MONROE experiments:
 

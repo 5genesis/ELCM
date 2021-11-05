@@ -101,7 +101,9 @@ ENV/
 Persistence/
 config.yml
 facility.yml
+evolved5g.yml
 *.log.*
+.flaskenv
 TestCases/
 UEs/
 Resources/

@@ -1,0 +1,6 @@
+JenkinsApi:
+  Enabled: False
+  Host:
+  Port:
+  User:
+  Password:

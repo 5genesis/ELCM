@@ -1,5 +1,5 @@
 from influxdb import InfluxDBClient
-from .config import Config
+from Settings import Config
 from typing import Dict, List, Union
 from datetime import datetime, timezone
 from csv import DictWriter, DictReader, Dialect, QUOTE_NONE

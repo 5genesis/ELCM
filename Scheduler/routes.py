@@ -4,7 +4,8 @@ from Experiment import Tombstone
 from flask import render_template, make_response, request, flash, redirect, url_for
 from functools import wraps, update_wrapper
 from datetime import datetime
-from Helper import Log, Serialize, LogInfo, Config
+from Helper import Log, Serialize, LogInfo
+from Settings import Config, EvolvedConfig
 from Facility import Facility
 from typing import List, Dict
 from flask_paginate import Pagination, get_page_parameter
@@ -27,12 +28,14 @@ def nocache(view):
 @nocache
 def index():
     config = Config()
+    evolved = EvolvedConfig()
     configLog = LogInfo.FromTuple(config.Validation)
+    evolvedLog = LogInfo.FromTuple(evolved.Validation)
     facilityLog = LogInfo.FromTuple(Facility.Validation)
     resources = Facility.Resources()
     return render_template('index.html', executionId=Status.PeekNextId(),
                            executions=ExecutionQueue.Retrieve(), resources=resources,
-                           configLog=configLog, facilityLog=facilityLog)
+                           configLog=configLog, evolvedLog=evolvedLog, facilityLog=facilityLog)
 
 
 @app.route("/log")
@@ -61,20 +64,31 @@ def history():
 
 @app.route("/reload_config")
 def reloadConfig():
-    config = Config()
-    config.Reload()
-    Log.I("Configuration reloaded:")
-    for level, message in config.Validation:
-        Log.Log(level, message)
-    flash("Reloaded configuration")
-    return redirect(url_for('index'))
+    try:
+        configurations = [('Configuration', Config(forceReload=True)),
+                          ('Evolved5g Configuration', EvolvedConfig(forceReload=True))]
+
+        for name, config in configurations:
+            Log.I(f"{name} reloaded:")
+            for level, message in config.Validation:
+                Log.Log(level, message)
+
+        flash("Reloaded all configurations", "info")
+    except Exception as e:
+        flash(f"Exception while reloading configurations: {e}", "error")
+    finally:
+        return redirect(url_for('index'))
 
 
 @app.route("/reload_facility")
 def reloadFacility():
-    Facility.Reload()
-    Log.I("Facility reloaded:")
-    for level, message in Facility.Validation:
-        Log.Log(level, message)
-    flash("Reloaded Facility")
-    return redirect(url_for('index'))
+    try:
+        Facility.Reload()
+        Log.I("Facility reloaded:")
+        for level, message in Facility.Validation:
+            Log.Log(level, message)
+        flash("Reloaded Facility", "info")
+    except Exception as e:
+        flash(f"Exception while reloading facility: {e}", "error")
+    finally:
+        return redirect(url_for('index'))

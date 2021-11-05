@@ -1,5 +1,6 @@
 from REST import RestClient
-from Helper import Config, Log
+from Helper import Log
+from Settings import Config
 from typing import Dict, Optional, Tuple, List
 from Data import Metal, MetalUsage, NsInfo
 from Facility import Facility

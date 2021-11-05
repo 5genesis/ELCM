@@ -6,26 +6,22 @@ from time import sleep
 class CsvToInflux(Task):
     def __init__(self, logMethod, parent, params):
         super().__init__("Csv To Influx", parent, params, logMethod, None)
+        self.paramRules = {
+            'ExecutionId': (None, True),
+            'CSV': (None, True),
+            'Measurement': (None, True),
+            'Delimiter': (',', False),
+            'Timestamp': ('Timestamp', False),
+            'Convert': (True, False)
+        }
 
     def Run(self):
-        try: executionId = self.params['ExecutionId']
-        except KeyError:
-            self.Log(Level.ERROR, "ExecutionId value not defined, please review the Task configuration.")
-            return
-
-        try: csvFile = self.params["CSV"]
-        except KeyError:
-            self.Log(Level.ERROR, "CSV file not defined, please review the Task configuration.")
-            return
-
-        try: measurement = self.params["Measurement"]
-        except KeyError:
-            self.Log(Level.ERROR, "Measurement not defined, please review the Task configuration.")
-            return
-
-        delimiter = self.params.get("Delimiter", ',')
-        timestamp = self.params.get("Timestamp", "Timestamp")
-        tryConvert = self.params.get("Convert", True)
+        executionId = self.params['ExecutionId']
+        csvFile = self.params["CSV"]
+        measurement = self.params["Measurement"]
+        delimiter = self.params["Delimiter"]
+        timestamp = self.params["Timestamp"]
+        tryConvert = self.params["Convert"]
 
         try:
             from Helper import InfluxDb, InfluxPayload  # Delayed to avoid cyclic imports

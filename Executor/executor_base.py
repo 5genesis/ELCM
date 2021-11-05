@@ -1,4 +1,5 @@
-from Helper import Child, Level, Config
+from Helper import Child, Level
+from Settings import Config
 from typing import Dict, Optional, List
 from Data import ExperimentDescriptor
 from Composer import PlatformConfiguration

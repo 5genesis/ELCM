@@ -1,5 +1,5 @@
 from Task import Task
-from Helper import Config
+from Settings import Config
 
 
 TIMEOUT = Config().EastWest.Timeout

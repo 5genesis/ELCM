@@ -1,7 +1,8 @@
 import subprocess
 import psutil
 import re
-from Helper import Config, TapConfig, Level
+from Helper import Level
+from Settings import Config, TapConfig
 from typing import Dict, Optional, Callable
 from time import sleep
 

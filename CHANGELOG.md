@@ -1,3 +1,9 @@
+**05/11/2021** [Version 3.0.1]
+
+ - Implement RestApi, JenkinsJob, JenkinsStatus tasks
+ - Add separate EVOLVED-5G configuration file
+ - Allow checking the status of finished experiments
+
 **11/10/2021** [Version 3.0.0]
 
  - Initial EVOLVED-5G release

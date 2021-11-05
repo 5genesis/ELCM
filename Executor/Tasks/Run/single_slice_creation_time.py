@@ -8,11 +8,17 @@ from datetime import datetime
 class SingleSliceCreationTime(Task):
     def __init__(self, logMethod, parent, params):
         super().__init__("Single Slice Creation Time Measurement", parent, params, logMethod, None)
+        self.paramRules = {
+            'ExecutionId': (None, True),
+            'WaitForRunning': (None, True),
+            'SliceId': (None, True),
+            'Timeout': (None, False)
+        }
 
     def Run(self):
         executionId = self.params['ExecutionId']
         waitForRunning = self.params['WaitForRunning']
-        timeout = self.params.get('Timeout', None)
+        timeout = self.params['Timeout']
         sliceId = self.params['SliceId']
         count = 0
 

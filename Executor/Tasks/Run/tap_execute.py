@@ -1,5 +1,6 @@
 from Task import Task
-from Helper import Tap, Config, Level
+from Helper import Tap, Level
+from Settings import Config
 from os.path import exists, join
 from datetime import datetime, timezone
 
@@ -7,6 +8,11 @@ from datetime import datetime, timezone
 class TapExecute(Task):
     def __init__(self, logMethod, parent, params):
         super().__init__("Tap Execute", parent, params, logMethod, None)
+        self.paramRules = {
+            'TestPlan': (None, True),
+            'Externals': ({}, False),
+            'GatherResults': (False, False)
+        }
 
     def Run(self):
         from Helper import IO, Compress
@@ -16,8 +22,8 @@ class TapExecute(Task):
             self.Log(Level.CRITICAL, "Trying to run TapExecute Task while TAP is not enabled")
         else:
             tapPlan = self.params['TestPlan']
-            externals = self.params.get('Externals', {})
-            gatherResults = self.params.get('GatherResults', False)
+            externals = self.params['Externals']
+            gatherResults = self.params['GatherResults']
 
             tap = Tap(tapPlan, externals, self.logMethod)
             tap.Execute()

@@ -4,7 +4,8 @@ from typing import Dict, Optional, List
 from enum import Enum, unique
 from datetime import datetime, timezone
 from tempfile import TemporaryDirectory
-from Helper import Config, Serialize, Log
+from Helper import Serialize, Log
+from Settings import Config
 from Interfaces import PortalApi
 from Composer import Composer, PlatformConfiguration
 from os.path import join, abspath

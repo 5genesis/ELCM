@@ -2,7 +2,8 @@ from Scheduler.east_west import bp
 from Scheduler.execution import handleExecutionResults, executionOrTombstone
 from flask import jsonify, request, json
 from Status import ExecutionQueue
-from Helper import Config, InfluxDb
+from Helper import InfluxDb
+from Settings import Config
 
 
 notFound = {'success': False, 'message': 'Execution ID is not valid or experiment is not running'}
