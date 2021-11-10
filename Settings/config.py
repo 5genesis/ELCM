@@ -4,7 +4,7 @@ from typing import Dict, List, Tuple, Optional
 import logging
 import platform
 from Helper.log_level import Level
-from .config_base import validable, restApi, ConfigBase
+from .config_base import validable, restApi, enabledLoginRestApi, ConfigBase
 
 
 class Grafana(restApi):
@@ -137,41 +137,16 @@ class SliceManager(restApi):
         super().__init__(data, 'SliceManager', {})
 
 
-class InfluxDb(restApi):
+class InfluxDb(enabledLoginRestApi):
     def __init__(self, data: Dict):
         defaults = {
-            'Enabled': (False, Level.WARNING),
-            'User': (None, Level.ERROR),
-            'Password': (None, Level.ERROR),
             'Database': (None, Level.ERROR),
         }
         super().__init__(data, 'InfluxDb', defaults)
 
     @property
-    def Enabled(self):
-        return self._keyOrDefault('Enabled')
-
-    @property
-    def User(self):
-        return self._keyOrDefault('User')
-
-    @property
-    def Password(self):
-        return self._keyOrDefault('Password')
-
-    @property
     def Database(self):
         return self._keyOrDefault('Database')
-
-    @property
-    def Validation(self) -> List[Tuple['Level', str]]:
-        if not self.Enabled:
-            if 'Enabled' in self.data.keys():
-                return [(Level.INFO, "InfluxDb is disabled")]
-            else:
-                return [(Level.ERROR, "'Enabled' key not in 'InfluxDb' configuration. Assuming Disabled.")]
-        else:
-            return super().Validation
 
 
 class Logging(validable):
