@@ -61,7 +61,7 @@ class RestApi(Task):
                 self.Log(Level.ERROR, f"Unsupported method '{method}'")
                 return
 
-        status = client.ResponseStatusCode(response)
+        status, _ = client.ResponseStatusCode(response)
         try:
             data = client.ResponseToJson(response)
         except RuntimeError:
