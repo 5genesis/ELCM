@@ -4,3 +4,9 @@ JenkinsApi:
   Port:
   User:
   Password:
+NefEmulator:
+  Enabled: False
+  Host:
+  Port:
+  User:
+  Password:

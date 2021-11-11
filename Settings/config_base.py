@@ -60,6 +60,38 @@ class restApi(validable):
         return res
 
 
+class loginRestApi(restApi):
+    def __init__(self, data: Dict, section: str, defaults: Dict[str, Tuple[Optional[object], "Level"]]):
+        if 'User' not in defaults.keys(): defaults['User'] = (None, Level.ERROR)
+        if 'Password' not in defaults.keys(): defaults['Password'] = (None, Level.ERROR)
+        super().__init__(data, section, defaults)
+
+    @property
+    def User(self):
+        return self._keyOrDefault('User')
+
+    @property
+    def Password(self):
+        return self._keyOrDefault('Password')
+
+
+class enabledLoginRestApi(loginRestApi):
+    def __init__(self, data: Dict, section: str, defaults: Dict):
+        if 'Enabled' not in defaults.keys(): defaults['Enabled'] = (False, Level.WARNING)
+        super().__init__(data, section, defaults)
+
+    @property
+    def Enabled(self):
+        return self._keyOrDefault('Enabled')
+
+    @property
+    def Validation(self) -> List[Tuple['Level', str]]:
+        if self.Enabled:
+            return super().Validation
+        else:
+            return [(Level.INFO, f"{self.section} is disabled")]
+
+
 class ConfigBase:
     def __init__(self, filename: str, defaultsFile: str):
         self.filename = filename

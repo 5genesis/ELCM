@@ -1,35 +1,16 @@
 from typing import Dict, List, Tuple, Optional
 from Helper.log_level import Level
-from .config_base import validable, restApi, ConfigBase
+from .config_base import validable, enabledLoginRestApi, ConfigBase
 
 
-class JenkinsApi(restApi):
+class JenkinsApi(enabledLoginRestApi):
     def __init__(self, data: Dict):
-        defaults = {
-            'Enabled': (False, Level.WARNING),
-            'User': (None, Level.ERROR),
-            'Password': (None, Level.ERROR),
-        }
-        super().__init__(data, 'JenkinsApi', defaults)
+        super().__init__(data, 'JenkinsApi', {})
 
-    @property
-    def Enabled(self):
-        return self._keyOrDefault('Enabled')
 
-    @property
-    def User(self):
-        return self._keyOrDefault('User')
-
-    @property
-    def Password(self):
-        return self._keyOrDefault('Password')
-
-    @property
-    def Validation(self) -> List[Tuple['Level', str]]:
-        if self.Enabled:
-            return super().Validation
-        else:
-            return [(Level.INFO, "Jenkins API is disabled")]
+class NefEmulator(enabledLoginRestApi):
+    def __init__(self, data: Dict):
+        super().__init__(data, 'NefEmulator', {})
 
 
 class EvolvedConfig(ConfigBase):
@@ -46,8 +27,12 @@ class EvolvedConfig(ConfigBase):
     def JenkinsApi(self):
         return JenkinsApi(EvolvedConfig.data.get('JenkinsApi', {}))
 
+    @property
+    def NefEmulator(self):
+        return NefEmulator(EvolvedConfig.data.get('NefEmulator', {}))
+
     def Validate(self):
         EvolvedConfig.Validation = []
 
-        for entry in [self.JenkinsApi, ]:
+        for entry in [self.JenkinsApi, self.NefEmulator]:
             EvolvedConfig.Validation.extend(entry.Validation)

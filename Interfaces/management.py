@@ -66,7 +66,7 @@ class SliceManager(RestClient):
 
     def CreateSlice(self, nsd: str) -> Tuple[str, bool]:
         response = self.HttpPost(f"{self.api_url}/slice", {"Content-Type": "application/json"}, nsd)
-        status = self.ResponseStatusCode(response)
+        status, _ = self.ResponseStatusCode(response)
         if status in [201, 400]:  # Responses with textual information
             return response.data.decode('utf-8'), (status == 201)
         else:
@@ -74,7 +74,8 @@ class SliceManager(RestClient):
 
     def CheckSlice(self, slice: str) -> Optional[Dict]:
         response = self.HttpGet(f"{self.api_url}/slice/{slice}", {"Accept": "application/json"})
-        return None if self.ResponseStatusCode(response) == 404 else self.ResponseToJson(response)
+        status, _ = self.ResponseStatusCode(response)
+        return None if status == 404 else self.ResponseToJson(response)
 
     def SliceCreationTime(self, slice: str) -> Dict:
         response = self.HttpGet(f"{self.api_url}/slice/{slice}/time", {"Accept": "application/json"})
@@ -82,8 +83,8 @@ class SliceManager(RestClient):
 
     def DeleteSlice(self, slice: str) -> Tuple[str, bool]:
         response = self.HttpDelete(f"{self.api_url}/slice/{slice}")
-        status = self.ResponseStatusCode(response)
-        if status == 200:
+        status, success = self.ResponseStatusCode(response)
+        if success:
             return response.data.decode('utf-8'), True
         else:
             return f"Unable to delete slice: Status {status} ({response.reason})", False
@@ -106,9 +107,9 @@ class SliceManager(RestClient):
                                   totalCpu=total['CPUs'], totalRam=total['RAM'], totalDisk=total['Disk'])
 
         response = self.HttpGet(f"{self.api_url}/resources")
-        status = self.ResponseStatusCode(response)
+        status, success = self.ResponseStatusCode(response)
         res = {}
-        if status == 200:
+        if success:
             data = self.ResponseToJson(response)
             try:
                 for vim in data["VIMs"]:

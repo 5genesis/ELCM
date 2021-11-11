@@ -54,8 +54,8 @@ class RemoteApi(RestClient):
             try:
                 response = self.HttpGet(url, timeout=120)
 
-                status = self.ResponseStatusCode(response)
-                if status != 200: raise RuntimeError(f'Status {status}')
+                status, success = self.ResponseStatusCode(response)
+                if not success: raise RuntimeError(f'Status {status}')
 
                 json = self.ResponseToJson(response)
                 if not json['success']:

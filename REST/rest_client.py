@@ -45,7 +45,7 @@ class RestClient:
         from Helper import Log
         code = body = None
         try:
-            code = self.ResponseStatusCode(response)
+            code, _ = self.ResponseStatusCode(response)
         except RuntimeError: pass
         try:
             body = self.ResponseToJson(response)
@@ -130,11 +130,13 @@ class RestClient:
                                                             retries=self.RETRIES, timeout=timeout))
 
     @staticmethod
-    def ResponseStatusCode(response) -> int:
+    def ResponseStatusCode(response) -> (int, bool):
+        """Returns a tuple (<statusCode>, <isSuccess>)"""
         try:
-            return response.status
+            status = response.status
         except AttributeError:
-            return response.status_code
+            status = response.status_code
+        return status, 200 <= status <= 299
 
     @staticmethod
     def ResponseToRaw(response) -> object:

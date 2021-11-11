@@ -13,10 +13,11 @@ class Evolved5gJenkinsApi(RestClient):
 
     def RenewToken(self):
         response = self.HttpPost("/api/auth", payload=Payload.Data, body=self.basicAuth)
-        status = self.ResponseStatusCode(response)
+        status, success = self.ResponseStatusCode(response)
 
-        if status != 200:
+        if not success:
             raise RuntimeError(f"Unexpected status {status} retrieving token: {self.ResponseToRaw(response)}")
+
         try:
             data = self.ResponseToJson(response)
             self.token = data['access_token']
@@ -48,8 +49,8 @@ class Evolved5gJenkinsApi(RestClient):
 
         try:
             response = self.HttpPost("/api/executions", payload=Payload.Data, body=payload, extra_headers=headers)
-            status = self.ResponseStatusCode(response)
-            if 200 <= status <= 299:
+            status, success = self.ResponseStatusCode(response)
+            if success:
                 data = self.ResponseToJson(response)
                 return data['id']
             else:
@@ -62,17 +63,15 @@ class Evolved5gJenkinsApi(RestClient):
 
         try:
             response = self.HttpGet(f"/api/executions/{jobId}", extra_headers=headers)
-            status = self.ResponseStatusCode(response)
+            status, success = self.ResponseStatusCode(response)
 
-            if 200 <= status <= 299:
+            if success:
                 data = self.ResponseToJson(response)
                 return data['status'], data.get('console_log', None)
-
-            elif status == 401:
-                return "401 - Unauthorized", None
-            elif status == 404:
-                return "404 - Not Found", None
             else:
-                raise RuntimeError(f"Unrecognized status code: {status}")
+                match status:
+                    case 401: return "401 - Unauthorized", None
+                    case 404: return "404 - Not Found", None
+                    case _: raise RuntimeError(f"Unrecognized status code: {status}")
         except Exception as e:
             raise RuntimeError(f"Unable to retrieve job status: {e}") from e
