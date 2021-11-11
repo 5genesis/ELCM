@@ -577,6 +577,13 @@ Configuration values:
 - JobId: Pipeline to check. Can be expanded from a previous JenkinsJob using `'@[Params.JenkinsJobId]'`.
 - PublishKey: Name of the key that will be used for storing the returned status, defaults to `JenkinsJobStatus`
 
+### Evolved5g.NefLoop
+
+Starts/stops one of the UE movement loops configured in the NEF emulator. Configuration values:
+
+- Supi: Supi of the UE to start/stop moving.
+- Action: One of [`Start`, `Stop`], on any capitalization. Defaults to `Start`.
+
 ## Implementing additional tasks:
 
 The ELCM is designed to be extensible, and thus, it is possible to easily integrate additional tasks. The basic steps

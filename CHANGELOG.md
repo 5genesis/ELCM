@@ -1,3 +1,8 @@
+**11/11/2021** [Version 3.1.0]
+
+ - Add NEF Emulator handling
+ - Add NefLoop task
+
 **05/11/2021** [Version 3.0.1]
 
  - Implement RestApi, JenkinsJob, JenkinsStatus tasks
