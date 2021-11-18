@@ -1,3 +1,7 @@
+**18/11/2021** [Version 2.4.3b]
+
+ - Avoid exception when InfluxDb database names contains non-alphanumeric characters
+
 **16/07/2021** [Version 2.4.3]
 
  - Fix network services instantiation
