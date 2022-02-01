@@ -1,5 +1,5 @@
 from Helper import Serialize
-from Executor import Executor
+from Executor import Executor, Verdict
 from .experiment_run import CoarseStatus
 
 
@@ -17,4 +17,4 @@ class Tombstone:
         self.JsonDescriptor = data.get('JsonDescriptor', {})
         self.Milestones = data.get('Milestones', [])
         self.RemoteId = data.get('RemoteId', None)
-
+        self.Verdict = Verdict[data.get('Verdict', 'NotSet')]

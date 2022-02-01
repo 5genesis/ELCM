@@ -10,3 +10,12 @@ class Status(Enum):
         if self.name == 'Errored': return 'label-danger'
         if self.name == 'Finished': return 'label-success'
         return 'label-info'
+
+
+@unique
+class Verdict(Enum):
+    NotSet, Pass, Inconclusive, Fail, Cancel, Error = range(6)
+
+    @staticmethod
+    def Max(a, b):
+        return a if a.value > b.value else b

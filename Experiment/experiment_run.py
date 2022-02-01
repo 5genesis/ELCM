@@ -1,4 +1,4 @@
-from Executor import PreRunner, Executor, PostRunner, ExecutorBase
+from Executor import PreRunner, Executor, PostRunner, ExecutorBase, Verdict
 from Data import ExperimentDescriptor
 from typing import Dict, Optional, List
 from enum import Enum, unique
@@ -104,6 +104,10 @@ class ExperimentRun:
     def PerCent(self) -> int:
         current = self.CurrentChild
         return current.PerCent if current is not None else 0
+
+    @property
+    def Verdict(self) -> Verdict:
+        return self.Executor.Verdict  # Pre/PostRun always remain NotSet
 
     @property
     def LastMessage(self) -> str:
@@ -247,7 +251,8 @@ class ExperimentRun:
             'Cancelled': self.Cancelled,
             'JsonDescriptor': self.Descriptor.Json,
             'Milestones': self.Milestones,
-            'RemoteId': self.RemoteId
+            'RemoteId': self.RemoteId,
+            'Verdict': self.Verdict.name
         }
         return data
 

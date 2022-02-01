@@ -49,7 +49,7 @@ class PublishFromPreviousTaskLog(PublishFromSource):
         super().__init__("Publish From Previous Task Log", parent, params, logMethod)
 
     def generator(self, params: Dict):
-        logMessages = self.parent.Params["PreviousTaskLog"]
+        logMessages = self.parent.PreviousTaskLog
         for message in logMessages:
             yield message
 

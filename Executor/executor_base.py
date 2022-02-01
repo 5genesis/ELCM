@@ -5,7 +5,7 @@ from Data import ExperimentDescriptor
 from Composer import PlatformConfiguration
 from datetime import datetime, timezone
 from Helper import Serialize
-from .status import Status
+from .enums import Status, Verdict
 from tempfile import TemporaryDirectory
 from Interfaces import PortalApi
 
@@ -52,6 +52,14 @@ class ExecutorBase(Child):
     @property
     def DeployedSliceId(self) -> Optional[str]:
         return self.params.get('DeployedSliceId', None)
+
+    @property
+    def Verdict(self) -> Verdict:
+        return self.params.get('Verdict', Verdict.NotSet)
+
+    @property
+    def PreviousTaskLog(self) -> List[str]:
+        return self.params.get('PreviousTaskLog', [])
 
     def Run(self):
         raise NotImplementedError()
@@ -123,7 +131,8 @@ class ExecutorBase(Child):
             'Status': self.Status.name,
             'Log': self.LogFile,
             'Messages': self.Messages,
-            'PerCent': self.PerCent
+            'PerCent': self.PerCent,
+            'Verdict': self.Verdict.name
         }
         return data
 
@@ -156,5 +165,6 @@ class ExecutorBase(Child):
         res.Started = Serialize.StringToDate(data['Started'])
         res.Finished = Serialize.StringToDate(data['Finished'])
         res.Status = Status[data['Status']]
+        res.Params['Verdict'] = Verdict[data.get('Verdict', 'NotSet')]
 
         return res
