@@ -86,7 +86,7 @@ class ExecutorBase(Child):
         self.Finished = datetime.now(timezone.utc)
         if self.Status.value < Status.Cancelled.value:
             self.Status = status
-        self.LogAndMessage(Level.INFO, f"Finished (status: {self.Status.name})", percent)
+        self.LogAndMessage(Level.INFO, f"Finished (status: {self.Status.name}, verdict: {self.Verdict.name})", percent)
 
     def findParent(self):  # Only running experiments should be able to use this method
         from Status import ExecutionQueue
