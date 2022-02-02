@@ -31,5 +31,5 @@ class CompressFiles(Task):
             self.Log(Level.INFO, "File created")
             self.parent.GeneratedFiles.append(output)
         except Exception as e:
-            self.MaybeSetErrorVerdict()
+            self.SetVerdictOnError()
             self.Log(Level.ERROR, f"Exception while creating zip file: {e}")

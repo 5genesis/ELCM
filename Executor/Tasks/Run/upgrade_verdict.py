@@ -21,7 +21,7 @@ class UpgradeVerdict(Task):
             try:
                 return Verdict[name]
             except KeyError:
-                self.MaybeSetErrorVerdict()
+                self.SetVerdictOnError()
                 self.Log(Level.ERROR, f"Unrecognized Verdict '{name}'")
                 return None
 

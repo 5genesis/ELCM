@@ -13,7 +13,7 @@ class WaitForMilestone(BaseRemoteTask):
 
         if milestone is None:
             self.Log(Level.ERROR, "'Milestone' not defined, please review the Task configuration.")
-            self.MaybeSetErrorVerdict()
+            self.SetVerdictOnError()
             return
 
         milestones = []
@@ -24,12 +24,12 @@ class WaitForMilestone(BaseRemoteTask):
             self.Log(Level.DEBUG, f"Status: '{status}'; Milestones: {milestones}")
 
             if status in [ExecutorStatus.Cancelled, ExecutorStatus.Errored]:
-                self.MaybeSetErrorVerdict()
+                self.SetVerdictOnError()
                 raise RuntimeError(f"Execution on remote side has been terminated with status: {status.name}")
 
             if milestone not in milestones:
                 if self.timeout <= 0:
-                    self.MaybeSetErrorVerdict()
+                    self.SetVerdictOnError()
                     raise RuntimeError(f"Timeout reached while waiting for milestone '{milestone}'.")
                 sleep(5)
                 self.timeout -= 5

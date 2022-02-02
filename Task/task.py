@@ -1,5 +1,6 @@
 from typing import Callable, Dict, Optional, Union, Tuple, Any
 from Helper import Log, Level
+from Settings import Config
 
 
 class Task:
@@ -46,10 +47,6 @@ class Task:
         self.LogMessages.append(msg)
 
     def SanitizeParams(self):
-        if 'VerdictOnError' not in self.paramRules:
-            from Executor import Verdict
-            self.paramRules['VerdictOnError'] = ("NotSet", False)
-
         for key, value in self.paramRules.items():
             default, mandatory = value
             if key not in self.params.keys():
@@ -61,7 +58,12 @@ class Task:
                     self.Log(Level.DEBUG, f"Parameter '{key}' set to default ({str(default)}).")
         return True
 
-    def MaybeSetErrorVerdict(self):
+    def SetVerdictOnError(self):
         from Executor import Verdict
-        if self.params['VerdictOnError'] != "NotSet":
-            self.Verdict = Verdict[self.params['VerdictOnError']]
+        verdict = self.params.get('VerdictOnError', None)
+        if verdict is None:
+            verdict = Config().VerdictOnError
+        try:
+            self.Verdict = Verdict[verdict]
+        except KeyError as e:
+            raise RuntimeError(f"Unrecognized Verdict '{verdict}'") from e

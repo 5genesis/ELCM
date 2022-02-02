@@ -34,7 +34,7 @@ class SliceCreationTime(Task):
                 nestData = json.load(input)
         except Exception as e:
             self.Log(Level.ERROR, f"Exception while reading NEST file: {e}")
-            self.MaybeSetErrorVerdict()
+            self.SetVerdictOnError()
             return
 
         from Helper import InfluxDb, InfluxPayload, InfluxPoint  # Delayed to avoid cyclic imports
@@ -52,7 +52,7 @@ class SliceCreationTime(Task):
                 sliceId = response
             except Exception as e:
                 self.Log(Level.ERROR, f"Exception on instantiation, skipping iteration: {e}")
-                self.MaybeSetErrorVerdict()
+                self.SetVerdictOnError()
                 sleep(pollTime)
                 continue
 
@@ -88,7 +88,7 @@ class SliceCreationTime(Task):
                                  f"Deployment time for slice {sliceId} (Iteration {iteration}): {ns_depl_time}")
                     except Exception as e:
                         self.Log(Level.ERROR, f"Exception while calculating deployment time, skipping iteration: {e}")
-                        self.MaybeSetErrorVerdict()
+                        self.SetVerdictOnError()
                         break
 
                     point = InfluxPoint(datetime.now(timezone.utc))
@@ -116,7 +116,7 @@ class SliceCreationTime(Task):
                         self.Log(Level.DEBUG, f"Waiting for slice deletion.")
             except Exception as e:
                 self.Log(Level.ERROR, f"Exception while deleting slice: {e}")
-                self.MaybeSetErrorVerdict()
+                self.SetVerdictOnError()
 
         self.Log(Level.DEBUG, f"Payload: {payload}")
         self.Log(Level.INFO, f"Sending results to InfluxDb")
@@ -124,7 +124,7 @@ class SliceCreationTime(Task):
             InfluxDb.Send(payload)
         except Exception as e:
             self.Log(Level.ERROR, f"Exception while sending payload: {e}")
-            self.MaybeSetErrorVerdict()
+            self.SetVerdictOnError()
             if csvFile is None:
                 self.Log(Level.INFO, "Forcing creation of CSV file")
                 csvFile = join(self.parent.TempFolder, f"SliceCreationTime.csv")

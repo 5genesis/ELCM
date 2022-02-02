@@ -7,6 +7,6 @@ class Publish(Task):
 
     def Run(self):
         for key, value in self.params.items():
-            if key is "VerdictOnError":
-                continue  # This key is automatically added to all tasks
+            if key in ["VerdictOnError"]:
+                continue  # Keys common to all tasks are ignored
             self.Publish(key, value)
