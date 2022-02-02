@@ -107,7 +107,7 @@ class ExperimentRun:
 
     @property
     def Verdict(self) -> Verdict:
-        return self.Executor.Verdict  # Pre/PostRun always remain NotSet
+        return self.Executor.Verdict  # Pre/PostRun do not modify the verdict
 
     @property
     def LastMessage(self) -> str:
