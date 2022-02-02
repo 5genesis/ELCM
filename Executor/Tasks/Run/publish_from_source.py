@@ -26,6 +26,7 @@ class PublishFromSource(Task):
             for index, key in keys:
                 self.Log(Level.DEBUG, f"  {index}: {key}")
         except Exception as e:
+            self.MaybeSetErrorVerdict()
             raise RuntimeError(f"Invalid 'Keys' definition: {e}")
 
         regex = re.compile(pattern)
@@ -41,6 +42,7 @@ class PublishFromSource(Task):
         raise NotImplementedError()
 
     def raiseConfigError(self, variable: str):
+        self.MaybeSetErrorVerdict()
         raise RuntimeError(f"'{variable}' not defined, please review the Task configuration.")
 
 

@@ -46,6 +46,10 @@ class Task:
         self.LogMessages.append(msg)
 
     def SanitizeParams(self):
+        if 'VerdictOnError' not in self.paramRules:
+            from Executor import Verdict
+            self.paramRules['VerdictOnError'] = ("NotSet", False)
+
         for key, value in self.paramRules.items():
             default, mandatory = value
             if key not in self.params.keys():
@@ -56,3 +60,8 @@ class Task:
                     self.params[key] = default
                     self.Log(Level.DEBUG, f"Parameter '{key}' set to default ({str(default)}).")
         return True
+
+    def MaybeSetErrorVerdict(self):
+        from Executor import Verdict
+        if self.params['VerdictOnError'] != "NotSet":
+            self.Verdict = Verdict[self.params['VerdictOnError']]

@@ -50,3 +50,4 @@ class NefLoop(NefEmulatorBase):
             self.Log(Level.INFO, f"Response: {msg}")
         except Exception as e:
             self.Log(Level.ERROR, str(e))
+            self.MaybeSetErrorVerdict()

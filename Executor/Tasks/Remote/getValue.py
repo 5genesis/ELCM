@@ -13,6 +13,7 @@ class GetValue(BaseRemoteTask):
 
         if valueName is None:
             self.Log(Level.ERROR, "'Value' not defined, please review the Task configuration.")
+            self.MaybeSetErrorVerdict()
             return
 
         value = None
@@ -22,6 +23,7 @@ class GetValue(BaseRemoteTask):
             value = self.remoteApi.GetValue(self.remoteId, valueName)
             if value is None:
                 if self.timeout <= 0:
+                    self.MaybeSetErrorVerdict()
                     raise RuntimeError(f"Timeout reached while waiting for remote remote value '{valueName}'.")
                 sleep(5)
                 self.timeout -= 5

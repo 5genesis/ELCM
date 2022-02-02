@@ -34,6 +34,7 @@ class CsvToInflux(Task):
             self.Log(Level.DEBUG, f"Payload: {payload}")
         except Exception as e:
             self.Log(Level.ERROR, f"Exception while converting CSV: {e}")
+            self.MaybeSetErrorVerdict()
             return
 
         try:
@@ -41,3 +42,4 @@ class CsvToInflux(Task):
             InfluxDb.Send(payload)
         except Exception as e:
             self.Log(Level.ERROR, f"Exception while sending CSV values to Influx: {e}")
+            self.MaybeSetErrorVerdict()
