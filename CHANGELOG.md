@@ -1,3 +1,8 @@
+**03/02/2022** [Version 3.2.0]
+
+ - Implement Verdict handling
+ - Add Evaluate, UpgradeVerdict tasks
+
 **11/11/2021** [Version 3.1.0]
 
  - Add NEF Emulator handling
