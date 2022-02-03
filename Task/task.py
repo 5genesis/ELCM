@@ -1,12 +1,13 @@
 from typing import Callable, Dict, Optional, Union, Tuple, Any
 from Helper import Log, Level
+from Settings import Config
 
 
 class Task:
     def __init__(self, name: str, parent, params: Optional[Dict] = None,
                  logMethod: Optional[Callable] = None,
                  conditionMethod: Optional[Callable] = None):
-        from Executor import ExecutorBase
+        from Executor import ExecutorBase, Verdict
 
         self.name = name
         self.params = {} if params is None else params
@@ -16,6 +17,7 @@ class Task:
         self.condition = conditionMethod
         self.Vault = {}
         self.LogMessages = []
+        self.Verdict = Verdict.NotSet
 
     def Start(self) -> Dict:
         if self.condition is None or self.condition():
@@ -23,7 +25,7 @@ class Task:
             self.Log(Level.DEBUG, f'Params: {self.params}')
             if self.SanitizeParams():
                 self.Run()
-                self.Log(Level.INFO, f"[Task '{self.name}' finished]")
+                self.Log(Level.INFO, f"[Task '{self.name}' finished (verdict: '{self.Verdict.name}')]")
             else:
                 message = f"[Task '{self.name}' cancelled due to incorrect parameters ({self.params})]"
                 self.Log(Level.ERROR, message)
@@ -55,3 +57,13 @@ class Task:
                     self.params[key] = default
                     self.Log(Level.DEBUG, f"Parameter '{key}' set to default ({str(default)}).")
         return True
+
+    def SetVerdictOnError(self):
+        from Executor import Verdict
+        verdict = self.params.get('VerdictOnError', None)
+        if verdict is None:
+            verdict = Config().VerdictOnError
+        try:
+            self.Verdict = Verdict[verdict]
+        except KeyError as e:
+            raise RuntimeError(f"Unrecognized Verdict '{verdict}'") from e

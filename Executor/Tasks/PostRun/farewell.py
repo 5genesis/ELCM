@@ -7,7 +7,7 @@ from Interfaces import RemoteApi
 
 class Farewell(Task):
     def __init__(self, logMethod, parent):
-        super().__init__("Farewell", parent, logMethod, None)
+        super().__init__("Farewell", parent, None, logMethod, None)
 
     def Run(self):
         remote = self.parent.Descriptor.Remote

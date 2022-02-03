@@ -1,5 +1,6 @@
 TempFolder: 'Temp'
 ResultsFolder: 'Results'
+VerdictOnError: 'Error'
 Logging:
   Folder: 'Logs'
   AppLevel: INFO

@@ -26,6 +26,7 @@ class PublishFromSource(Task):
             for index, key in keys:
                 self.Log(Level.DEBUG, f"  {index}: {key}")
         except Exception as e:
+            self.SetVerdictOnError()
             raise RuntimeError(f"Invalid 'Keys' definition: {e}")
 
         regex = re.compile(pattern)
@@ -41,6 +42,7 @@ class PublishFromSource(Task):
         raise NotImplementedError()
 
     def raiseConfigError(self, variable: str):
+        self.SetVerdictOnError()
         raise RuntimeError(f"'{variable}' not defined, please review the Task configuration.")
 
 
@@ -49,7 +51,7 @@ class PublishFromPreviousTaskLog(PublishFromSource):
         super().__init__("Publish From Previous Task Log", parent, params, logMethod)
 
     def generator(self, params: Dict):
-        logMessages = self.parent.Params["PreviousTaskLog"]
+        logMessages = self.parent.PreviousTaskLog
         for message in logMessages:
             yield message
 

@@ -56,6 +56,7 @@ class JenkinsJob(JenkinsBase):
             self.Publish(self.params["PublishKey"], jobId)
         except Exception as e:
             self.Log(Level.ERROR, f"Unable to trigger job: {e}")
+            self.SetVerdictOnError()
 
 
 class JenkinsStatus(JenkinsBase):
@@ -79,3 +80,4 @@ class JenkinsStatus(JenkinsBase):
             self.Publish(self.params["PublishKey"], status)
         except Exception as e:
             self.Log(Level.ERROR, f"Unable to check job '{jobId}' status: {e}")
+            self.SetVerdictOnError()

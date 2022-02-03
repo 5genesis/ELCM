@@ -226,6 +226,10 @@ class Config(ConfigBase):
         return Config.data.get('ResultsFolder', 'Results')
 
     @property
+    def VerdictOnError(self):
+        return Config.data.get('VerdictOnError', 'Error')
+
+    @property
     def Tap(self):
         return TapConfig(Config.data.get('Tap', {}))
 
@@ -259,12 +263,13 @@ class Config(ConfigBase):
         keys.discard('Flask')
         keys.discard('TempFolder')
         keys.discard('ResultsFolder')
+        keys.discard('VerdictOnError')
 
         if getenv('SECRET_KEY') is None:
             Config.Validation.append((Level.CRITICAL,
                                       "SECRET_KEY not defined. Use environment variables or set a value in .flaskenv"))
 
-        for key, default in [('TempFolder', 'Temp'), ('ResultsFolder', 'Results')]:
+        for key, default in [('TempFolder', 'Temp'), ('ResultsFolder', 'Results'), ('VerdictOnError', 'Error')]:
             _validateSingle(key, default)
 
         for entry in [self.Logging, self.Portal, self.SliceManager, self.Tap,

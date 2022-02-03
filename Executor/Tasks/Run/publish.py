@@ -1,6 +1,4 @@
 from Task import Task
-from Helper import Level
-from time import sleep
 
 
 class Publish(Task):
@@ -9,4 +7,6 @@ class Publish(Task):
 
     def Run(self):
         for key, value in self.params.items():
+            if key in ["VerdictOnError"]:
+                continue  # Keys common to all tasks are ignored
             self.Publish(key, value)
