@@ -452,6 +452,37 @@ Adds a configurable time wait to an experiment execution. Has a single configura
 ### Run.Dummy
 Dummy action, will only display the values on the `Config` dictionary on the log
 
+### Run.Evaluate
+
+Evaluates `Expression`, and publishes the generated result as the `Key` variable. Configuration values:
+- `Key`: Name of the key used to save the generated value (as string).
+- `Expression`: Python expression that will be evaluated (as string). Variable expansion can be used for specifying
+runtime values.
+
+> ⚠ This task makes use of the [eval](https://docs.python.org/3/library/functions.html#eval) built-in function:
+> - The `Expression` can execute arbitrary code.
+> - Since the test cases are defined by the platform operators it is expected that no dangerous code will be executed,
+> however, **excercise extreme caution, specially if variable expansion is used** as part of the expression.
+
+The following is an example of the use of this task:
+
+```yaml
+   - Order: 1
+      Task: Run.Publish
+      Config: { VAR: 4 }
+    - Order: 2
+      Task: Run.Evaluate
+      Config:
+        Key: VAR
+        Expression: <See below>
+```
+
+After the execution of both tasks, the value of `VAR` will be, depending on the expression:
+- For `1+@[VAR]`: "5"
+- For `1+@[VAR].0`: "5.0"
+- For `1+@[VAR].0>3`: "True"
+- For `self`: "<Executor.Tasks.Run.evaluate.Evaluate object at 0x...>"
+
 ### Run.Message
 Displays a message on the log, with the configured severity. Configuration values:
 - `Severity`: Severity level (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`)
