@@ -26,7 +26,7 @@ class TapExecute(Task):
             externals = self.params['Externals']
             gatherResults = self.params['GatherResults']
 
-            tap = Tap(tapPlan, externals, self.logMethod)
+            tap = Tap(tapPlan, externals, self.Log)
             tap.Execute()
 
             if gatherResults:
