@@ -11,5 +11,5 @@ class CliExecute(Task):
         }
 
     def Run(self):
-        cli = Cli(self.params['Parameters'], self.params['CWD'], self.logMethod)
+        cli = Cli(self.params['Parameters'], self.params['CWD'], self.Log)
         cli.Execute()

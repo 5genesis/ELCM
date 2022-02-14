@@ -1,3 +1,7 @@
+**14/02/2022** [Version 3.2.1]
+
+ - Fix redirection of command line output (Cli/TapExecute)
+
 **03/02/2022** [Version 3.2.0]
 
  - Implement Verdict handling
