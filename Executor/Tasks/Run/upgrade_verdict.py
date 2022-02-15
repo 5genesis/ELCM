@@ -15,19 +15,9 @@ class UpgradeVerdict(Task):
         }
 
     def Run(self):
-        from Executor import Verdict
-
-        def _assignVerdict(name: str) -> Verdict | None:
-            try:
-                return Verdict[name]
-            except KeyError:
-                self.SetVerdictOnError()
-                self.Log(Level.ERROR, f"Unrecognized Verdict '{name}'")
-                return None
-
-        onMiss = _assignVerdict(self.params["VerdictOnMissing"])
-        onMatch = _assignVerdict(self.params["VerdictOnMatch"])
-        onNoMatch = _assignVerdict(self.params["VerdictOnNoMatch"])
+        onMiss = self.GetVerdictFromName(self.params["VerdictOnMissing"])
+        onMatch = self.GetVerdictFromName(self.params["VerdictOnMatch"])
+        onNoMatch = self.GetVerdictFromName(self.params["VerdictOnNoMatch"])
         if None in [onMiss, onMatch, onNoMatch]: return
 
         key = self.params["Key"]
