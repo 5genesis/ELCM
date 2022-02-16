@@ -1,3 +1,9 @@
+**16/02/2022** [Version 3.2.2]
+
+ - Enhanced PublishFromFile and PublishFromPreviousTaskLog:
+   - Make 'Keys' parameter optional
+   - Allow setting a Verdict
+
 **14/02/2022** [Version 3.2.1]
 
  - Fix redirection of command line output (Cli/TapExecute)

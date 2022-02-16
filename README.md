@@ -510,13 +510,20 @@ Will produce this message in the log:
 
 ### Run.PublishFromFile / Run.PublishFromPreviousTaskLog
 Reads the contents of a file / the log of the previous task and looks for lines that match the specified regular
-expression pattern, publishing the groups found. Configuration values:
+expression pattern, publishing the groups found. If multiple matches are found only the last one is saved.
+Configuration values:
 - `Pattern`: Regular expression to try to match, following
 [Python's syntax](https://docs.python.org/3/library/re.html#regular-expression-syntax).
-- `Keys`: List of (index, key) pairs, where index refers to the regex group, and key is the identifier to use when publishing.
+> Extra escaping may be needed inside the regular expression, for example `\d` needs to be written as `\\d`, otherwise
+> an exception will occur when parsing the YAML file ("unknown escape character 'd'").
+- `Keys`: List of (index, key) pairs, where index refers to the regex group, and key is the identifier to use
+when publishing. If not included, nothing will be published (an empty list will be used). This can be useful
+if only setting a Verdict is needed.
 > - Groups are defined within regular expressions using '(' ... ')'.
 > - Group 0 always refers to the complete matched line, manually specified groups start at index 1.
 > - While writing the `Keys` in the task configuration note that YAML does not have a syntax for tuples, use lists of two elements instead.
+- `VerdictOnMatch`: Verdict to set if a line matches the regular expression. Defaults to `NotSet`.
+- `VerdictOnNoMatch`: Verdict to set if no line matches the regular expression. Defaults to `NotSet`.
 - `Path` (only for Run.PublishFromFile): Path of the file to read
 
 ### Run.RestApi

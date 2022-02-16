@@ -67,3 +67,12 @@ class Task:
             self.Verdict = Verdict[verdict]
         except KeyError as e:
             raise RuntimeError(f"Unrecognized Verdict '{verdict}'") from e
+
+    def GetVerdictFromName(self, name: str):
+        from Executor import Verdict
+        try:
+            return Verdict[name]
+        except KeyError:
+            self.SetVerdictOnError()
+            self.Log(Level.ERROR, f"Unrecognized Verdict '{name}'")
+            return None
