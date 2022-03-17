@@ -8,17 +8,14 @@ class ResourceLoader(Loader):
     resources: Dict[str, Resource] = {}
 
     @classmethod
-    def ProcessFile(cls, path: str) -> [(Level, str)]:
+    def ProcessData(cls, data: Dict) -> [(Level, str)]:
         validation = []
-        try:
-            data, v = cls.LoadFile(path)
-            validation.extend(v)
-            resource = Resource(data)
-            if resource.Id in cls.resources.keys():
-                validation.append((Level.WARNING, f'Redefining Resource {resource.Id}'))
-            cls.resources[resource.Id] = resource
-        except Exception as e:
-            validation.append((Level.ERROR, f'Exception loading Resource file {path}: {e}'))
+
+        resource = Resource(data)
+        if resource.Id in cls.resources.keys():
+            validation.append((Level.WARNING, f'Redefining Resource {resource.Id}'))
+        cls.resources[resource.Id] = resource
+
         return validation
 
     @classmethod

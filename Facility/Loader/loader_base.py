@@ -21,9 +21,13 @@ class Loader:
         validation = []
         for file in IO.ListFiles(path):
             if file.endswith('.yml'):
-                validation.append((Level.INFO, f'Loading {kind}: {file}'))
-                v = cls.ProcessFile(join(path, file))
-                validation.extend(v)
+                try:
+                    validation.append((Level.INFO, f'Loading {kind}: {file}'))
+                    data, v = cls.LoadFile(join(path, file))
+                    validation.extend(v)
+                    validation.extend(cls.ProcessData(data))
+                except Exception as e:
+                    validation.append((Level.ERROR, f"Exception loading {kind} file '{path}': {e}"))
             else:
                 ignored.append(file)
         if len(ignored) != 0:
@@ -64,7 +68,7 @@ class Loader:
         return actionList, validation
 
     @classmethod
-    def ProcessFile(cls, path: str):
+    def ProcessData(cls, data: Dict) -> [(Level, str)]:
         raise NotImplementedError
 
     @classmethod
