@@ -7,7 +7,7 @@ from Helper import Log, Level
 from typing import Dict, List, Tuple, Callable, Optional
 from threading import Lock
 from Utils import synchronized
-from .Loader import Loader, ResourceLoader, ScenarioLoader, UeLoader
+from .Loader import Loader, ResourceLoader, ScenarioLoader, UeLoader, TestCaseLoader
 
 
 class Facility:
@@ -32,125 +32,12 @@ class Facility:
 
     @classmethod
     def Reload(cls):
-        from Helper import IO
-        allParameters: Dict[str, Tuple[str, str]] = {}
-
-        def _loadFolder(path: str, kind: str, callable: Callable):
-            ignored = []
-            for file in IO.ListFiles(path):
-                if file.endswith('.yml'):
-                    cls.Validation.append((Level.INFO, f'Loading {kind}: {file}'))
-                    callable(join(path, file))
-                else:
-                    ignored.append(file)
-            if len(ignored) != 0:
-                cls.Validation.append((Level.WARNING,
-                                       f'Ignored the following files on the {kind}s folder: {(", ".join(ignored))}'))
-
-        def _loadFile(path: str) -> Optional[Dict]:
-            try:
-                with open(path, 'r', encoding='utf-8') as file:
-                    raw = yaml.safe_load(file)
-                    return raw
-            except Exception as e:
-                cls.Validation.append((Level.ERROR, f"Unable to load file '{path}': {e}"))
-                return None
-
-        def _get_ActionList(data: Dict) -> List[ActionInformation]:
-            actionList = []
-            for action in data:
-                actionInfo = ActionInformation.FromMapping(action)
-                if actionInfo is not None:
-                    actionList.append(actionInfo)
-                else:
-                    cls.Validation.append((Level.ERROR, f'Action not correctly defined for element (data="{action}").'))
-                    actionList.append(ActionInformation.MessageAction(
-                        'ERROR', f'Incorrect Action (data="{action}")'
-                    ))
-            if len(actionList) == 0:
-                cls.Validation.append((Level.WARNING, 'No actions defined'))
-            else:
-                for action in actionList:
-                    cls.Validation.append((Level.DEBUG, str(action)))
-            return actionList
-
-        def _get_PanelList(data: Dict) -> List[DashboardPanel]:
-            panelList = []
-            for panel in data:
-                try:
-                    parsedPanel = DashboardPanel(panel)
-                    valid, error = parsedPanel.Validate()
-                    if not valid:
-                        cls.Validation.append((Level.ERROR, f'Could not validate panel (data={panel}) - {error}'))
-                    else:
-                        panelList.append(parsedPanel)
-                except Exception as e:
-                    cls.Validation.append((Level.ERROR,
-                                           f"Unable to parse Dashboard Panel (data={panel}), ignored. {e}"))
-            cls.Validation.append((Level.DEBUG, f'Defined {len(panelList)} dashboard panels'))
-            return panelList
-
-        def _testcaseLoader(path: str):
-            try:
-                data = _loadFile(path)
-
-                allKeys = list(data.keys())
-                dashboard = data.pop('Dashboard', None)
-                standard = data.pop('Standard', None)
-                custom = data.pop('Custom', None)
-                distributed = data.pop('Distributed', False)
-                parameters = data.pop('Parameters', {})
-
-                if dashboard is None:
-                    cls.Validation.append((Level.WARNING, f'Dashboard not defined. Keys: {allKeys}'))
-
-                if standard is None:
-                    standard = (custom is None)
-                    cls.Validation.append((Level.WARNING,
-                                           f'Standard not defined, assuming {standard}. Keys: {allKeys}'))
-                keys = list(data.keys())
-
-                if len(keys) > 1:
-                    cls.Validation.append((Level.ERROR, f'Multiple TestCases defined on a single file: {list(keys)}'))
-                for key in keys:
-                    testCases[key] = _get_ActionList(data[key])
-
-                    extra[key] = {
-                        'Standard': standard,
-                        'PublicCustom': (custom is not None and len(custom) == 0),
-                        'PrivateCustom': custom if custom is not None else [],
-                        'Parameters': parameters,
-                        'Distributed': distributed
-                    }
-
-                    if dashboard is not None:
-                        dashboards[key] = _get_PanelList(dashboard)
-
-                for name, info in parameters.items():
-                    type, desc = (info['Type'], info['Description'])
-                    if name not in allParameters.keys():
-                        allParameters[name] = (type, desc)
-                    else:
-                        oldType, oldDesc = allParameters[name]
-                        if type != oldType or desc != oldDesc:
-                            cls.Validation.append(
-                                (Level.WARNING, f"Redefined parameter '{name}' with different settings: "
-                                                f"'{oldType}' - '{type}'; '{oldDesc}' - '{desc}'. "
-                                                f"Cannot guarantee consistency."))
-            except Exception as e:
-                cls.Validation.append((Level.ERROR, f'Exception loading TestCase file {path}: {e}'))
-
         cls.Validation.clear()
 
-        # Generate all folders
+        # Generate missing folders
         for folder in [cls.TESTCASE_FOLDER, cls.UE_FOLDER, cls.RESOURCE_FOLDER, cls.SCENARIO_FOLDER]:
             v = Loader.EnsureFolder(folder)
             cls.Validation.extend(v)
-
-        testCases = {}
-
-        dashboards = {}
-        extra = {}
 
         resources = cls.resources
         if len(cls.BusyResources()) != 0:
@@ -161,7 +48,12 @@ class Facility:
             cls.Validation.extend(v)
             resources = ResourceLoader.GetCurrentResources()
 
-        _loadFolder(cls.TESTCASE_FOLDER, "TestCase", _testcaseLoader)
+        TestCaseLoader.Clear()
+        v = TestCaseLoader.LoadFolder(cls.TESTCASE_FOLDER, "TestCase")
+        cls.Validation.extend(v)
+        testCases = TestCaseLoader.GetCurrentTestCases()
+        extra = TestCaseLoader.GetCurrentTestCaseExtras()
+        dashboards = TestCaseLoader.GetCurrentDashboards()
 
         UeLoader.Clear()
         v = UeLoader.LoadFolder(cls.UE_FOLDER, "UE")
