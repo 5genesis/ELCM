@@ -7,6 +7,7 @@ from Helper import Log, Level
 from typing import Dict, List, Tuple, Callable, Optional
 from threading import Lock
 from Utils import synchronized
+from .Loader import Loader, ResourceLoader
 
 
 class Facility:
@@ -23,7 +24,7 @@ class Facility:
     ues: Dict[str, List[ActionInformation]] = {}
     testCases: Dict[str, List[ActionInformation]] = {}
     extra: Dict[str, Dict[str, object]] = {}
-    dashboards: Dict[str, List[ActionInformation]] = {}
+    dashboards: Dict[str, List[DashboardPanel]] = {}
     resources: Dict[str, Resource] = {}
     scenarios: Dict[str, Dict] = {}
 
@@ -33,10 +34,6 @@ class Facility:
     def Reload(cls):
         from Helper import IO
         allParameters: Dict[str, Tuple[str, str]] = {}
-
-        def _ensureFolder(path: str):
-            if not IO.EnsureFolder(path):
-                cls.Validation.append((Level.INFO, f'Auto-generated folder: {path}'))
 
         def _loadFolder(path: str, kind: str, callable: Callable):
             ignored = []
@@ -157,16 +154,6 @@ class Facility:
             except Exception as e:
                 cls.Validation.append((Level.ERROR, f'Exception loading UE file {path}: {e}'))
 
-        def _resourceLoader(path: str):
-            try:
-                data = _loadFile(path)
-                resource = Resource(data)
-                if resource.Id in resources.keys():
-                    cls.Validation.append((Level.WARNING, f'Redefining Resource {resource.Id}'))
-                resources[resource.Id] = resource
-            except Exception as e:
-                cls.Validation.append((Level.ERROR, f'Exception loading Resource file {path}: {e}'))
-
         def _scenarioLoader(path: str):
             try:
                 data = _loadFile(path)
@@ -184,7 +171,8 @@ class Facility:
 
         # Generate all folders
         for folder in [cls.TESTCASE_FOLDER, cls.UE_FOLDER, cls.RESOURCE_FOLDER, cls.SCENARIO_FOLDER]:
-            _ensureFolder(folder)
+            v = Loader.EnsureFolder(folder)
+            cls.Validation.extend(v)
 
         testCases = {}
         ues = {}
@@ -196,8 +184,10 @@ class Facility:
             resources = cls.resources
             cls.Validation.append((Level.WARNING, "Resources in use, skipping reload"))
         else:
-            resources = {}
-            _loadFolder(cls.RESOURCE_FOLDER, "Resource", _resourceLoader)
+            ResourceLoader.Clear()
+            v = ResourceLoader.LoadFolder(cls.RESOURCE_FOLDER, "Resource")
+            cls.Validation.extend(v)
+            resources = ResourceLoader.resources
 
         _loadFolder(cls.TESTCASE_FOLDER, "TestCase", _testcaseLoader)
         _loadFolder(cls.UE_FOLDER, "UE", _ueLoader)
