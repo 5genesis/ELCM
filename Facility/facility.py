@@ -7,7 +7,7 @@ from Helper import Log, Level
 from typing import Dict, List, Tuple, Callable, Optional
 from threading import Lock
 from Utils import synchronized
-from .Loader import Loader, ResourceLoader
+from .Loader import Loader, ResourceLoader, ScenarioLoader
 
 
 class Facility:
@@ -154,19 +154,6 @@ class Facility:
             except Exception as e:
                 cls.Validation.append((Level.ERROR, f'Exception loading UE file {path}: {e}'))
 
-        def _scenarioLoader(path: str):
-            try:
-                data = _loadFile(path)
-                if len(data.keys()) > 1:
-                    cls.Validation.append((Level.WARNING, f'Multiple Scenarios defined on a single file: {list(keys)}'))
-                for key, value in data.items():
-                    if key in scenarios.keys():
-                        cls.Validation.append((Level.WARNING, f'Redefining Scenario {key}'))
-                    scenarios[key] = value
-                    cls.Validation.append((Level.DEBUG, f'{key}: {value}'))
-            except Exception as e:
-                cls.Validation.append((Level.ERROR, f'Exception loading Resource file {path}: {e}'))
-
         cls.Validation.clear()
 
         # Generate all folders
@@ -178,20 +165,23 @@ class Facility:
         ues = {}
         dashboards = {}
         extra = {}
-        scenarios = {}
 
+        resources = cls.resources
         if len(cls.BusyResources()) != 0:
-            resources = cls.resources
             cls.Validation.append((Level.WARNING, "Resources in use, skipping reload"))
         else:
             ResourceLoader.Clear()
             v = ResourceLoader.LoadFolder(cls.RESOURCE_FOLDER, "Resource")
             cls.Validation.extend(v)
-            resources = ResourceLoader.resources
+            resources = ResourceLoader.GetCurrentResources()
 
         _loadFolder(cls.TESTCASE_FOLDER, "TestCase", _testcaseLoader)
         _loadFolder(cls.UE_FOLDER, "UE", _ueLoader)
-        _loadFolder(cls.SCENARIO_FOLDER, "Scenario", _scenarioLoader)
+
+        ScenarioLoader.Clear()
+        v = ScenarioLoader.LoadFolder(cls.SCENARIO_FOLDER, "Scenario")
+        cls.Validation.extend(v)
+        scenarios = ScenarioLoader.GetCurrentScenarios()
 
         for collection, name in [(testCases, "TestCases"), (ues, "UEs"),
                                  (dashboards, "DashBoards"), (resources, "Resources"),

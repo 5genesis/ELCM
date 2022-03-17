@@ -39,7 +39,10 @@ class Loader:
         except Exception as e:
             return None, [(Level.ERROR, f"Unable to load file '{path}': {e}")]
 
-
     @classmethod
     def ProcessFile(cls, path: str):
+        raise NotImplementedError
+
+    @classmethod
+    def Clear(cls):
         raise NotImplementedError

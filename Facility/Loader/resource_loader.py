@@ -24,3 +24,7 @@ class ResourceLoader(Loader):
     @classmethod
     def Clear(cls):
         cls.resources = {}
+
+    @classmethod
+    def GetCurrentResources(cls):
+        return cls.resources
