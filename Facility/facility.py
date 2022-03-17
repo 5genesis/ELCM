@@ -1,10 +1,9 @@
-from os.path import abspath, join
-import yaml
+from os.path import abspath
 from .action_information import ActionInformation
 from .dashboard_panel import DashboardPanel
 from .resource import Resource
 from Helper import Log, Level
-from typing import Dict, List, Tuple, Callable, Optional
+from typing import Dict, List, Tuple, Optional
 from threading import Lock
 from Utils import synchronized
 from .Loader import Loader, ResourceLoader, ScenarioLoader, UeLoader, TestCaseLoader
@@ -51,35 +50,30 @@ class Facility:
         TestCaseLoader.Clear()
         v = TestCaseLoader.LoadFolder(cls.TESTCASE_FOLDER, "TestCase")
         cls.Validation.extend(v)
-        testCases = TestCaseLoader.GetCurrentTestCases()
-        extra = TestCaseLoader.GetCurrentTestCaseExtras()
-        dashboards = TestCaseLoader.GetCurrentDashboards()
 
         UeLoader.Clear()
         v = UeLoader.LoadFolder(cls.UE_FOLDER, "UE")
         cls.Validation.extend(v)
-        ues = UeLoader.GetCurrentUEs()
 
         ScenarioLoader.Clear()
         v = ScenarioLoader.LoadFolder(cls.SCENARIO_FOLDER, "Scenario")
         cls.Validation.extend(v)
-        scenarios = ScenarioLoader.GetCurrentScenarios()
 
-        for collection, name in [(testCases, "TestCases"), (ues, "UEs"),
-                                 (dashboards, "DashBoards"), (resources, "Resources"),
-                                 (scenarios, "Scenarios")]:
+        cls.resources = resources
+        cls.testCases = TestCaseLoader.GetCurrentTestCases()
+        cls.extra = TestCaseLoader.GetCurrentTestCaseExtras()
+        cls.dashboards = TestCaseLoader.GetCurrentDashboards()
+        cls.ues = UeLoader.GetCurrentUEs()
+        cls.scenarios = ScenarioLoader.GetCurrentScenarios()
+
+        for collection, name in [(cls.testCases, "TestCases"), (cls.ues, "UEs"),
+                                 (cls.dashboards, "DashBoards"), (cls.resources, "Resources"),
+                                 (cls.scenarios, "Scenarios")]:
             keys = collection.keys()
             if len(keys) == 0:
                 cls.Validation.append((Level.WARNING, f'No {name} defined on the facility.'))
             else:
                 cls.Validation.append((Level.INFO, f'{len(keys)} {name} defined on the facility: {(", ".join(keys))}.'))
-
-        cls.ues = ues
-        cls.testCases = testCases
-        cls.extra = extra
-        cls.dashboards = dashboards
-        cls.resources = resources
-        cls.scenarios = scenarios
 
     @classmethod
     def GetUEActions(cls, id: str) -> List[ActionInformation]:

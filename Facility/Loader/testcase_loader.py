@@ -31,6 +31,15 @@ class TestCaseLoader(Loader):
 
     @classmethod
     def ProcessData(cls, data: Dict) -> [(Level, str)]:
+        version = str(data.pop('Version', 1))
+
+        match version:
+            case '1': return cls.processV1Data(data)
+            case '2': return cls.processV2Data(data)
+            case _: raise RuntimeError(f"Unknown testcase version '{version}'.")
+
+    @classmethod
+    def processV1Data(cls, data: Dict) -> [(Level, str)]:
         validation = []
 
         allKeys = list(data.keys())
@@ -80,6 +89,10 @@ class TestCaseLoader(Loader):
                                         f"Cannot guarantee consistency."))
 
         return validation
+
+    @classmethod
+    def processV2Data(cls, data: Dict) -> [(Level, str)]:
+        return []
 
     @classmethod
     def Clear(cls):

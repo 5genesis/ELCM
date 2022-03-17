@@ -21,13 +21,14 @@ class Loader:
         validation = []
         for file in IO.ListFiles(path):
             if file.endswith('.yml'):
+                filePath = join(path, file)
                 try:
                     validation.append((Level.INFO, f'Loading {kind}: {file}'))
-                    data, v = cls.LoadFile(join(path, file))
+                    data, v = cls.LoadFile(filePath)
                     validation.extend(v)
                     validation.extend(cls.ProcessData(data))
                 except Exception as e:
-                    validation.append((Level.ERROR, f"Exception loading {kind} file '{path}': {e}"))
+                    validation.append((Level.ERROR, f"Exception loading {kind} file '{filePath}': {e}"))
             else:
                 ignored.append(file)
         if len(ignored) != 0:
