@@ -1,7 +1,8 @@
 import yaml
 from Helper import Level
-from typing import Callable, List, Dict
+from typing import List, Dict
 from os.path import join
+from ..action_information import ActionInformation
 
 
 class Loader:
@@ -38,6 +39,29 @@ class Loader:
                 return raw, []
         except Exception as e:
             return None, [(Level.ERROR, f"Unable to load file '{path}': {e}")]
+
+    @classmethod
+    def GetActionList(cls, data: Dict) -> ([ActionInformation], [(Level, str)]):
+        actionList = []
+        validation = []
+
+        for action in data:
+            actionInfo = ActionInformation.FromMapping(action)
+            if actionInfo is not None:
+                actionList.append(actionInfo)
+            else:
+                validation.append((Level.ERROR, f'Action not correctly defined for element (data="{action}").'))
+                actionList.append(ActionInformation.MessageAction(
+                    'ERROR', f'Incorrect Action (data="{action}")'
+                ))
+
+        if len(actionList) == 0:
+            validation.append((Level.WARNING, 'No actions defined'))
+        else:
+            for action in actionList:
+                validation.append((Level.DEBUG, str(action)))
+
+        return actionList, validation
 
     @classmethod
     def ProcessFile(cls, path: str):

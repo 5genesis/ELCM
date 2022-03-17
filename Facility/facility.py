@@ -7,7 +7,7 @@ from Helper import Log, Level
 from typing import Dict, List, Tuple, Callable, Optional
 from threading import Lock
 from Utils import synchronized
-from .Loader import Loader, ResourceLoader, ScenarioLoader
+from .Loader import Loader, ResourceLoader, ScenarioLoader, UeLoader
 
 
 class Facility:
@@ -140,20 +140,6 @@ class Facility:
             except Exception as e:
                 cls.Validation.append((Level.ERROR, f'Exception loading TestCase file {path}: {e}'))
 
-        def _ueLoader(path: str):
-            try:
-                data = _loadFile(path)
-                keys = data.keys()
-                if len(keys) > 1:
-                    cls.Validation.append((Level.WARNING, f'Multiple UEs defined on a single file: {list(keys)}'))
-                for key in keys:
-                    if key in ues.keys():
-                        cls.Validation.append((Level.WARNING, f'Redefining UE {key}'))
-                    actions = _get_ActionList(data[key])
-                    ues[key] = actions
-            except Exception as e:
-                cls.Validation.append((Level.ERROR, f'Exception loading UE file {path}: {e}'))
-
         cls.Validation.clear()
 
         # Generate all folders
@@ -162,7 +148,7 @@ class Facility:
             cls.Validation.extend(v)
 
         testCases = {}
-        ues = {}
+
         dashboards = {}
         extra = {}
 
@@ -176,7 +162,11 @@ class Facility:
             resources = ResourceLoader.GetCurrentResources()
 
         _loadFolder(cls.TESTCASE_FOLDER, "TestCase", _testcaseLoader)
-        _loadFolder(cls.UE_FOLDER, "UE", _ueLoader)
+
+        UeLoader.Clear()
+        v = UeLoader.LoadFolder(cls.UE_FOLDER, "UE")
+        cls.Validation.extend(v)
+        ues = UeLoader.GetCurrentUEs()
 
         ScenarioLoader.Clear()
         v = ScenarioLoader.LoadFolder(cls.SCENARIO_FOLDER, "Scenario")
