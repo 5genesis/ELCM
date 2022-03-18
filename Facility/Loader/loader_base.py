@@ -46,7 +46,7 @@ class Loader:
             return None, [(Level.ERROR, f"Unable to load file '{path}': {e}")]
 
     @classmethod
-    def GetActionList(cls, data: Dict) -> ([ActionInformation], [(Level, str)]):
+    def GetActionList(cls, data: List[Dict]) -> ([ActionInformation], [(Level, str)]):
         actionList = []
         validation = []
 

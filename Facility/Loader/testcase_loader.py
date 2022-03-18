@@ -5,6 +5,21 @@ from ..dashboard_panel import DashboardPanel
 from typing import Dict, List, Tuple
 
 
+class TestCaseData:
+    def __init__(self, data: Dict):
+        # Shared keys
+        self.AllKeys: List[str] = list(data.keys())
+        self.Dashboard: (Dict | None) = data.pop('Dashboard', None)
+        self.Standard: (bool | None) = data.pop('Standard', None)
+        self.Custom: (List[str] | None) = data.pop('Custom', None)
+        self.Distributed: bool = data.pop('Distributed', False)
+        self.Parameters: Dict[str, Dict[str, str]] = data.pop('Parameters', {})
+
+        # V2 only
+        self.Name: (str | None) = data.pop('Name', None)
+        self.Sequence: List[Dict] = data.pop('Sequence', [])
+
+
 class TestCaseLoader(Loader):
     testCases: Dict[str, List[ActionInformation]] = {}
     extra: Dict[str, Dict[str, object]] = {}
@@ -30,6 +45,47 @@ class TestCaseLoader(Loader):
         return panelList, validation
 
     @classmethod
+    def handleExperimentType(cls, defs: TestCaseData) -> [(Level, str)]:
+        validation = []
+        if defs.Standard is None:
+            defs.Standard = (defs.Custom is None)
+            validation.append((Level.WARNING, f'Standard not defined, assuming {defs.Standard}. Keys: {defs.AllKeys}'))
+        return validation
+
+    @classmethod
+    def createDashboard(cls, key: str, defs: TestCaseData) -> [(Level, str)]:
+        validation = []
+        if defs.Dashboard is not None:
+            cls.dashboards[key], validation = cls.getPanelList(defs.Dashboard)
+        return validation
+
+    @classmethod
+    def createExtra(cls, key: str, defs: TestCaseData):
+        cls.extra[key] = {
+            'Standard': defs.Standard,
+            'PublicCustom': (defs.Custom is not None and len(defs.Custom) == 0),
+            'PrivateCustom': defs.Custom if defs.Custom is not None else [],
+            'Parameters': defs.Parameters,
+            'Distributed': defs.Distributed
+        }
+
+    @classmethod
+    def validateParameters(cls, defs: TestCaseData) -> [(Level, str)]:
+        validation = []
+        for name, info in defs.Parameters.items():
+            type, desc = (info['Type'], info['Description'])
+            if name not in cls.parameters.keys():
+                cls.parameters[name] = (type, desc)
+            else:
+                oldType, oldDesc = cls.parameters[name]
+                if type != oldType or desc != oldDesc:
+                    validation.append(
+                        (Level.WARNING, f"Redefined parameter '{name}' with different settings: "
+                                        f"'{oldType}' - '{type}'; '{oldDesc}' - '{desc}'. "
+                                        f"Cannot guarantee consistency."))
+        return validation
+
+    @classmethod
     def ProcessData(cls, data: Dict) -> [(Level, str)]:
         version = str(data.pop('Version', 1))
 
@@ -41,58 +97,53 @@ class TestCaseLoader(Loader):
     @classmethod
     def processV1Data(cls, data: Dict) -> [(Level, str)]:
         validation = []
+        defs = TestCaseData(data)
 
-        allKeys = list(data.keys())
-        dashboard = data.pop('Dashboard', None)
-        standard = data.pop('Standard', None)
-        custom = data.pop('Custom', None)
-        distributed = data.pop('Distributed', False)
-        parameters = data.pop('Parameters', {})
+        if defs.Dashboard is None:
+            validation.append((Level.WARNING, f'Dashboard not defined. Keys: {defs.AllKeys}'))
 
-        if dashboard is None:
-            validation.append((Level.WARNING, f'Dashboard not defined. Keys: {allKeys}'))
+        validation.extend(
+            cls.handleExperimentType(defs))
 
-        if standard is None:
-            standard = (custom is None)
-            validation.append((Level.WARNING,
-                               f'Standard not defined, assuming {standard}. Keys: {allKeys}'))
         keys = list(data.keys())
 
         if len(keys) > 1:
             validation.append((Level.ERROR, f'Multiple TestCases defined on a single file: {list(keys)}'))
+
         for key in keys:
             cls.testCases[key], v = cls.GetActionList(data[key])
             validation.extend(v)
 
-            cls.extra[key] = {
-                'Standard': standard,
-                'PublicCustom': (custom is not None and len(custom) == 0),
-                'PrivateCustom': custom if custom is not None else [],
-                'Parameters': parameters,
-                'Distributed': distributed
-            }
+            cls.createExtra(key, defs)
 
-            if dashboard is not None:
-                cls.dashboards[key], v = cls.getPanelList(dashboard)
-                validation.extend(v)
+            validation.extend(
+                cls.createDashboard(key, defs))
 
-        for name, info in parameters.items():
-            type, desc = (info['Type'], info['Description'])
-            if name not in parameters.keys():
-                parameters[name] = (type, desc)
-            else:
-                oldType, oldDesc = parameters[name]
-                if type != oldType or desc != oldDesc:
-                    validation.append(
-                        (Level.WARNING, f"Redefined parameter '{name}' with different settings: "
-                                        f"'{oldType}' - '{type}'; '{oldDesc}' - '{desc}'. "
-                                        f"Cannot guarantee consistency."))
+            validation.extend(
+                cls.validateParameters(defs))
 
         return validation
 
     @classmethod
     def processV2Data(cls, data: Dict) -> [(Level, str)]:
-        return []
+        validation = []
+        defs = TestCaseData(data)
+
+        validation.extend(
+            cls.handleExperimentType(defs))
+
+        cls.testCases[defs.Name], v = cls.GetActionList(defs.Sequence)
+        validation.extend(v)
+
+        cls.createExtra(defs.Name, defs)
+
+        validation.extend(
+            cls.createDashboard(defs.Name, defs))
+
+        validation.extend(
+            cls.validateParameters(defs))
+
+        return validation
 
     @classmethod
     def Clear(cls):
