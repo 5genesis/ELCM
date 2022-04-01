@@ -1,3 +1,7 @@
+**01/04/2022** [Version 3.3.0]
+
+ - TestCase definition Version 2
+
 **16/02/2022** [Version 3.2.2]
 
  - Enhanced PublishFromFile and PublishFromPreviousTaskLog:
