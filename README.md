@@ -192,7 +192,39 @@ be seen in the `Available Tasks` section below.
 
 #### TestCases
 Similarly to the UEs, the files in the ´TestCases´ folder define the actions required in order to execute a certain 
-test case. The following is an example TestCase file:
+test case. The exact format of the TestCase depends on the specific version used, though most of the fields are shared.
+New TestCases should be defined using the latest format available, which would support the most complete feature set.
+However, for convenience, compatibility with older versions will be retained for as long as possible.
+
+The version of the TestCase file is selected by setting the `Version` field to the corresponding value. If this field
+is not present, the file will be processed as a V1 TestCase.
+
+###### - V2 TestCase (`Version: 2`)
+
+TestCases using this format explicitly specify all the information in separate fields. This means that all keys in the
+root must have one of a set of specific values. This means that, instead of specifying the name of the TestCase as the
+key value of the sequence of actions, it is set by using the `Name` field. It is not possible to define multiple
+TestCases in a single file. The following is an example V2 TestCase:
+
+````yaml
+Version: 2
+Name: Slice Creation
+Sequence:
+    - Order: 5
+      Task: Run.SingleSliceCreationTime
+      Config:
+        ExperimentId: "@{ExperimentId}"
+        WaitForRunning: True
+        Timeout: 60
+        SliceId: "@{SliceId}"
+Standard: True
+Distributed: False
+Dashboard: {}
+````
+
+###### - V1 TestCase (`Version: 1` or missing)
+
+TestCases using this format follow the same approach as for UE files. The following is an example V1 TestCase:
 
 ````yaml
 Slice Creation:
