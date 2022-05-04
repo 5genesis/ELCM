@@ -26,7 +26,7 @@ class SingleSliceCreationTime(Task):
             self.Log(Level.INFO, f"Waiting for slice to be running. Timeout: {timeout}")
             while True:
                 count += 1
-                status = Management.SliceManager().Check(sliceId).get('status', '<SliceManager check error>')
+                status = Management.SliceManager().CheckSlice(sliceId).get('status', '<SliceManager check error>')
                 self.Log(Level.DEBUG, f'Slice {sliceId} status: {status} (retry {count})')
                 if status == 'Running' or (timeout is not None and timeout >= count): break
                 else: sleep(1)

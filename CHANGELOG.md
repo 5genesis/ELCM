@@ -1,3 +1,7 @@
+**04/05/2022** [Version 3.3.1]
+
+ - Fix SliceId expansion, exception on SingleSliceCreationTime
+
 **01/04/2022** [Version 3.3.0]
 
  - TestCase definition Version 2
