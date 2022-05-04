@@ -630,7 +630,7 @@ Results\{Identifier}\{Date}-{ResultType}-{Identifier}.csv
 It's possible to expand the value of some variables enclosed by @{ }. (Use quotes where required in order to generate 
 valid YAML format). Available values are:
 - `@{ExecutionId}`: Experiment execution ID (unique identifier)
-- `@{SliceId}`: ID of the slice deployed by the Slice Manager during the PreRun stage
+- `@{SliceId}`, `@{DeployedSliceId}`: ID of the slice deployed by the Slice Manager during the PreRun stage
 - `@{TempFolder}`: Temporal folder exclusive to the current executor, it's deleted when the experiment finishes.
 - `@{Application}`: The `Application` field from the Experiment Descriptor
 - `@{JSONParameters}`: The `Parameters` dictionary from the Experiment Descriptor, in JSON format (a single line string)
