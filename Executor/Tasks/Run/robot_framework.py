@@ -52,9 +52,9 @@ class RobotFramework(Task):
                 xml = ET.parse(fullXml)
                 total = xml.getroot().find("./statistics/total/stat")
                 if total is not None:
-                    success = total.attrib['pass']
-                    fail = total.attrib['fail']
-                    skip = total.attrib['skip']
+                    success = int(total.attrib['pass'])
+                    fail = int(total.attrib['fail'])
+                    skip = int(total.attrib['skip'])
                     self.Verdict = onPass if fail == 0 else onFail
                     self.Log(Level.INFO,
                              f"Verdict set to {self.Verdict.name} (pass: {success}, fail: {fail}, skip: {skip})")
