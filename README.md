@@ -577,6 +577,23 @@ success response (2xx). Set to `None` to disable the check.
 - `Timeout`: Maximum time in seconds to wait for a response
 - `Headers`: Additional headers to add to the request
 
+### Run.RobotFramework
+Execute one or more test suites using an external Robot Framework instance. It is recommended to store and configure
+Robot Framework in a dedicated virtualenv, where all the required dependencies (for example `robotframework-requests`)
+are also installed. Configuration values:
+- `Executable`: Absolute path to the Robot Framework executable. On a pre-configured virtualenv this file is usually
+`<venv>/bin/robot` or `<venv>/Scripts/robot.exe`
+- `Paths`: Either a single path (string) or a list of paths, each with the location of one of the test suites to run.
+- `CWD`: Working directory, usually the root folder where the test suites are stored. If `GatherResults` is set to
+`False` the generated report files will be left in this folder.
+- `GatherResults`: Whether or not to store the generated files along with other files created by the experiment.
+These reports will be compressed in a single zip file identified by the `Identifier` parameter. `True` by default.
+- `Identifier`: Name used to identify a particular Robot Framework execution, in order to avoid overwriting results
+for TestCases that include multiple invocations. If not set, it will be automatically generated from the time as
+`RobotFwHHMMSS`, where HHMMSS corresponds to the hour, minutes and seconds in UTC.
+- `VerdictOnPass`: Verdict to set if all tests are completed successfully. Defaults to `Pass`.
+- `VerdictOnFail`: Verdict to set if any test in the suite fails. Defaults to `Fail`.
+
 ### Run.SingleSliceCreationTime
 Sends the Slice Creation Time reported by the Slice Manager to InfluxDb. This task will not perform any deployment
  by itself, and will only read the values for an slice deployed during the experiment pre-run stage.

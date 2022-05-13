@@ -1,3 +1,7 @@
+**13/05/2022** [Version 3.4.0]
+
+ - Add Robot Framework task
+
 **04/05/2022** [Version 3.3.1]
 
  - Fix SliceId expansion, exception on SingleSliceCreationTime
