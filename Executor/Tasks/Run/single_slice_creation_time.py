@@ -32,7 +32,7 @@ class SingleSliceCreationTime(Task):
                 else: sleep(1)
 
         self.Log(Level.INFO, f"Reading deployment times for slice {sliceId}")
-        times = Management.SliceManager().Time(sliceId)
+        times = Management.SliceManager().SliceCreationTime(sliceId)
         self.Log(Level.DEBUG, f"Received times: {times}")
 
         self.Log(Level.INFO, f"Generating results payload")
@@ -45,7 +45,10 @@ class SingleSliceCreationTime(Task):
         for key in ["Slice_Deployment_Time", "Placement_Time", "Provisioning_Time"]:
             value = times.get(key, "N/A")
             if value != "N/A":
-                point.Fields[key] = float(value)
+                try:
+                    point.Fields[key] = float(value)
+                except ValueError as e:
+                    self.Log(Level.DEBUG, f"Unable to parse {key} ({value}): {e}")
 
         payload.Points.append(point)
         self.Log(Level.DEBUG, f"Payload: {payload}")
