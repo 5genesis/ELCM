@@ -28,7 +28,7 @@ class SingleSliceCreationTime(Task):
                 count += 1
                 status = Management.SliceManager().CheckSlice(sliceId).get('status', '<SliceManager check error>')
                 self.Log(Level.DEBUG, f'Slice {sliceId} status: {status} (retry {count})')
-                if status == 'Running' or (timeout is not None and timeout >= count): break
+                if status == 'Running' or (timeout is not None and count >= timeout): break
                 else: sleep(1)
 
         self.Log(Level.INFO, f"Reading deployment times for slice {sliceId}")
