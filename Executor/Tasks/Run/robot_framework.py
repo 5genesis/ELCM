@@ -1,8 +1,10 @@
 from Task import Task
 from Helper import Cli, Level
 from os.path import abspath, join, exists
+from os import makedirs
 from datetime import datetime, timezone
 import xml.etree.ElementTree as ET
+import yaml
 
 
 class RobotFramework(Task):
@@ -12,6 +14,7 @@ class RobotFramework(Task):
             'Executable': (None, True),
             'Paths': (None, True),
             'CWD': (None, True),
+            'Variables': (None, False),
             'GatherResults': (True, False),
             'Identifier': (None, False),
             'VerdictOnPass': ("Pass", False),
@@ -28,10 +31,21 @@ class RobotFramework(Task):
         identifier = self.params['Identifier']  # Save to different folders, in case we run multiple instances in a row
         identifier = identifier if identifier is not None else f'RobotFw{datetime.now(timezone.utc).strftime("%H%M%S")}'
         tempFolder = join(abspath(self.parent.TempFolder), identifier)
+        makedirs(tempFolder, exist_ok=True)
+
         onPass = self.GetVerdictFromName(self.params["VerdictOnPass"])
         onFail = self.GetVerdictFromName(self.params["VerdictOnFail"])
 
+        variables = self.params['Variables']
+        variablesFile = None
+        if variables is not None:
+            variablesFile = join(tempFolder, 'variables.yml')
+            with open(variablesFile, 'w', encoding='utf-8') as output:
+                yaml.safe_dump(variables, output)
+
         parameters = [self.params['Executable'], '--xunit', 'xunit.xml']
+        if variablesFile is not None:
+            parameters.extend(['--variablefile', variablesFile])
         if gatherResults:
             parameters.extend(['--outputdir', tempFolder])
         parameters.extend(paths)

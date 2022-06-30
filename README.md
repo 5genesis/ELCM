@@ -586,7 +586,11 @@ are also installed. Configuration values:
 - `Paths`: Either a single path (string) or a list of paths, each with the location of one of the test suites to run.
 - `CWD`: Working directory, usually the root folder where the test suites are stored. If `GatherResults` is set to
 `False` the generated report files will be left in this folder.
-- `GatherResults`: Whether or not to store the generated files along with other files created by the experiment.
+- `Variables`: Dictionary that contains the variables to be passed to Robot Framework. If present, the contents will be
+used for generating a YAML file that is passed through the `--variablefile (-V)` parameter.
+> The `PyYAML` module must be installed in the Robot Framework virtualenv in order to make use of this option, otherwise
+> a runtime error will be reported and the file will not be read.
+- `GatherResults`: Whether to store the generated files along with other files created by the experiment or not.
 These reports will be compressed in a single zip file identified by the `Identifier` parameter. `True` by default.
 - `Identifier`: Name used to identify a particular Robot Framework execution, in order to avoid overwriting results
 for TestCases that include multiple invocations. If not set, it will be automatically generated from the time as

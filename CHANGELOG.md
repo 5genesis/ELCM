@@ -1,3 +1,8 @@
+**30/06/2022** [Version 3.5.0 - Release A]
+
+ - Add Variables parameter to Robot Framework task
+ - Update NEF emulator integration to v1.5.0
+
 **13/05/2022** [Version 3.4.0]
 
  - Add Robot Framework task
