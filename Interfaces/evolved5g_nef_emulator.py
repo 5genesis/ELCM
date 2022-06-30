@@ -52,7 +52,7 @@ class Evolved5gNefEmulator(RestClient):
     def ToggleLoop(self, supi: str, action: Loop) -> str:
         """Returns the received string on success, otherwise raises an exception"""
         headers = self.getExtraHeaders()
-        url = f"/api/v1/utils/{('start' if action == Loop.Start else 'stop')}-loop/"
+        url = f"/api/v1/ue_movement/{('start' if action == Loop.Start else 'stop')}-loop/"
         payload = {'supi': supi}
 
         try:
