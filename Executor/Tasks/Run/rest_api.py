@@ -75,4 +75,5 @@ class RestApi(Task):
             if status not in statusCodes:
                 message = f"Unexpected status code received: {status}"
                 self.Log(Level.ERROR, message)
+                self.SetVerdictOnError()
                 raise RuntimeError(message)

@@ -11,3 +11,6 @@ from .csvToInflux import CsvToInflux
 from .add_milestone import AddMilestone
 from .publish_from_source import PublishFromPreviousTaskLog, PublishFromFile
 from .rest_api import RestApi
+from .upgrade_verdict import UpgradeVerdict
+from .evaluate import Evaluate
+from .robot_framework import RobotFramework

@@ -193,7 +193,7 @@ class InfluxDb:
             cls.initialize()
 
         # Retrieve the list of tags from the server, to separate from fields
-        reply = cls.client.query(f"show tag keys on {cls.database} from {measurement}")
+        reply = cls.client.query(f'show tag keys on "{cls.database}" from "{measurement}"')
         tags = sorted([t['tagKey'] for t in reply.get_points()])
 
         pointsPerTagSet = {}

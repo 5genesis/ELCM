@@ -16,6 +16,7 @@ class Delay(Task):
                 raise ValueError
         except ValueError:
             self.Log(Level.ERROR, f"{value} is not a valid number of seconds")
+            self.SetVerdictOnError()
             return
 
         self.Log(Level.INFO, f'Waiting for {time} seconds')

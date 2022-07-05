@@ -1,3 +1,35 @@
+**30/06/2022** [Version 3.5.0 - Release A]
+
+ - Add Variables parameter to Robot Framework task
+ - Update NEF emulator integration to v1.5.0
+
+**13/05/2022** [Version 3.4.0]
+
+ - Add Robot Framework task
+
+**04/05/2022** [Version 3.3.1]
+
+ - Fix SliceId expansion, exception on SingleSliceCreationTime
+
+**01/04/2022** [Version 3.3.0]
+
+ - TestCase definition Version 2
+
+**16/02/2022** [Version 3.2.2]
+
+ - Enhanced PublishFromFile and PublishFromPreviousTaskLog:
+   - Make 'Keys' parameter optional
+   - Allow setting a Verdict
+
+**14/02/2022** [Version 3.2.1]
+
+ - Fix redirection of command line output (Cli/TapExecute)
+
+**03/02/2022** [Version 3.2.0]
+
+ - Implement Verdict handling
+ - Add Evaluate, UpgradeVerdict tasks
+
 **11/11/2021** [Version 3.1.0]
 
  - Add NEF Emulator handling

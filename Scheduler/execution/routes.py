@@ -40,10 +40,12 @@ def view(executionId: int):
 def json(executionId: int):
     execution = executionOrTombstone(executionId)
     coarse = status = 'ERR'
+    verdict = 'NotSet'
     percent = 0
     messages = []
     if execution is not None:
         coarse = execution.CoarseStatus.name
+        verdict = execution.Verdict.name
         if isinstance(execution, Tombstone):
             status = "Not Running"
         else:
@@ -52,7 +54,8 @@ def json(executionId: int):
             messages = execution.Messages
     return jsonify({
         'Coarse': coarse, 'Status': status,
-        'PerCent': percent, 'Messages': messages
+        'PerCent': percent, 'Messages': messages,
+        'Verdict': verdict
     })
 
 

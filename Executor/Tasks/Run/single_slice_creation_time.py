@@ -26,13 +26,13 @@ class SingleSliceCreationTime(Task):
             self.Log(Level.INFO, f"Waiting for slice to be running. Timeout: {timeout}")
             while True:
                 count += 1
-                status = Management.SliceManager().Check(sliceId).get('status', '<SliceManager check error>')
+                status = Management.SliceManager().CheckSlice(sliceId).get('status', '<SliceManager check error>')
                 self.Log(Level.DEBUG, f'Slice {sliceId} status: {status} (retry {count})')
-                if status == 'Running' or (timeout is not None and timeout >= count): break
+                if status == 'Running' or (timeout is not None and count >= timeout): break
                 else: sleep(1)
 
         self.Log(Level.INFO, f"Reading deployment times for slice {sliceId}")
-        times = Management.SliceManager().Time(sliceId)
+        times = Management.SliceManager().SliceCreationTime(sliceId)
         self.Log(Level.DEBUG, f"Received times: {times}")
 
         self.Log(Level.INFO, f"Generating results payload")
@@ -45,7 +45,10 @@ class SingleSliceCreationTime(Task):
         for key in ["Slice_Deployment_Time", "Placement_Time", "Provisioning_Time"]:
             value = times.get(key, "N/A")
             if value != "N/A":
-                point.Fields[key] = float(value)
+                try:
+                    point.Fields[key] = float(value)
+                except ValueError as e:
+                    self.Log(Level.DEBUG, f"Unable to parse {key} ({value}): {e}")
 
         payload.Points.append(point)
         self.Log(Level.DEBUG, f"Payload: {payload}")

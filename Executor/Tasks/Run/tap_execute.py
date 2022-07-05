@@ -20,12 +20,13 @@ class TapExecute(Task):
 
         if not config.Enabled:
             self.Log(Level.CRITICAL, "Trying to run TapExecute Task while TAP is not enabled")
+            self.SetVerdictOnError()
         else:
             tapPlan = self.params['TestPlan']
             externals = self.params['Externals']
             gatherResults = self.params['GatherResults']
 
-            tap = Tap(tapPlan, externals, self.logMethod)
+            tap = Tap(tapPlan, externals, self.Log)
             tap.Execute()
 
             if gatherResults:
@@ -42,6 +43,7 @@ class TapExecute(Task):
                             self.parent.GeneratedFiles.append(output)
                             self.Log(Level.INFO, f"Saved {len(files)} files to {output}")
                     except Exception as e:
+                        self.SetVerdictOnError()
                         self.Log(Level.ERROR, f"Exception while compressing results: {e}")
                 else:
                     self.Log(Level.WARNING, f"Results path ({path}) does not exist.")

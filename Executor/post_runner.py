@@ -15,7 +15,7 @@ class PostRunner(ExecutorBase):
         self.AddMessage('End coordination completed', 20)
 
         Decommission(self.Log, self, self.DeployedSliceId, self.Configuration.NetworkServices).Start()
-        self.AddMessage('Network services decommisioned', 50)
+        self.AddMessage('Network services decommissioned', 50)
 
         ReleaseResources(self.Log, self.ExecutionId, self.Configuration.Requirements, self).Start()
         self.AddMessage('Released resources', 90)

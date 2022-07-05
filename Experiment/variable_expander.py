@@ -35,7 +35,8 @@ class Expander:
             # Dynamic values
             "@{TempFolder}": context.TempFolder,
             "@{ExecutionId}": context.ExecutionId,
-            "@{SliceId}": context.Params.get("SliceId", "None"),
+            "@{SliceId}": context.Params.get("DeployedSliceId", "None"),
+            "@{DeployedSliceId}": context.Params.get("DeployedSliceId", "None"),
             "@{Application}": context.Descriptor.Application,
             "@{JSONParameters}": dumps(context.Descriptor.Parameters, indent=None),
             "@{ReservationTime}": duration,
